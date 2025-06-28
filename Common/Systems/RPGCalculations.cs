@@ -1,285 +1,166 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using Microsoft.Xna.Framework;
 using Terraria;
-using Wolfgodrpg.Common.Classes;
 using Wolfgodrpg.Common.Players;
+using Wolfgodrpg.Common.Classes;
+using Wolfgodrpg.Common.GlobalItems;
 
 namespace Wolfgodrpg.Common.Systems
 {
     public static class RPGCalculations
     {
-        // Constantes de XP
-        private const float BASE_XP_NEEDED = 100f;
-        private const float XP_MULTIPLIER = 1.1f;      // Cada nível requer 10% mais XP
-        private const float ACTION_XP_BASE = 10f;      // XP base por ação
-        private const float BOSS_XP_MULTIPLIER = 5f;   // Multiplicador de XP para bosses
-        private const float ELITE_XP_MULTIPLIER = 2f;  // Multiplicador de XP para elites
-
-        // Constantes de Status
-        private const float BASE_HEALTH = 20f;
-        private const float BASE_MANA = 10f;
-        private const float BASE_DEFENSE = 0f;
-        private const float BASE_DAMAGE = 0.5f;
-        private const float BASE_SPEED = 0.8f;
-
-        // XP ganho por ação
-        public static Dictionary<string, float> GetActionXP(string action, RPGPlayer player, bool isBoss = false, bool isElite = false)
+        // Este é o método central para calcular todos os status do jogador.
+        public static Dictionary<string, float> CalculateTotalStats(RPGPlayer modPlayer)
         {
-            var xpGains = new Dictionary<string, float>();
-            float baseXP = ACTION_XP_BASE;
-            
-            // Multiplicadores especiais
-            if (isBoss) baseXP *= BOSS_XP_MULTIPLIER;
-            if (isElite) baseXP *= ELITE_XP_MULTIPLIER;
+            var totalStats = new Dictionary<string, float>();
+            var player = modPlayer.Player;
 
-            // Aplicar bônus de XP do jogador
-            baseXP *= (1f + player.GetExpBonus());
+            // 1. Comece com os status base (se houver algum definido aqui)
+            // Por enquanto, vamos aplicar os bônus diretamente no jogador.
 
-            // Distribuir XP baseado na ação
-            switch (action.ToLower())
-            {
-                case "walk":
-                    xpGains["movement"] = baseXP * 0.5f;
-                    break;
-                case "jump":
-                    xpGains["jumping"] = baseXP * 0.5f;
-                    break;
-                case "dash":
-                    xpGains["movement"] = baseXP * 0.8f;
-                    break;
-                case "melee_hit":
-                    xpGains["melee"] = baseXP * 1.0f;
-                    break;
-                case "ranged_hit":
-                    xpGains["ranged"] = baseXP * 1.0f;
-                    break;
-                case "magic_hit":
-                    xpGains["magic"] = baseXP * 1.0f;
-                    break;
-                case "summon_hit":
-                    xpGains["summon"] = baseXP * 1.0f;
-                    break;
-                case "mine":
-                    xpGains["mining"] = baseXP * 1.0f;
-                    break;
-                case "build":
-                    xpGains["building"] = baseXP * 1.0f;
-                    break;
-                case "fish":
-                    xpGains["fishing"] = baseXP * 1.0f;
-                    break;
-                case "gather":
-                    xpGains["gathering"] = baseXP * 1.0f;
-                    break;
-                case "kill":
-                    xpGains["bestiary"] = baseXP * 0.5f;
-                    break;
-                case "shop":
-                    xpGains["merchant"] = baseXP * 1.0f;
-                    break;
-                case "take_damage":
-                    xpGains["defense"] = baseXP * 0.5f;
-                    break;
-            }
-
-            return xpGains;
-        }
-
-        // Gerar status aleatórios para item baseado na raridade
-        public static Dictionary<string, float> GenerateRandomStats(RPGClassDefinitions.ItemRarity rarity)
-        {
-            var stats = new Dictionary<string, float>();
-            var random = new Random();
-
-            // Número de status baseado na raridade
-            int numStats = RPGClassDefinitions.StatsPerRarity[rarity];
-            float multiplier = RPGClassDefinitions.StatMultiplierPerRarity[rarity];
-
-            // Lista de status possíveis
-            var possibleStats = RPGClassDefinitions.RandomStats.Keys.ToList();
-
-            // Selecionar status aleatórios
-            for (int i = 0; i < numStats; i++)
-            {
-                if (possibleStats.Count == 0) break;
-
-                // Escolher um status aleatório
-                int index = random.Next(possibleStats.Count);
-                string statKey = possibleStats[index];
-                var statInfo = RPGClassDefinitions.RandomStats[statKey];
-
-                // Gerar valor aleatório
-                float value = statInfo.MinValue + (float)(random.NextDouble() * (statInfo.MaxValue - statInfo.MinValue));
-                value *= multiplier;
-
-                stats[statKey] = value;
-                possibleStats.RemoveAt(index);
-            }
-
-            return stats;
-        }
-
-        // Calcular status total do jogador
-        public static Dictionary<string, float> CalculateTotalStats(RPGPlayer player)
-        {
-            var stats = new Dictionary<string, float>
-            {
-                {"health", BASE_HEALTH},
-                {"mana", BASE_MANA},
-                {"defense", BASE_DEFENSE},
-                {"damage", BASE_DAMAGE},
-                {"speed", BASE_SPEED}
-            };
-
-            // Adicionar bônus das classes
+            // 2. Adicione os bônus de todas as classes ativas
             foreach (var classEntry in RPGClassDefinitions.ActionClasses)
             {
                 string className = classEntry.Key;
-                var classInfo = classEntry.Value;
-                float classLevel = player.GetClassLevel(className);
+                float level = modPlayer.GetClassLevel(className);
 
-                foreach (var bonus in classInfo.StatBonuses)
+                if (level > 1)
                 {
-                    if (!stats.ContainsKey(bonus.Key))
-                        stats[bonus.Key] = 0f;
-                    
-                    stats[bonus.Key] += bonus.Value * classLevel;
-                }
-            }
-
-            // Adicionar bônus dos itens equipados
-            foreach (var itemStats in player.GetEquippedItemStats())
-            {
-                foreach (var stat in itemStats)
-                {
-                    if (!stats.ContainsKey(stat.Key))
-                        stats[stat.Key] = 0f;
-                    
-                    stats[stat.Key] += stat.Value;
-                }
-            }
-
-            // Aplicar modificadores de status secundários
-            ApplySecondaryStats(stats);
-
-            return stats;
-        }
-
-        // Aplicar efeitos de status secundários
-        private static void ApplySecondaryStats(Dictionary<string, float> stats)
-        {
-            // Movimento
-            if (stats.ContainsKey("moveSpeed"))
-                stats["speed"] *= (1f + stats["moveSpeed"]);
-
-            // Pulo
-            if (stats.ContainsKey("jumpHeight"))
-                stats["jumpBoost"] = stats["jumpHeight"];
-
-            // Dano
-            if (stats.ContainsKey("meleeDamage"))
-                stats["damage"] *= (1f + stats["meleeDamage"]);
-            if (stats.ContainsKey("rangedDamage"))
-                stats["damage"] *= (1f + stats["rangedDamage"]);
-            if (stats.ContainsKey("magicDamage"))
-                stats["damage"] *= (1f + stats["magicDamage"]);
-            if (stats.ContainsKey("minionDamage"))
-                stats["damage"] *= (1f + stats["minionDamage"]);
-
-            // Defesa
-            if (stats.ContainsKey("damageReduction"))
-                stats["defense"] *= (1f + stats["damageReduction"]);
-
-            // Vida e Mana
-            if (stats.ContainsKey("maxLife"))
-                stats["health"] *= (1f + stats["maxLife"]);
-            if (stats.ContainsKey("maxMana"))
-                stats["mana"] *= (1f + stats["maxMana"]);
-        }
-
-        // Verificar desbloqueio de habilidades
-        public static List<string> CheckUnlockedAbilities(RPGPlayer player)
-        {
-            var unlockedAbilities = new List<string>();
-
-            foreach (var classEntry in RPGClassDefinitions.ActionClasses)
-            {
-                string className = classEntry.Key;
-                var classInfo = classEntry.Value;
-                float classLevel = player.GetClassLevel(className);
-
-                foreach (var milestone in classInfo.Milestones)
-                {
-                    if (classLevel >= milestone.Key && !player.HasUnlockedAbility($"{className}_{milestone.Key}"))
+                    foreach (var statBonus in classEntry.Value.StatBonuses)
                     {
-                        unlockedAbilities.Add($"{className}_{milestone.Key}");
+                        if (!totalStats.ContainsKey(statBonus.Key))
+                        {
+                            totalStats[statBonus.Key] = 0;
+                        }
+                        // O bônus é o valor base multiplicado pelo nível da classe
+                        totalStats[statBonus.Key] += statBonus.Value * level;
                     }
                 }
             }
 
-            return unlockedAbilities;
-        }
-
-        // Calcular dano final
-        public static float CalculateFinalDamage(float baseDamage, Dictionary<string, float> stats, string damageType)
-        {
-            float damage = baseDamage;
-            float critChance = stats.ContainsKey("critChance") ? stats["critChance"] : 0f;
-            float critMultiplier = 2f;
-
-            switch (damageType.ToLower())
+            // 3. Adicione os status de todos os itens equipados (armaduras e acessórios)
+            for (int i = 0; i < player.armor.Length; i++)
             {
-                case "melee":
-                    damage *= (1f + (stats.ContainsKey("meleeDamage") ? stats["meleeDamage"] : 0f));
-                    break;
-                case "ranged":
-                    damage *= (1f + (stats.ContainsKey("rangedDamage") ? stats["rangedDamage"] : 0f));
-                    break;
-                case "magic":
-                    damage *= (1f + (stats.ContainsKey("magicDamage") ? stats["magicDamage"] : 0f));
-                    break;
-                case "summon":
-                    damage *= (1f + (stats.ContainsKey("minionDamage") ? stats["minionDamage"] : 0f));
-                    break;
+                Item item = player.armor[i];
+                if (item != null && !item.IsAir && item.TryGetGlobalItem(out RPGGlobalItem globalItem))
+                {
+                    if (globalItem.randomStats != null)
+                    {
+                        foreach (var stat in globalItem.randomStats)
+                        {
+                            if (!totalStats.ContainsKey(stat.Key))
+                            {
+                                totalStats[stat.Key] = 0;
+                            }
+                            totalStats[stat.Key] += stat.Value;
+                        }
+                    }
+                }
+            }
+            
+            // Adiciona o item segurado
+            Item heldItem = player.HeldItem;
+            if (heldItem != null && !heldItem.IsAir && heldItem.TryGetGlobalItem(out RPGGlobalItem heldGlobalItem))
+            {
+                if (heldGlobalItem.randomStats != null)
+                {
+                    foreach (var stat in heldGlobalItem.randomStats)
+                    {
+                        if (!totalStats.ContainsKey(stat.Key))
+                        {
+                            totalStats[stat.Key] = 0;
+                        }
+                        totalStats[stat.Key] += stat.Value;
+                    }
+                }
             }
 
-            // Aplicar crítico
-            if (Main.rand.NextFloat() < critChance)
+            return totalStats;
+        }
+
+        // Aplica os status calculados ao jogador do Terraria
+        public static void ApplyStatsToPlayer(Player player, Dictionary<string, float> stats)
+        {
+            // Resetar modificadores antes de aplicar os novos para evitar acúmulo
+            player.GetDamage(DamageClass.Generic) = 1f;
+            player.GetCritChance(DamageClass.Generic) = 0;
+            player.moveSpeed = 1f;
+            player.lifeRegen = 0;
+            player.manaRegen = 0;
+
+            // Aplicar cada stat
+            foreach (var stat in stats)
             {
-                damage *= critMultiplier;
+                switch (stat.Key)
+                {
+                    // Ofensivo
+                    case "meleeDamage":
+                        player.GetDamage(DamageClass.Melee) += stat.Value;
+                        break;
+                    case "rangedDamage":
+                        player.GetDamage(DamageClass.Ranged) += stat.Value;
+                        break;
+                    case "magicDamage":
+                        player.GetDamage(DamageClass.Magic) += stat.Value;
+                        break;
+                    case "minionDamage":
+                        player.GetDamage(DamageClass.Summon) += stat.Value;
+                        break;
+                    case "critChance":
+                    case "meleeCrit":
+                    case "rangedCrit":
+                    case "magicCrit":
+                        player.GetCritChance(DamageClass.Generic) += (int)stat.Value;
+                        break;
+                    case "meleeSpeed":
+                        player.GetAttackSpeed(DamageClass.Melee) += stat.Value;
+                        break;
+
+                    // Defensivo
+                    case "defense":
+                        player.statDefense += (int)stat.Value;
+                        break;
+                    case "maxLife":
+                        player.statLifeMax2 += (int)stat.Value;
+                        break;
+                    case "lifeRegen":
+                        player.lifeRegen += (int)stat.Value;
+                        break;
+                    case "damageReduction":
+                        player.endurance += stat.Value;
+                        break;
+
+                    // Utilidade
+                    case "moveSpeed":
+                        player.moveSpeed += stat.Value;
+                        break;
+                    case "jumpHeight":
+                         player.jumpSpeedBoost += stat.Value;
+                        break;
+                    case "maxMana":
+                        player.statManaMax2 += (int)stat.Value;
+                        break;
+                    case "manaRegen":
+                        player.manaRegen += (int)stat.Value;
+                        break;
+                    case "manaCost":
+                        player.manaCost -= stat.Value;
+                        break;
+                    case "minionSlots":
+                        player.maxMinions += (int)stat.Value;
+                        break;
+                    case "miningSpeed":
+                        player.pickSpeed -= stat.Value; // Menor é mais rápido
+                        break;
+                    
+                    // Outros
+                    case "luck":
+                        player.luck += stat.Value;
+                        break;
+                    case "expGain":
+                        // Este é um bônus, precisa ser pego pelo RPGPlayer
+                        break;
+                }
             }
-
-            return damage;
-        }
-
-        // Calcular defesa final
-        public static float CalculateFinalDefense(float baseDefense, Dictionary<string, float> stats)
-        {
-            float defense = baseDefense;
-            
-            if (stats.ContainsKey("defense"))
-                defense += stats["defense"];
-
-            if (stats.ContainsKey("damageReduction"))
-                defense *= (1f + stats["damageReduction"]);
-
-            return defense;
-        }
-
-        // Calcular chance de drop baseado na sorte
-        public static float CalculateDropChance(float baseChance, Dictionary<string, float> stats)
-        {
-            float chance = baseChance;
-            
-            if (stats.ContainsKey("luck"))
-                chance *= (1f + stats["luck"]);
-
-            if (stats.ContainsKey("rareDrop"))
-                chance *= (1f + stats["rareDrop"]);
-
-            return chance;
         }
     }
-} 
+}
