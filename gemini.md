@@ -28,7 +28,7 @@ public class Wolfgodrpg : Mod
 - `Load()`: Inicializa o mod e sistemas RPG
 - `Unload()`: Limpa referências estáticas
 - `PostSetupContent()`: Adiciona callbacks para XP de criação
-- `InitializeRPGSystems()`: Inicializa todos os sistemas RPG
+- `LogRPGSystems()`: Registra a inicialização dos sistemas RPG
 
 ### 2. Sistema de Jogador: `RPGPlayer.cs`
 ```csharp
@@ -143,16 +143,25 @@ public class RPGConfig : ModConfig
 }
 ```
 
-### 7. Sistema de Interface: `RPGStatsUI.cs`
-```csharp
-public class RPGStatsUI : UIState
-{
-    private UIPanel mainPanel;
-    private UIProgressBar hungerBar;
-    private UIProgressBar sanityBar;
-    private UIProgressBar staminaBar;
-}
-```
+### 7. Sistema de Interface
+
+O sistema de interface foi modularizado e refatorado para uma melhor experiência do usuário e consistência visual.
+
+#### Componentes Base de UI:
+- `RPGPanel.cs`: Um `UIElement` base para painéis com suporte a 9-slice scaling, utilizando `uibg.png` para o fundo.
+- `RPGButton.cs`: Um `UIElement` para botões customizados, utilizando `ButtonNext.png` e `ButtonPrevious.png` para texturas.
+- `RPGTabButton.cs`: Um `UIElement` especializado para botões de aba, com estados visualmente distintos para selecionado/não selecionado.
+
+#### UIs Principais:
+- `SimpleRPGMenu.cs`: O menu principal do mod, agora refatorado para usar um sistema de abas para navegação entre as páginas.
+  - **Páginas Modulares:** O conteúdo de cada aba é gerenciado por `UIElement`s dedicados:
+    - `RPGStatsPageUI.cs`: Exibe os atributos do personagem.
+    - `RPGClassesPageUI.cs`: Exibe informações sobre classes e habilidades.
+    - `RPGItemsPageUI.cs`: Exibe itens com atributos aleatórios.
+    - `RPGProgressPageUI.cs`: Exibe o progresso do jogo (chefes derrotados, etc.).
+- `RPGStatsUI.cs`: Mostra barras de Fome, Sanidade e Stamina, agora utilizando `RPGPanel` para consistência visual.
+- `QuickStatsUI.cs`: Interface rápida para stats essenciais, agora utilizando `RPGPanel` para consistência visual.
+
 
 ### 8. Sistema de Teclas: `RPGKeybinds.cs`
 ```csharp
@@ -168,13 +177,12 @@ public class RPGKeybinds : ModSystem
 
 ### Teclas de Atalho:
 - **M**: Abrir/Fechar Menu RPG completo
-- **PageDown/PageUp**: Navegar entre páginas do menu
 - **ESC**: Fechar menu RPG
 - **R**: Stats rápidos no chat
 
 ### Interface de Usuário:
 - **RPGStatsUI**: Mostra barras de Fome, Sanidade e Stamina
-- **SimpleRPGMenu**: Menu completo com todas as informações
+- **SimpleRPGMenu**: Menu completo com todas as informações, agora com navegação por abas.
 - **QuickStatsUI**: Interface rápida para stats essenciais
 
 ## Sistema de Progressão
@@ -271,7 +279,14 @@ Wolfgodrpg/
 │   └── UI/
 │       ├── QuickStatsUI.cs           # UI de stats rápidos
 │       ├── RPGStatsUI.cs             # UI de stats RPG
-│       └── SimpleRPGMenu.cs          # Menu principal
+│       ├── SimpleRPGMenu.cs          # Menu principal
+│       ├── RPGPanel.cs               # Painel base para UI
+│       ├── RPGButton.cs              # Botão base para UI
+│       ├── RPGTabButton.cs           # Botão de aba para UI
+│       ├── RPGStatsPageUI.cs         # Página de Stats do menu RPG
+│       ├── RPGClassesPageUI.cs       # Página de Classes do menu RPG
+│       ├── RPGItemsPageUI.cs         # Página de Itens do menu RPG
+│       └── RPGProgressPageUI.cs      # Página de Progresso do menu RPG
 ├── Assets/UI/                       # Recursos de interface
 └── Localization/                    # Arquivos de localização
 ```

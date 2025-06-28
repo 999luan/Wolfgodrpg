@@ -1,11 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Terraria.ModLoader;
 using Terraria;
-using Microsoft.Xna.Framework;
 using Wolfgodrpg.Common.Systems;
 
 namespace Wolfgodrpg
@@ -26,7 +22,7 @@ namespace Wolfgodrpg
 			Logger.Info($"Wolf God RPG Core v{RPG_VERSION} carregado com sucesso!");
 			
 			// Inicialização dos sistemas RPG
-			InitializeRPGSystems();
+			LogRPGSystems();
 		}
 		
 		public override void Unload()
@@ -46,16 +42,16 @@ namespace Wolfgodrpg
 			}
 		}
 		
-		private void InitializeRPGSystems()
+		private void LogRPGSystems()
 		{
-			// Aqui inicializaremos os sistemas de RPG conforme formos criando
-			Logger.Info("Sistemas RPG inicializados:");
-			Logger.Info("- Sistema de Stats de Jogador (RPGPlayer)");
-			Logger.Info("- Sistema de Balanceamento de NPCs (BalancedNPC)");
-			Logger.Info("- Sistema de Progressão de Itens (ProgressiveItem)");
-			Logger.Info("- Sistema de Interface de Stats (RPGStatsUI)");
-			Logger.Info("- Sistema de Teclas de Atalho (RPGKeybinds)");
-			Logger.Info("- Tecla 'R' para mostrar stats RPG");
+			Logger.Info("Sistemas RPG carregados:");
+			Logger.Info("- ModPlayer: RPGPlayer");
+			Logger.Info("- GlobalNPC: BalancedNPC");
+			Logger.Info("- GlobalItem: ProgressiveItem, RPGGlobalItem");
+			Logger.Info("- GlobalRecipe: RPGGlobalRecipe");
+			Logger.Info("- GlobalTile: RPGGlobalTile");
+			Logger.Info("- UIState: QuickStatsUI, RPGStatsUI, SimpleRPGMenu");
+			Logger.Info("- Systems: PlayerVitalsSystem, RPGActionSystem, RPGCalculations, RPGConfig, RPGFishingProjectile, RPGHooks, RPGKeybinds, RPGMenuController, RPGMenuControls");
 		}
 	}
 }

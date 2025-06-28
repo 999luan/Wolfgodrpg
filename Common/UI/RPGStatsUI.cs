@@ -20,12 +20,11 @@ namespace Wolfgodrpg.Common.UI
 
         public override void OnInitialize()
         {
-            mainPanel = new UIPanel();
+            mainPanel = new RPGPanel();
             mainPanel.Width.Set(220f, 0f);
             mainPanel.Height.Set(120f, 0f);
             mainPanel.HAlign = 0.01f; // Alinhar à esquerda
             mainPanel.VAlign = 0.9f;  // Alinhar na parte inferior
-            mainPanel.BackgroundColor = new Color(44, 57, 101) * 0.8f;
             Append(mainPanel);
 
             // Inicializar as barras de status
@@ -69,22 +68,18 @@ namespace Wolfgodrpg.Common.UI
     }
 
     // Classe auxiliar para a barra de progresso
-    public class UIProgressBar : UIPanel
+    public class UIProgressBar : UIElement
     {
-        private UIPanel progressBar;
+        private UIElement progressBar;
         private UIText text;
         private Color color;
 
         public UIProgressBar(Color barColor, string label)
         {
-            BackgroundColor = new Color(20, 20, 20) * 0.7f;
-            BorderColor = Color.Black;
             color = barColor;
 
-            progressBar = new UIPanel();
+            progressBar = new UIElement();
             progressBar.Height.Set(0, 1f);
-            progressBar.BackgroundColor = color;
-            progressBar.BorderColor = Color.Transparent;
             Append(progressBar);
 
             text = new UIText(label, 0.8f);

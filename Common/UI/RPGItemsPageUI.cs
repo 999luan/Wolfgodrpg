@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.GameContent.UI.Elements;
 using Terraria.UI;
@@ -80,12 +81,12 @@ namespace Wolfgodrpg.Common.UI
             }
         }
 
-        public void Activate()
+        public new void Activate()
         {
             _visible = true;
         }
 
-        public void Deactivate()
+        public new void Deactivate()
         {
             _visible = false;
         }
@@ -130,23 +131,6 @@ namespace Wolfgodrpg.Common.UI
                     statY += 15f;
                 }
             }
-        }
-    }
-}
-        public void Activate()
-        {
-            _visible = true;
-        }
-
-        public void Deactivate()
-        {
-            _visible = false;
-        }
-
-        protected override void DrawSelf(SpriteBatch spriteBatch)
-        {
-            if (!_visible) return;
-            base.DrawSelf(spriteBatch);
         }
     }
 }

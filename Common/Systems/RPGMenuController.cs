@@ -61,14 +61,6 @@ namespace Wolfgodrpg.Common.Systems
             }
         }
 
-        public static void NextPage()
-        {
-            _menuUI?.ChangePage(true);
-        }
-
-        public static void PreviousPage()
-        {
-            _menuUI?.ChangePage(false);
-        }
+        
     }
 }

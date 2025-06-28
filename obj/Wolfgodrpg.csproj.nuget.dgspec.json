@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\tatal\\Documents\\My Games\\Terraria\\tModLoader\\ModSources\\Wolfgodrpg\\Wolfgodrpg.csproj": {}
+    "C:\\Users\\tatal\\Documents\\My games\\Terraria\\tModLoader\\ModSources\\Wolfgodrpg\\Wolfgodrpg.csproj": {}
   },
   "projects": {
-    "C:\\Users\\tatal\\Documents\\My Games\\Terraria\\tModLoader\\ModSources\\Wolfgodrpg\\Wolfgodrpg.csproj": {
+    "C:\\Users\\tatal\\Documents\\My games\\Terraria\\tModLoader\\ModSources\\Wolfgodrpg\\Wolfgodrpg.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\tatal\\Documents\\My Games\\Terraria\\tModLoader\\ModSources\\Wolfgodrpg\\Wolfgodrpg.csproj",
+        "projectUniqueName": "C:\\Users\\tatal\\Documents\\My games\\Terraria\\tModLoader\\ModSources\\Wolfgodrpg\\Wolfgodrpg.csproj",
         "projectName": "Wolfgodrpg",
-        "projectPath": "C:\\Users\\tatal\\Documents\\My Games\\Terraria\\tModLoader\\ModSources\\Wolfgodrpg\\Wolfgodrpg.csproj",
+        "projectPath": "C:\\Users\\tatal\\Documents\\My games\\Terraria\\tModLoader\\ModSources\\Wolfgodrpg\\Wolfgodrpg.csproj",
         "packagesPath": "C:\\Users\\tatal\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\tatal\\Documents\\My Games\\Terraria\\tModLoader\\ModSources\\Wolfgodrpg\\obj\\",
+        "outputPath": "C:\\Users\\tatal\\Documents\\My games\\Terraria\\tModLoader\\ModSources\\Wolfgodrpg\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

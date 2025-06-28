@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.GameContent.UI.Elements;
 using Terraria.UI;
@@ -67,12 +68,12 @@ namespace Wolfgodrpg.Common.UI
             currentY += 25f; // Increment Y for the next entry
         }
 
-        public void Activate()
+        public new void Activate()
         {
             _visible = true;
         }
 
-        public void Deactivate()
+        public new void Deactivate()
         {
             _visible = false;
         }
@@ -86,29 +87,17 @@ namespace Wolfgodrpg.Common.UI
         // Inner class for individual stat entries
         private class StatEntry : UIElement
         {
-            private UIImage _icon;
             private UIText _statNameText;
             private UIText _statValueText;
 
-            public StatEntry(string name, string value, string iconPath = null)
+            public StatEntry(string name, string value)
             {
                 Width.Set(0, 1f);
                 Height.Set(20f, 0f);
 
-                if (!string.IsNullOrEmpty(iconPath))
-                {
-                    _icon = new UIImage(ModContent.Request<Texture2D>(iconPath).Value);
-                    _icon.Width.Set(18f, 0f);
-                    _icon.Height.Set(18f, 0f);
-                    _icon.Left.Set(0f, 0f);
-                    _icon.VAlign = 0.5f;
-                    Append(_icon);
-                }
-
                 _statNameText = new UIText(name, 0.9f);
                 _statNameText.HAlign = 0f; // Align left
                 _statNameText.VAlign = 0.5f;
-                _statNameText.Left.Set(iconPath != null ? 25f : 0f, 0f); // Offset if icon exists
                 Append(_statNameText);
 
                 _statValueText = new UIText(value, 0.9f);

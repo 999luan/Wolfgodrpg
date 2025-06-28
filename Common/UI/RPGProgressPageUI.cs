@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.GameContent.UI.Elements;
 using Terraria.UI;
@@ -58,12 +59,12 @@ namespace Wolfgodrpg.Common.UI
             currentY += 25f; // Increment Y for the next entry
         }
 
-        public void Activate()
+        public new void Activate()
         {
             _visible = true;
         }
 
-        public void Deactivate()
+        public new void Deactivate()
         {
             _visible = false;
         }

@@ -1,6 +1,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
+using Terraria.GameContent.UI.Elements;
 using Terraria.ModLoader;
 using Terraria.UI;
 
@@ -46,7 +47,7 @@ namespace Wolfgodrpg.Common.UI
 
             // Attach click event
             OnMouseOver += (evt, listeningElement) => {
-                Main.PlaySound(Terraria.ID.SoundID.MenuTick);
+                Terraria.Audio.SoundEngine.PlaySound(Terraria.ID.SoundID.MenuTick);
             };
             OnLeftClick += (evt, listeningElement) => {
                 OnClick?.Invoke(evt, listeningElement);

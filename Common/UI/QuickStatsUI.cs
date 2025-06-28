@@ -12,16 +12,24 @@ namespace Wolfgodrpg.Common.UI
 {
     public class QuickStatsUI : UIState
     {
+        private RPGPanel _mainPanel;
         private UIText _statsText;
         private bool _visible = false;
 
         public override void OnInitialize()
         {
+            _mainPanel = new RPGPanel();
+            _mainPanel.Width.Set(200f, 0f);
+            _mainPanel.Height.Set(150f, 0f);
+            _mainPanel.HAlign = 0.99f; // Align to right
+            _mainPanel.VAlign = 0.01f; // Align to top
+            Append(_mainPanel);
+
             _statsText = new UIText("", 1f);
             _statsText.HAlign = 0.5f;
             _statsText.VAlign = 0.5f;
             _statsText.TextColor = Color.White;
-            Append(_statsText);
+            _mainPanel.Append(_statsText);
         }
 
         public override void Update(GameTime gameTime)

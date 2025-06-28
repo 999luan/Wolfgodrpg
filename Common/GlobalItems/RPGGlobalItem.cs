@@ -63,10 +63,10 @@ namespace Wolfgodrpg.Common.GlobalItems
 
         private RPGClassDefinitions.ItemRarity GetItemRarity(Item item)
         {
-            if (item.rare >= 9) return RPGClassDefinitions.ItemRarity.Legendary;
-            if (item.rare >= 7) return RPGClassDefinitions.ItemRarity.Epic;
-            if (item.rare >= 5) return RPGClassDefinitions.ItemRarity.Rare;
-            if (item.rare >= 3) return RPGClassDefinitions.ItemRarity.Uncommon;
+            if (item.rare >= Terraria.ID.ItemRarityID.Cyan) return RPGClassDefinitions.ItemRarity.Legendary;
+            if (item.rare >= Terraria.ID.ItemRarityID.Lime) return RPGClassDefinitions.ItemRarity.Epic;
+            if (item.rare >= Terraria.ID.ItemRarityID.Pink) return RPGClassDefinitions.ItemRarity.Rare;
+            if (item.rare >= Terraria.ID.ItemRarityID.Orange) return RPGClassDefinitions.ItemRarity.Uncommon;
             return RPGClassDefinitions.ItemRarity.Common;
         }
 

@@ -30,7 +30,6 @@ namespace Wolfgodrpg.Common.UI
         private RPGClassesPageUI _classesPageUI;
         private RPGItemsPageUI _itemsPageUI;
         private RPGProgressPageUI _progressPageUI;
-        private RPGProgressPageUI _progressPageUI;
         private List<RPGTabButton> _tabButtons;
         private UIElement _tabButtonContainer;
 
@@ -91,6 +90,8 @@ namespace Wolfgodrpg.Common.UI
             _progressPageUI.VAlign = 0.5f;
             _progressPageUI.Top.Set(80f, 0f); // Adjusted top position
             mainPanel.Append(_progressPageUI);
+            _progressPageUI.Deactivate();
+
             _progressPageUI.Deactivate();
 
             _tabButtonContainer = new UIElement();

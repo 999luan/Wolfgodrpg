@@ -1,4 +1,4 @@
 displayName = WolfGod RPG
 author = WolfGod
 version = 0.5
-side = Both ok 
+side = Both 

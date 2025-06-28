@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.GameContent.UI.Elements;
 using Terraria.UI;
@@ -54,12 +55,12 @@ namespace Wolfgodrpg.Common.UI
             }
         }
 
-        public void Activate()
+        public new void Activate()
         {
             _visible = true;
         }
 
-        public void Deactivate()
+        public new void Deactivate()
         {
             _visible = false;
         }

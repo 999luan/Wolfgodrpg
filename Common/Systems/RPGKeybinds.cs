@@ -12,8 +12,6 @@ namespace Wolfgodrpg.Common.Systems
     {
         
         public static ModKeybind OpenRPGMenuKeybind { get; private set; }
-        public static ModKeybind NextPageKeybind { get; private set; }
-        public static ModKeybind PreviousPageKeybind { get; private set; }
 
         
 
@@ -21,8 +19,6 @@ namespace Wolfgodrpg.Common.Systems
         {
             
             OpenRPGMenuKeybind = KeybindLoader.RegisterKeybind(Mod, "OpenRPGMenu", "M");
-            NextPageKeybind = KeybindLoader.RegisterKeybind(Mod, "RPGNextPage", "PageDown");
-            PreviousPageKeybind = KeybindLoader.RegisterKeybind(Mod, "RPGPreviousPage", "PageUp");
         }
 
         
@@ -37,16 +33,6 @@ namespace Wolfgodrpg.Common.Systems
             if (RPGKeybinds.OpenRPGMenuKeybind.JustPressed)
             {
                 RPGMenuController.ToggleMenu();
-            }
-
-            if (RPGKeybinds.NextPageKeybind.JustPressed)
-            {
-                RPGMenuController.NextPage();
-            }
-
-            if (RPGKeybinds.PreviousPageKeybind.JustPressed)
-            {
-                RPGMenuController.PreviousPage();
             }
         }
     }
