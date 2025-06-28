@@ -2,16 +2,12 @@ using Terraria;
 using Terraria.ModLoader;
 using Microsoft.Xna.Framework;
 using Terraria.ID;
+using Terraria.DataStructures; // Adicionado para FishingAttempt e AdvancedPopupRequest
 using Wolfgodrpg.Common.Players;
 using System.Collections.Generic;
 
 namespace Wolfgodrpg.Common.Systems
 {
-    public class RPGHooks : ModSystem
-    {
-        // Este arquivo agora serve principalmente para ganchos que não se encaixam em outros lugares.
-    }
-
     public class RPGPlayerHooks : ModPlayer
     {
         private float lastHealth;
@@ -56,17 +52,17 @@ namespace Wolfgodrpg.Common.Systems
             }
         }
 
-        public override void PostBuyItem(Item item, int price, int shopId)
+        public override void PostBuyItem(NPC vendor, Item[] shopInventory, Item item)
         {
             var rpgPlayer = Player.GetModPlayer<RPGPlayer>();
-            float xpAmount = price * 0.0001f;
+            float xpAmount = item.value * 0.0001f;
             rpgPlayer.GainClassExp("merchant", System.Math.Max(0.1f, xpAmount));
         }
 
-        public override void PostSellItem(Item item, int price, int shopId)
+        public override void PostSellItem(NPC vendor, Item[] shopInventory, Item item)
         {
             var rpgPlayer = Player.GetModPlayer<RPGPlayer>();
-            float xpAmount = price * 0.0001f;
+            float xpAmount = item.value * 0.0001f;
             rpgPlayer.GainClassExp("merchant", System.Math.Max(0.1f, xpAmount));
         }
 
@@ -76,20 +72,12 @@ namespace Wolfgodrpg.Common.Systems
             Main.NewText("Pressione 'M' para o menu RPG e 'R' para stats.", Color.Cyan);
         }
 
-        // Hook para dar XP ao colher plantas
-        public override bool PreKillTile(int i, int j, int type, ref bool fail)
+        public override void CatchFish(FishingAttempt attempt, ref int itemDrop, ref int npcSpawn, ref AdvancedPopupRequest sonar, ref Vector2 sonarPosition)
         {
-            Tile tile = Main.tile[i, j];
-            if (tile != null && tile.HasTile)
-            {
-                // Se for uma planta madura (ex: girassol, daybloom)
-                if (TileID.Sets.HarvestablePlants[type])
-                {
-                    var rpgPlayer = Player.GetModPlayer<RPGPlayer>();
-                    rpgPlayer.GainClassExp("farming", 5f); // XP por colher
-                }
-            }
-            return base.PreKillTile(i, j, type, ref fail);
+            var rpgPlayer = Player.GetModPlayer<RPGPlayer>();
+            float xpAmount = (attempt.rare ? 1f : 0f) * 10f; 
+            xpAmount = System.Math.Max(1f, xpAmount); 
+            rpgPlayer.GainClassExp("fishing", xpAmount);
         }
     }
 
@@ -104,4 +92,5 @@ namespace Wolfgodrpg.Common.Systems
         }
     }
 }
+
  

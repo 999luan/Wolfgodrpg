@@ -229,3 +229,4 @@ C:\Users\tatal\Documents\My Games\Terraria\tModLoader\ModSources\Wolfgodrpg\obj\
 C:\Users\tatal\Documents\My Games\Terraria\tModLoader\ModSources\Wolfgodrpg\obj\Debug\net8.0\refint\Wolfgodrpg.dll
 C:\Users\tatal\Documents\My Games\Terraria\tModLoader\ModSources\Wolfgodrpg\obj\Debug\net8.0\Wolfgodrpg.pdb
 C:\Users\tatal\Documents\My Games\Terraria\tModLoader\ModSources\Wolfgodrpg\obj\Debug\net8.0\ref\Wolfgodrpg.dll
+C:\Users\tatal\Documents\My games\Terraria\tModLoader\ModSources\Wolfgodrpg\obj\Debug\net8.0\Wolfgodrpg.sourcelink.json

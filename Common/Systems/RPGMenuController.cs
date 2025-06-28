@@ -1,9 +1,8 @@
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics; // Adicionado para SpriteBatch
 using Terraria;
 using Terraria.ModLoader;
-using Terraria.GameInput;
 using Terraria.UI;
-using System.Collections.Generic;
 using Wolfgodrpg.Common.UI;
 
 namespace Wolfgodrpg.Common.Systems
@@ -64,12 +63,12 @@ namespace Wolfgodrpg.Common.Systems
 
         public static void NextPage()
         {
-            _menuUI?.NextPage();
+            _menuUI?.ChangePage(true);
         }
 
         public static void PreviousPage()
         {
-            _menuUI?.PreviousPage();
+            _menuUI?.ChangePage(false);
         }
     }
 }

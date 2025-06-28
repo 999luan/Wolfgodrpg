@@ -1,275 +1,33 @@
-[h1]WolfGod RPG[/h1]
-Um mod que adiciona elementos de RPG profundos ao Terraria, com progressão baseada em ações e sistemas totalmente configuráveis!
+[h1]WolfGod RPG (VERSÃO ALFA)[/h1]
+Um mod que adiciona elementos de RPG profundos ao Terraria, com progressão baseada em ações e sistemas totalmente configuráveis! Esta é uma versão ALFA, sujeita a mudanças e pode conter bugs. Seu feedback é crucial!
 
 [h2]Características Principais[/h2]
 [list]
-[*] [b]13 Classes Baseadas em Ações[/b]
-  - Movimento, Pulo, Combate Corpo a Corpo, Combate à Distância
-  - Magia, Invocação, Mineração, Construção
-  - Pesca, Coleta, Bestiário, Mercador, Defesa
-[*] [b]Progressão Natural[/b]
-  - Ganhe experiência fazendo o que você já faz normalmente
-  - Andar, pular, minerar, lutar, pescar, etc.
-  - Cada ação contribui para classes específicas
-[*] [b]Habilidades Únicas[/b]
-  - Cada classe tem 4 habilidades especiais
-  - Desbloqueadas nos níveis 25, 50, 75 e 100
-  - Dash melhorado, pulo duplo, bônus de dano, etc.
-[*] [b]Sistema de Itens[/b]
-  - Raridades de Comum a Lendário
-  - Status aleatórios baseados na raridade
-  - Multiplicadores de status configuráveis
-[*] [b]Interface Amigável[/b]
-  - Menu grande e clicável
-  - 3 páginas: Status Base, Classes & Níveis, Habilidades
-  - Barras de progresso e tooltips informativos
-[*] [b]Sistemas de Sobrevivência[/b]
-  - Fome afeta regeneração de vida
-  - Sanidade muda com ambiente e eventos
-  - Ambos são totalmente configuráveis
-[/list]
-
-[h2]Configurações Extensivas[/h2]
-[list]
-[*] [b]Experiência e Progressão[/b]
-  - Multiplicador global de XP
-  - XP por tipo de ação
-  - Nível máximo das classes
-  - Perda de XP na morte
-[*] [b]Interface e Notificações[/b]
-  - Escala da UI
-  - Posição do menu
-  - Notificações de level up
-  - Mensagens de habilidades
-[*] [b]Sistemas de Sobrevivência[/b]
-  - Ativar/desativar fome
-  - Ativar/desativar sanidade
-  - Taxas de decaimento
-  - Efeitos no personagem
-[*] [b]Itens e Status[/b]
-  - Chance de itens raros
-  - Status aleatórios
-  - Multiplicadores de valores
-  - Bônus por nível
-[*] [b]Dificuldade[/b]
-  - Escala de monstros
-  - Bônus de status
-  - Regeneração de vida
-  - Custos de ações
+[*] [b]Progressão por Ação:[/b] Ganhe experiência em 13 classes (Combate, Mineração, Movimento, etc.) simplesmente jogando. Cada ação contribui para o desenvolvimento de classes específicas.
+[*] [b]Habilidades Únicas:[/b] Desbloqueie habilidades especiais e passivas em cada classe ao atingir certos níveis (ex: dash aprimorado, pulo duplo, bônus de dano).
+[*] [b]Sistema de Itens Aprimorado:[/b] Encontre itens com raridades e status aleatórios que se adaptam à sua progressão.
+[*] [b]Sistemas de Sobrevivência:[/b] Gerencie Fome e Sanidade, que afetam seu personagem e são totalmente configuráveis.
+[*] [b]Configurações Extensivas:[/b] Personalize quase todos os aspectos do mod, incluindo multiplicadores de XP, UI, vitals e balanceamento.
 [/list]
 
 [h2]Controles[/h2]
 [list]
-[*] M - Abrir/fechar menu principal
-[*] Q/E - Navegar entre páginas do menu
+[*] M - Abrir/fechar menu principal do RPG
+[*] PageDown/PageUp - Navegar entre as páginas do menu
 [/list]
-
-[h2]Versão 0.3[/h2]
-- Sistema de classes completamente reformulado
-- Nova interface mais amigável
-- Configurações extensivas adicionadas
-- Melhorias na progressão e balanceamento
-- Correções de bugs e otimizações
 
 [h2]Links Úteis[/h2]
 [url=https://github.com/wolfgod/terraria-rpg-mod]GitHub[/url] - Código fonte e relatório de bugs
 [url=https://discord.gg/wolfgod]Discord[/url] - Comunidade e suporte
 
-[h2]Classes Disponíveis[/h2]
-[list]
-[*] [b]Movimento[/b] - Melhore seu dash e velocidade
-[*] [b]Pulo[/b] - Aumente a altura do pulo e desbloqueie pulo duplo
-[*] [b]Combate Corpo a Corpo[/b] - Aumente dano e velocidade de ataque
-[*] [b]Combate à Distância[/b] - Melhore precisão e dano
-[*] [b]Magia[/b] - Aumente poder mágico e regeneração de mana
-[*] [b]Invocação[/b] - Mais minions e dano
-[*] [b]Mineração[/b] - Velocidade e sorte ao minerar
-[*] [b]Construção[/b] - Construa mais rápido e eficientemente
-[*] [b]Pesca[/b] - Melhore chances de pesca rara
-[*] [b]Coleta[/b] - Encontre mais recursos
-[*] [b]Bestiário[/b] - Aprenda sobre monstros e melhore drops
-[*] [b]Comerciante[/b] - Melhores preços e itens raros
-[*] [b]Defesa[/b] - Aumente sobrevivência e regeneração
-[/list]
-
-[h2]Sistema de Raridade[/h2]
-[list]
-[*] [color=white]Comum[/color] - Item básico
-[*] [color=green]Incomum[/color] - 1 status aleatório
-[*] [color=blue]Raro[/color] - 2 status aleatórios
-[*] [color=purple]Épico[/color] - 3 status aleatórios
-[*] [color=orange]Lendário[/color] - 4 status aleatórios
-[/list]
-
-[h2]Habilidades Desbloqueáveis[/h2]
-Cada classe tem marcos importantes nos níveis 25, 50, 75 e 100 que desbloqueiam habilidades especiais. Por exemplo:
-[list]
-[*] Dash infinito (Movimento 100)
-[*] Pulo triplo (Pulo 75)
-[*] Mineração automática (Mineração 75)
-[*] E muito mais!
-[/list]
-
-[h2]Progresso por Ação[/h2]
-Tudo que você faz contribui para alguma classe:
-[list]
-[*] Andar e correr → Movimento
-[*] Pular → Pulo
-[*] Atacar → Classes de combate
-[*] Minerar → Mineração
-[*] Construir → Construção
-[*] Pescar → Pesca
-[*] Coletar recursos → Coleta
-[*] Matar monstros → Bestiário
-[*] Comprar/Vender → Comerciante
-[*] Tomar dano → Defesa
-[/list]
-
-[h2]Próximas Atualizações[/h2]
-[list]
-[*] Mais habilidades especiais
-[*] Eventos especiais por classe
-[*] Sistema de missões
-[*] Mais interação com NPCs
-[/list]
-
-[h2]Bugs e Sugestões[/h2]
-Se encontrar algum bug ou tiver sugestões, por favor reporte na página de discussão!
-
-[h3]Novidades da Versão 0.3:[/h3]
-- Sistema de subclasses expandido
-- Novos status primários
-- Interface melhorada
-- Sistema de XP rebalanceado
-
-[h3]Características Principais:[/h3]
-
-[h4]Classes Principais (0-100):[/h4]
-[list]
-[*]Guerreiro - Mestre do combate corpo a corpo
-[*]Caçador - Especialista em combate à distância
-[*]Mago - Mestre das artes arcanas
-[*]Invocador - Controlador de minions
-[*]Explorador - Mestre da mobilidade e coleta
-[*]Construtor - Especialista em construção
-[*]Sobrevivente - Mestre da sobrevivência
-[*]Alquimista - Mestre das poções
-[/list]
-
-[h4]Subclasses (0-50):[/h4]
-Desbloqueadas ao atingir nível 50 na classe principal!
-
-[b]Guerreiro:[/b]
-[list]
-[*]Berserker - Ganha poder ao receber dano
-[*]Paladino - Guerreiro sagrado com poderes de cura
-[*]Cavaleiro - Mestre da defesa e escudos
-[/list]
-
-[b]Caçador:[/b]
-[list]
-[*]Atirador de Elite - Mestre da precisão
-[*]Caçador - Especialista em rastreamento
-[*]Pistoleiro - Mestre do tiro rápido
-[/list]
-
-[h4]Status Primários:[/h4]
-[list]
-[*]Força - Aumenta dano corpo a corpo e vida
-[*]Destreza - Aumenta dano à distância e velocidade
-[*]Inteligência - Aumenta dano mágico e mana
-[*]Vitalidade - Aumenta vida e regeneração
-[*]Agilidade - Aumenta velocidade e esquiva
-[*]Sabedoria - Aumenta regeneração de mana e duração de buffs
-[*]Sorte - Aumenta drops e críticos
-[*]Controle - Aumenta poder dos minions
-[*]Engenharia - Aumenta habilidades de construção
-[*]Alquimia - Aumenta efeitos de poções
-[*]Resistência - Aumenta defesa e redução de dano
-[/list]
-
-[h4]Sistemas Adicionais:[/h4]
-[list]
-[*]Fome e Sanidade
-[*]Níveis de Item (0-100)
-[*]XP por ação
-[*]Progressão balanceada
-[*]Interface intuitiva
-[/list]
-
-[h4]Controles:[/h4]
-[list]
-[*][M] - Abrir menu completo
-[*][R] - Ver stats rápidos
-[*][Q/E] - Navegar no menu
-[/list]
-
-[h4]Dicas para Iniciantes:[/h4]
-[list]
-[*]Comece focando em uma classe principal
-[*]Mantenha-se alimentado para regenerar vida
-[*]Use constantemente seus itens favoritos para melhorá-los
-[*]Desbloqueie subclasses no nível 50
-[*]Combine classes para criar builds únicas
-[/list]
-
-[h4]Progressão dos Chefes:[/h4]
-[list]
-[*]Olho de Cthulhu: Nível 20
-[*]Devorador/Cérebro: Nível 40
-[*]Skeletron: Nível 60
-[*]Wall of Flesh: Nível 80
-[*]Mecânicos: Nível 120
-[*]Plantera: Nível 160
-[*]Golem: Nível 200
-[*]Cultista: Nível 240
-[*]Moon Lord: Nível 300
-[/list]
-
-[h4]Em Desenvolvimento:[/h4]
-[list]
-[*]Mais subclasses para todas as classes
-[*]Sistema de talentos
-[*]Missões especiais por classe
-[*]Itens únicos por classe
-[*]Eventos especiais
-[/list]
-
-[h4]Bugs e Sugestões:[/h4]
-Por favor, reporte bugs e envie sugestões através dos comentários ou na página do GitHub.
-
-[h4]Créditos:[/h4]
-- Desenvolvido por Wolf God Team
-- Arte por Wolf God Team
-- Agradecimentos especiais à comunidade Terraria
-
-[h4]Links Úteis:[/h4]
-[list]
-[*]GitHub: [url=https://github.com/wolfgodteam/wolfgodrpg]Wolf God RPG[/url]
-[*]Discord: [url=https://discord.gg/wolfgod]Wolf God Community[/url]
-[*]Wiki: [url=https://wolfgodrpg.fandom.com]Wolf God RPG Wiki[/url]
-[/list]
-
 [h2]Instalação[/h2]
-1. Instale via Workshop do Steam
-2. Ative o mod no tModLoader
-3. Crie um novo personagem ou use um existente
+1. Instale via Workshop do Steam.
+2. Ative o mod no tModLoader.
+3. Crie um novo personagem ou use um existente.
 4. Aproveite sua nova aventura RPG!
 
-[h2]Compatibilidade[/h2]
-• Funciona com a maioria dos mods
-• Não requer outros mods
-• Multiplayer suportado
-
-[h2]Suporte[/h2]
-Encontrou um bug? Tem uma sugestão?
-• Abra uma issue no [url=https://github.com/tatalabs/wolfgodrpg]GitHub[/url]
-• Comente na página do Workshop
+[h2]Bugs e Sugestões[/h2]
+Como esta é uma versão ALFA, bugs são esperados. Por favor, reporte qualquer problema ou envie sugestões na página de discussão do Workshop ou no nosso GitHub. Sua colaboração é muito importante!
 
 [h2]Créditos[/h2]
-• Desenvolvido por TataLabs
-• Arte da UI por [url=https://github.com/tatalabs/wolfgodrpg/blob/main/CREDITS.md]Ver Créditos[/url]
-
-[h2]Licença[/h2]
-Este mod é distribuído sob a licença MIT.
-Veja o arquivo LICENSE para mais detalhes.
+Desenvolvido por Wolf God Team.

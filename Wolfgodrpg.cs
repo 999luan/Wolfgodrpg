@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Terraria.ModLoader;
 using Terraria;
 using Microsoft.Xna.Framework;
+using Wolfgodrpg.Common.Systems;
 
 namespace Wolfgodrpg
 {
@@ -33,6 +34,17 @@ namespace Wolfgodrpg
 			Instance = null;
 			Logger.Info("Wolf God RPG Core descarregado.");
 		}
+
+		public override void PostSetupContent()
+		{
+			// Adicionar callback para XP de criação
+			foreach (Recipe recipe in Main.recipe)
+			{
+				recipe.AddOnCraftCallback((Recipe r, Item item, List<Item> consumedItems, Item destinationStack) => {
+					RPGActionSystem.OnCraft(item);
+				});
+			}
+		}
 		
 		private void InitializeRPGSystems()
 		{
@@ -47,3 +59,4 @@ namespace Wolfgodrpg
 		}
 	}
 }
+

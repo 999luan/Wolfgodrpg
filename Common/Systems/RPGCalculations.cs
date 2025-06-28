@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Terraria;
+using Terraria.ModLoader; // Adicionado para DamageClass
 using Wolfgodrpg.Common.Players;
 using Wolfgodrpg.Common.Classes;
 using Wolfgodrpg.Common.GlobalItems;
@@ -81,7 +82,7 @@ namespace Wolfgodrpg.Common.Systems
         public static void ApplyStatsToPlayer(Player player, Dictionary<string, float> stats)
         {
             // Resetar modificadores antes de aplicar os novos para evitar acúmulo
-            player.GetDamage(DamageClass.Generic) = 1f;
+            player.GetDamage(DamageClass.Generic).Base = 1f;
             player.GetCritChance(DamageClass.Generic) = 0;
             player.moveSpeed = 1f;
             player.lifeRegen = 0;
@@ -94,16 +95,16 @@ namespace Wolfgodrpg.Common.Systems
                 {
                     // Ofensivo
                     case "meleeDamage":
-                        player.GetDamage(DamageClass.Melee) += stat.Value;
+                        player.GetDamage(DamageClass.Melee).Base += stat.Value;
                         break;
                     case "rangedDamage":
-                        player.GetDamage(DamageClass.Ranged) += stat.Value;
+                        player.GetDamage(DamageClass.Ranged).Base += stat.Value;
                         break;
                     case "magicDamage":
-                        player.GetDamage(DamageClass.Magic) += stat.Value;
+                        player.GetDamage(DamageClass.Magic).Base += stat.Value;
                         break;
                     case "minionDamage":
-                        player.GetDamage(DamageClass.Summon) += stat.Value;
+                        player.GetDamage(DamageClass.Summon).Base += stat.Value;
                         break;
                     case "critChance":
                     case "meleeCrit":

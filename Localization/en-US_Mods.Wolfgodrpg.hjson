@@ -1,6 +1,8 @@
 Keybinds: {
 	ShowRPGStats.DisplayName: Show R P G Stats
 	OpenRPGMenu.DisplayName: Open R P G Menu
+	RPGNextPage.DisplayName: R P G Next Page
+	RPGPreviousPage.DisplayName: R P G Previous Page
 }
 
 Mods: {

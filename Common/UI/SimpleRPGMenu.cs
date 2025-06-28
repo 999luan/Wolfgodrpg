@@ -27,9 +27,8 @@ namespace Wolfgodrpg.Common.UI
         private UIPanel mainPanel;
         private UIText pageTitle;
         private UIText pageContent;
-        private UIImageButton nextButton;
-        private UIImageButton prevButton;
-        private UIImageButton closeButton;
+        
+        
 
         private bool isVisible = false;
         private MenuPage currentPage = MenuPage.Stats;
@@ -37,10 +36,12 @@ namespace Wolfgodrpg.Common.UI
         public override void OnInitialize()
         {
             mainPanel = new UIPanel();
-            mainPanel.Width.Set(600f, 0f);
-            mainPanel.Height.Set(450f, 0f);
-            mainPanel.HAlign = 0.5f;
-            mainPanel.VAlign = 0.5f;
+            mainPanel.Width.Set(0.3f, 0f); // 30% da largura da tela
+            mainPanel.Height.Set(0f, -56f); // Altura total da tela menos 56 pixels (hotbar)
+            mainPanel.HAlign = 0f; // Alinhado à esquerda
+            mainPanel.VAlign = 0f; // Alinhado ao topo
+            mainPanel.Top.Set(56f, 0f); // Começa 56 pixels abaixo do topo (abaixo da hotbar)
+            mainPanel.Left.Set(0f, 0f); // Alinhado à esquerda
             mainPanel.BackgroundColor = new Color(33, 43, 79) * 0.8f;
             Append(mainPanel);
 
@@ -57,23 +58,9 @@ namespace Wolfgodrpg.Common.UI
             pageContent.Top.Set(20f, 0f);
             mainPanel.Append(pageContent);
 
-            closeButton = new UIImageButton(ModContent.Request<Texture2D>("Terraria/Images/UI/ButtonClose"));
-            closeButton.HAlign = 0.95f;
-            closeButton.Top.Set(10f, 0f);
-            closeButton.OnLeftClick += (evt, elm) => Hide();
-            mainPanel.Append(closeButton);
+            
 
-            prevButton = new UIImageButton(ModContent.Request<Texture2D>("Terraria/Images/UI/ButtonPrevious"));
-            prevButton.HAlign = 0.1f;
-            prevButton.VAlign = 0.9f;
-            prevButton.OnLeftClick += (evt, elm) => ChangePage(false);
-            mainPanel.Append(prevButton);
-
-            nextButton = new UIImageButton(ModContent.Request<Texture2D>("Terraria/Images/UI/ButtonNext"));
-            nextButton.HAlign = 0.9f;
-            nextButton.VAlign = 0.9f;
-            nextButton.OnLeftClick += (evt, elm) => ChangePage(true);
-            mainPanel.Append(nextButton);
+            
         }
 
         public override void Update(GameTime gameTime)
@@ -112,10 +99,7 @@ namespace Wolfgodrpg.Common.UI
             var sb = new StringBuilder();
 
             sb.AppendLine($"Vida: {player.statLife} / {player.statLifeMax2}");
-            sb.AppendLine($"Mana: {player.statMana} / {player.statManaMax2}");
-            sb.AppendLine($"Defesa: {player.statDefense}");
-            sb.AppendLine($"
---- Bônus Totais ---");
+            sb.AppendLine($"Mana: {player.statMana} / {player.statManaMax2}");            sb.AppendLine($"Defesa: {player.statDefense}");            sb.AppendLine("\n--- Bônus Totais ---");
 
             foreach (var stat in totalStats)
             {
@@ -217,17 +201,20 @@ namespace Wolfgodrpg.Common.UI
             pageContent.SetText(sb.ToString());
         }
 
-        private void ChangePage(bool forward)
+        public void ChangePage(bool forward)
         {
             int pageIndex = (int)currentPage;
             int pageCount = Enum.GetNames(typeof(MenuPage)).Length;
             pageIndex = (pageIndex + (forward ? 1 : -1) + pageCount) % pageCount;
             currentPage = (MenuPage)pageIndex;
+            Main.NewText($"[SimpleRPGMenu] Page changed to: {currentPage}", Color.Yellow); // Debug line
         }
 
         public void Show() { isVisible = true; }
         public void Hide() { isVisible = false; }
         public void Toggle() { isVisible = !isVisible; }
         public bool IsVisible() => isVisible;
+
+        
     }
 }

@@ -59,11 +59,11 @@ namespace Wolfgodrpg.Common.Players
 
         private void ApplySpecialAbilities()
         {
+            Main.NewText($"[RPGPlayer] ApplySpecialAbilities called. Current dash: {Player.dash}", Color.Orange); // Debug
             Player.waterWalk = false;
             Player.lavaImmune = false;
             Player.wingsLogic = 0;
             Player.dash = 0;
-            Player.jumpAgain = false;
 
             foreach (var ability in UnlockedAbilities)
             {
@@ -71,9 +71,7 @@ namespace Wolfgodrpg.Common.Players
                 {
                     case "movement_50": // Dash Duplo (Exemplo)
                         if (Player.dashType == 0) Player.dash = 1;
-                        break;
-                    case "jumping_50": // Pulo Duplo
-                        Player.jumpAgain = true;
+                        Main.NewText($"[RPGPlayer] movement_50 ability applied. Player.dash set to: {Player.dash}", Color.Orange); // Debug
                         break;
                 }
             }
@@ -93,11 +91,13 @@ namespace Wolfgodrpg.Common.Players
 
         public void GainClassExp(string className, float amount)
         {
+            Main.NewText($"[RPGPlayer] Gaining XP for class '{className}': Base amount = {amount:F2}", Color.LightGreen); // Debug
             if (!ClassExperience.ContainsKey(className)) return;
 
             float finalAmount = amount * Config.ExpMultiplier;
             if (Main.hardMode) finalAmount *= 1.5f;
             if (NPC.downedMoonlord) finalAmount *= 2f;
+            Main.NewText($"[RPGPlayer] Final XP for class '{className}': {finalAmount:F2}", Color.LightGreen); // Debug
 
             ClassExperience[className] += finalAmount;
 
@@ -143,6 +143,7 @@ namespace Wolfgodrpg.Common.Players
             if (UnlockedAbilities.Add(ability))
             {
                 Main.NewText($"Nova habilidade desbloqueada: {ability}!", Color.LightBlue);
+                Main.NewText($"[RPGPlayer] Ability '{ability}' unlocked.", Color.LightBlue); // Debug
             }
         }
 

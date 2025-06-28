@@ -17,13 +17,14 @@ namespace Wolfgodrpg.Common.Systems
         private static float timeSinceLastRegen = 0f;
 
         // Resource Tile IDs for Gathering XP
-        public static HashSet<int> ResourceTileIDs = new HashSet<int>
-        {
-            TileID.Copper, TileID.Iron, TileID.Silver, TileID.Gold, TileID.Demonite, TileID.Crimtane, TileID.Meteorite,
-            TileID.Cobalt, TileID.Palladium, TileID.Mythril, TileID.Orichalcum, TileID.Adamantite, TileID.Titanium,
-            TileID.Wood, TileID.RichMahogany, TileID.BorealWood, TileID.PalmWood, TileID.Ebonwood, TileID.Shadewood,
-            TileID.Stone, TileID.Ebonstone, TileID.Crimstone, TileID.Pearlstone, TileID.Obsidian, TileID.Hellstone
-        };
+        // Resource Tile IDs for Gathering XP
+        // public static HashSet<int> ResourceTileIDs = new HashSet<int>
+        // {
+        //     TileID.Copper, TileID.Iron, TileID.Silver, TileID.Gold, TileID.Demonite, TileID.Crimtane, TileID.Meteorite,
+        //     TileID.Cobalt, TileID.Palladium, TileID.Mythril, TileID.Orichalcum, TileID.Adamantite, TileID.Titanium,
+        //     TileID.Wood, TileID.RichMahogany, TileID.BorealWood, TileID.PalmWood, TileID.Ebonwood, TileID.Shadewood,
+        //     TileID.Stone, TileID.Ebonstone, TileID.Crimstone, TileID.Pearlstone, TileID.Obsidian, TileID.Hellstone
+        // };
 
         public override void PostUpdateWorld()
         {

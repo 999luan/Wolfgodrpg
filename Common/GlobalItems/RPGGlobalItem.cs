@@ -3,7 +3,9 @@ using Terraria.ModLoader;
 using System.Collections.Generic;
 using Wolfgodrpg.Common.Classes;
 using System.Linq;
-using Wolfgodrpg.Common.Systems; // Adicionado para o Action System
+using Wolfgodrpg.Common.Systems;
+using Terraria.DataStructures; // Adicionado para IEntitySource
+using Microsoft.Xna.Framework; // Adicionado para Color
 
 namespace Wolfgodrpg.Common.GlobalItems
 {
@@ -13,10 +15,10 @@ namespace Wolfgodrpg.Common.GlobalItems
 
         public override bool InstancePerEntity => true;
 
-        public override void OnCreate(Item item, ItemCreationContext context)
+        public override void OnSpawn(Item item, IEntitySource source)
         {
-            // Não adicionar status a itens vazios ou de quest
-            if (item.IsAir || item.questItem) return;
+            // Não adicionar status a itens vazios, de quest ou já com status
+            if (item.IsAir || item.questItem || randomStats.Any()) return;
 
             // Determina a raridade do item para saber quantos status adicionar
             RPGClassDefinitions.ItemRarity rarity = GetItemRarity(item);
@@ -25,34 +27,23 @@ namespace Wolfgodrpg.Common.GlobalItems
 
             if (numberOfStats > 0)
             {
-                // Pega uma lista de todos os status possíveis
                 var possibleStats = RPGClassDefinitions.RandomStats.Keys.ToList();
                 randomStats = new Dictionary<string, float>();
 
                 for (int i = 0; i < numberOfStats; i++)
                 {
-                    // Escolhe um status aleatório que ainda não foi adicionado
+                    if (!possibleStats.Any()) break;
                     string randomStatName = possibleStats[Main.rand.Next(possibleStats.Count)];
-                    if (!randomStats.ContainsKey(randomStatName))
-                    {
-                        var statInfo = RPGClassDefinitions.RandomStats[randomStatName];
-                        
-                        // Calcula o valor do status com base na raridade
-                        float value = (float)Main.rand.NextDouble() * (statInfo.MaxValue - statInfo.MinValue) + statInfo.MinValue;
-                        value *= statMultiplier;
+                    possibleStats.Remove(randomStatName); // Evita status duplicados
 
-                        randomStats[randomStatName] = value;
-                    }
-                    else
-                    {
-                        // Tenta novamente se o status já foi adicionado
-                        i--;
-                    }
+                    var statInfo = RPGClassDefinitions.RandomStats[randomStatName];
+                    float value = (float)Main.rand.NextDouble() * (statInfo.MaxValue - statInfo.MinValue) + statInfo.MinValue;
+                    value *= statMultiplier;
+                    randomStats[randomStatName] = value;
                 }
             }
         }
 
-        // Adiciona a descrição dos status na tooltip do item
         public override void ModifyTooltips(Item item, List<TooltipLine> tooltips)
         { 
             if (randomStats != null && randomStats.Count > 0)
@@ -70,12 +61,6 @@ namespace Wolfgodrpg.Common.GlobalItems
             }
         }
 
-        // Hook para quando um item é criado
-        public override void OnCraft(Item item, Recipe recipe)
-        {
-            RPGActionSystem.OnCraft(item);
-        }
-
         private RPGClassDefinitions.ItemRarity GetItemRarity(Item item)
         {
             if (item.rare >= 9) return RPGClassDefinitions.ItemRarity.Legendary;
@@ -84,5 +69,7 @@ namespace Wolfgodrpg.Common.GlobalItems
             if (item.rare >= 3) return RPGClassDefinitions.ItemRarity.Uncommon;
             return RPGClassDefinitions.ItemRarity.Common;
         }
+
+        
     }
 }
