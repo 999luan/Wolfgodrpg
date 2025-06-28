@@ -56,11 +56,11 @@ namespace Wolfgodrpg.Common.Systems
             lastPositionX = currentX;
             lastPositionY = currentY;
 
-            // Regeneração (Survivor XP)
+            // Regeneração (Regeneration XP)
             timeSinceLastRegen += 1f / 60f; // 1/60 = um segundo em ticks
             if (timeSinceLastRegen >= 1f && player.lifeRegen > 0)
             {
-                rpgPlayer.GainClassExp("defense", 1f);
+                rpgPlayer.GainClassExp("regeneration", 2f); // Ganha 2 XP por segundo de regeneração
                 timeSinceLastRegen = 0f;
             }
         }

@@ -1,14 +1,10 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System; 
-using System.Collections.Generic;
 using Terraria;
 using Terraria.GameContent.UI.Elements;
 using Terraria.UI;
 using Terraria.ModLoader;
 using Wolfgodrpg.Common.Players;
-using Wolfgodrpg.Common.Classes;
-using Wolfgodrpg.Common.Systems;
 
 namespace Wolfgodrpg.Common.UI
 {
@@ -17,83 +13,91 @@ namespace Wolfgodrpg.Common.UI
         private UIPanel mainPanel;
         private bool isVisible = false;
 
+        // Elementos da UI para os Vitals
+        private UIProgressBar hungerBar;
+        private UIProgressBar sanityBar;
+        private UIProgressBar staminaBar;
+
         public override void OnInitialize()
         {
             mainPanel = new UIPanel();
-            mainPanel.Width.Set(300f, 0f);
-            mainPanel.Height.Set(400f, 0f);
-            mainPanel.HAlign = 1f;
-            mainPanel.VAlign = 0.5f;
-            mainPanel.Left.Set(-50f, 0f);
-            mainPanel.BackgroundColor = new Color(33, 43, 79) * 0.8f;
+            mainPanel.Width.Set(220f, 0f);
+            mainPanel.Height.Set(120f, 0f);
+            mainPanel.HAlign = 0.01f; // Alinhar à esquerda
+            mainPanel.VAlign = 0.9f;  // Alinhar na parte inferior
+            mainPanel.BackgroundColor = new Color(44, 57, 101) * 0.8f;
             Append(mainPanel);
+
+            // Inicializar as barras de status
+            hungerBar = new UIProgressBar(Color.Orange, "Fome");
+            hungerBar.Width.Set(0, 0.9f);
+            hungerBar.Height.Set(20f, 0f);
+            hungerBar.HAlign = 0.5f;
+            hungerBar.Top.Set(10f, 0f);
+            mainPanel.Append(hungerBar);
+
+            sanityBar = new UIProgressBar(Color.Purple, "Sanidade");
+            sanityBar.Width.Set(0, 0.9f);
+            sanityBar.Height.Set(20f, 0f);
+            sanityBar.HAlign = 0.5f;
+            sanityBar.Top.Set(40f, 0f);
+            mainPanel.Append(sanityBar);
+
+            staminaBar = new UIProgressBar(Color.Yellow, "Stamina");
+            staminaBar.Width.Set(0, 0.9f);
+            staminaBar.Height.Set(20f, 0f);
+            staminaBar.HAlign = 0.5f;
+            staminaBar.Top.Set(70f, 0f);
+            mainPanel.Append(staminaBar);
         }
 
-        public void ToggleVisibility()
-        {
-            isVisible = !isVisible;
-            if (isVisible)
-            {
-                UpdateStats();
-            }
-        }
+        public void ToggleVisibility() => isVisible = !isVisible;
+        public bool IsVisible() => isVisible;
 
         public override void Update(GameTime gameTime)
         {
             base.Update(gameTime);
             if (!isVisible) return;
 
-            // Atualiza as estatísticas em tempo real
-            UpdateStats();
+            var rpgPlayer = Main.LocalPlayer.GetModPlayer<RPGPlayer>();
+
+            // Atualizar os valores das barras
+            hungerBar.SetProgress(rpgPlayer.CurrentHunger / rpgPlayer.MaxHunger);
+            sanityBar.SetProgress(rpgPlayer.CurrentSanity / rpgPlayer.MaxSanity);
+            staminaBar.SetProgress(rpgPlayer.CurrentStamina / rpgPlayer.MaxStamina);
+        }
+    }
+
+    // Classe auxiliar para a barra de progresso
+    public class UIProgressBar : UIPanel
+    {
+        private UIPanel progressBar;
+        private UIText text;
+        private Color color;
+
+        public UIProgressBar(Color barColor, string label)
+        {
+            BackgroundColor = new Color(20, 20, 20) * 0.7f;
+            BorderColor = Color.Black;
+            color = barColor;
+
+            progressBar = new UIPanel();
+            progressBar.Height.Set(0, 1f);
+            progressBar.BackgroundColor = color;
+            progressBar.BorderColor = Color.Transparent;
+            Append(progressBar);
+
+            text = new UIText(label, 0.8f);
+            text.HAlign = 0.5f;
+            text.VAlign = 0.5f;
+            Append(text);
         }
 
-        private void UpdateStats()
+        public void SetProgress(float progress)
         {
-            mainPanel.RemoveAllChildren(); // Limpa o painel para redesenhar
-
-            var player = Main.LocalPlayer;
-            var modPlayer = player.GetModPlayer<RPGPlayer>();
-            var totalStats = RPGCalculations.CalculateTotalStats(modPlayer);
-
-            float yPos = 10f;
-
-            // Título
-            var title = new UIText("Estatísticas Gerais", 1.1f);
-            title.HAlign = 0.5f;
-            title.Top.Set(yPos, 0f);
-            mainPanel.Append(title);
-            yPos += 30f;
-
-            // Status Básicos do Terraria
-            AddStatLine($"Vida: {player.statLife} / {player.statLifeMax2}", ref yPos);
-            AddStatLine($"Mana: {player.statMana} / {player.statManaMax2}", ref yPos);
-            AddStatLine($"Defesa: {player.statDefense}", ref yPos);
-            yPos += 10f; // Espaçamento
-
-            // Título de Bônus
-            var bonusTitle = new UIText("Bônus Totais (Classes + Itens)", 1f);
-            bonusTitle.HAlign = 0.5f;
-            bonusTitle.Top.Set(yPos, 0f);
-            mainPanel.Append(bonusTitle);
-            yPos += 30f;
-
-            // Lista de todos os bônus calculados
-            foreach (var stat in totalStats)
-            {
-                string statName = RPGClassDefinitions.RandomStats.ContainsKey(stat.Key) ? RPGClassDefinitions.RandomStats[stat.Key].Name : stat.Key;
-                string valueString = stat.Value < 1 && stat.Value > 0 ? $"{stat.Value:P1}" : $"{stat.Value:F2}";
-                AddStatLine($"{statName}: +{valueString}", ref yPos, Color.LightGreen);
-            }
-        }
-
-        private void AddStatLine(string text, ref float yPos, Color? color = null)
-        {
-            var statText = new UIText(text, 0.9f);
-            statText.Left.Set(15f, 0f);
-            statText.Top.Set(yPos, 0f);
-            if (color.HasValue) statText.TextColor = color.Value;
-            mainPanel.Append(statText);
-            yPos += 20f;
+            progress = MathHelper.Clamp(progress, 0f, 1f);
+            progressBar.Width.Set(0, progress);
         }
     }
 }
+

@@ -3,6 +3,7 @@ using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
 using Microsoft.Xna.Framework;
 using System.Collections.Generic;
+using System.Linq; // Adicionado para o ToList()
 using Wolfgodrpg.Common.Classes;
 using Wolfgodrpg.Common.Systems;
 using Terraria.DataStructures; // Para PlayerDeathReason
@@ -19,6 +20,16 @@ namespace Wolfgodrpg.Common.Players
         public Dictionary<string, float> ClassLevels = new Dictionary<string, float>();
         public Dictionary<string, float> ClassExperience = new Dictionary<string, float>();
         public HashSet<string> UnlockedAbilities = new HashSet<string>();
+
+        // Vitals do Jogador (Fome, Sanidade, Stamina)
+        public float CurrentHunger = 100f;
+        public float MaxHunger = 100f;
+        public float CurrentSanity = 100f;
+        public float MaxSanity = 100f;
+        public float CurrentStamina = 100f;
+        public float MaxStamina = 100f;
+        public int StaminaRegenDelay = 0;
+        public int CombatTimer = 0; // Cronômetro para rastrear tempo em combate
 
         // Configuração
         private RPGConfig Config => ModContent.GetInstance<RPGConfig>();
@@ -41,48 +52,43 @@ namespace Wolfgodrpg.Common.Players
 
         public override void PostUpdate()
         {
-            // 1. Calcular todos os status (de classes e itens)
             var totalStats = RPGCalculations.CalculateTotalStats(this);
-
-            // 2. Aplicar os status calculados ao jogador
             RPGCalculations.ApplyStatsToPlayer(Player, totalStats);
-
-            // 3. Aplicar habilidades especiais que não são apenas stats
             ApplySpecialAbilities();
         }
 
         private void ApplySpecialAbilities()
         {
-            // Resetar habilidades antes de aplicar para evitar acúmulo
             Player.waterWalk = false;
             Player.lavaImmune = false;
             Player.wingsLogic = 0;
             Player.dash = 0;
             Player.jumpAgain = false;
 
-            // Iterar sobre as habilidades desbloqueadas e aplicá-las
             foreach (var ability in UnlockedAbilities)
             {
                 switch (ability)
                 {
-                    // Exemplos de habilidades futuras
-                    case "water_walking":
-                        Player.waterWalk = true;
+                    case "movement_50": // Dash Duplo (Exemplo)
+                        if (Player.dashType == 0) Player.dash = 1;
                         break;
-                    case "lava_immunity":
-                        Player.lavaImmune = true;
-                        break;
-                    case "flight_basic":
-                        Player.wingsLogic = 1; // Lógica de voo básica
-                        break;
-                    case "dash_basic":
-                        Player.dash = 1; // Habilita o dash do escudo de Cthulhu
-                        break;
-                    case "double_jump":
+                    case "jumping_50": // Pulo Duplo
                         Player.jumpAgain = true;
                         break;
                 }
             }
+        }
+
+        // Novo método para consumir Stamina
+        public bool ConsumeStamina(float amount)
+        {
+            if (CurrentStamina >= amount)
+            {
+                CurrentStamina -= amount;
+                StaminaRegenDelay = 30; // Atraso de meio segundo para regenerar
+                return true;
+            }
+            return false;
         }
 
         public void GainClassExp(string className, float amount)
@@ -150,6 +156,18 @@ namespace Wolfgodrpg.Common.Players
             return ClassLevels.ContainsKey(className) ? ClassLevels[className] : 1f;
         }
 
+        public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
+        {
+            // Ao acertar um NPC, reseta o cronômetro de combate
+            CombatTimer = 0;
+        }
+
+        public override void OnHitByNPC(NPC npc, Player.HurtInfo hurtInfo)
+        {
+            // Ao ser atingido, reseta o cronômetro de combate
+            CombatTimer = 0;
+        }
+
         public override void Kill(double damage, int hitDirection, bool pvp, PlayerDeathReason damageSource)
         {
             if (!Config.KeepXPOnDeath)
@@ -173,6 +191,8 @@ namespace Wolfgodrpg.Common.Players
             tag["ClassLevels"] = classLevels;
             tag["ClassExperience"] = classExp;
             tag["UnlockedAbilities"] = new List<string>(UnlockedAbilities);
+            tag["CurrentHunger"] = CurrentHunger;
+            tag["CurrentSanity"] = CurrentSanity;
         }
 
         public override void LoadData(TagCompound tag)
@@ -208,6 +228,9 @@ namespace Wolfgodrpg.Common.Players
             {
                 UnlockedAbilities = new HashSet<string>(unlockedAbilities);
             }
+
+            CurrentHunger = tag.GetFloat("CurrentHunger");
+            CurrentSanity = tag.GetFloat("CurrentSanity");
         }
     }
 }

@@ -12,24 +12,24 @@ namespace Wolfgodrpg.Common.Systems
         public static ModKeybind ShowStatsKeybind { get; private set; }
         public static ModKeybind OpenRPGMenuKeybind { get; private set; }
 
-        private UserInterface _quickStatsInterface;
-        internal QuickStatsUI _quickStatsUI;
+        private UserInterface _rpgStatsInterface;
+        internal RPGStatsUI _rpgStatsUI;
 
         public override void Load()
         {
             if (!Main.dedServ)
             {
-                _quickStatsInterface = new UserInterface();
-                _quickStatsUI = new QuickStatsUI();
-                _quickStatsUI.Initialize();
-                _quickStatsInterface.SetState(_quickStatsUI);
+                _rpgStatsInterface = new UserInterface();
+                _rpgStatsUI = new RPGStatsUI();
+                _rpgStatsUI.Initialize();
+                // Não definimos o estado aqui para que ele comece invisível
             }
         }
 
         public override void Unload()
         {
-            _quickStatsInterface = null;
-            _quickStatsUI = null;
+            _rpgStatsInterface = null;
+            _rpgStatsUI = null;
         }
 
         public override void PostSetupContent()
@@ -40,7 +40,7 @@ namespace Wolfgodrpg.Common.Systems
 
         public override void UpdateUI(GameTime gameTime)
         {
-            _quickStatsInterface?.Update(gameTime);
+            _rpgStatsInterface?.Update(gameTime);
         }
 
         public override void ModifyInterfaceLayers(List<GameInterfaceLayer> layers)
@@ -49,12 +49,12 @@ namespace Wolfgodrpg.Common.Systems
             if (mouseTextIndex != -1)
             {
                 layers.Insert(mouseTextIndex, new LegacyGameInterfaceLayer(
-                    "Wolfgodrpg: Quick Stats",
+                    "Wolfgodrpg: RPG Stats UI",
                     delegate
                     {
-                        if (_quickStatsInterface?.CurrentState != null)
+                        if (_rpgStatsUI.IsVisible())
                         {
-                            _quickStatsInterface.Draw(Main.spriteBatch, new GameTime());
+                            _rpgStatsInterface.Draw(Main.spriteBatch, new GameTime());
                         }
                         return true;
                     },
@@ -70,24 +70,23 @@ namespace Wolfgodrpg.Common.Systems
         {
             if (RPGKeybinds.ShowStatsKeybind.JustPressed)
             {
-                ModContent.GetInstance<RPGKeybinds>()._quickStatsUI.ToggleVisibility();
+                var keybindSystem = ModContent.GetInstance<RPGKeybinds>();
+                if (keybindSystem._rpgStatsUI.IsVisible())
+                {
+                    keybindSystem._rpgStatsInterface.SetState(null);
+                }
+                else
+                {
+                    keybindSystem._rpgStatsInterface.SetState(keybindSystem._rpgStatsUI);
+                }
+                keybindSystem._rpgStatsUI.ToggleVisibility();
             }
 
             if (RPGKeybinds.OpenRPGMenuKeybind.JustPressed)
             {
                 RPGMenuController.ToggleMenu();
             }
-
-            if (Main.keyState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.E) && 
-                Main.oldKeyState.IsKeyUp(Microsoft.Xna.Framework.Input.Keys.E))
-            {
-                RPGMenuController.NextPage();
-            }
-            else if (Main.keyState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.Q) && 
-                    Main.oldKeyState.IsKeyUp(Microsoft.Xna.Framework.Input.Keys.Q))
-            {
-                RPGMenuController.PreviousPage();
-            }
         }
     }
-} 
+}
+ 

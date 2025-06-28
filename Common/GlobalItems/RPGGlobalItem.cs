@@ -3,6 +3,7 @@ using Terraria.ModLoader;
 using System.Collections.Generic;
 using Wolfgodrpg.Common.Classes;
 using System.Linq;
+using Wolfgodrpg.Common.Systems; // Adicionado para o Action System
 
 namespace Wolfgodrpg.Common.GlobalItems
 {
@@ -67,6 +68,12 @@ namespace Wolfgodrpg.Common.GlobalItems
                     tooltips.Add(line);
                 }
             }
+        }
+
+        // Hook para quando um item é criado
+        public override void OnCraft(Item item, Recipe recipe)
+        {
+            RPGActionSystem.OnCraft(item);
         }
 
         private RPGClassDefinitions.ItemRarity GetItemRarity(Item item)

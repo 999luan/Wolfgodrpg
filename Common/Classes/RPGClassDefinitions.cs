@@ -252,6 +252,42 @@ namespace Wolfgodrpg.Common.Classes
                     {75, "Defesa mestre"},
                     {100, "Defesa suprema"}
                 }
+            )},
+
+            // Classe de Fazendeiro
+            {"farming", new ClassInfo(
+                "Fazendeiro",
+                "Mestre da agricultura e culinária",
+                new Dictionary<string, float> {
+                    {"harvestChance", 0.005f},    // +0.5% chance de colheita dupla por nível
+                    {"seedChance", 0.005f},       // +0.5% chance de sementes extras por nível
+                    {"foodDuration", 0.002f},     // +0.2% duração dos buffs de comida por nível
+                    {"potionBonus", 0.001f}        // +0.1% bônus de poções de cura por nível
+                },
+                new Dictionary<int, string> {
+                    {25, "Mãos Verdes"},
+                    {50, "Colheita Abundante"},
+                    {75, "Culinária Mestre"},
+                    {100, "Sementes Douradas"}
+                }
+            )},
+
+            // Classe de Regeneração
+            {"regeneration", new ClassInfo(
+                "Regeneração",
+                "Mestre da recuperação vital",
+                new Dictionary<string, float> {
+                    {"lifeRegen", 0.003f},       // +0.3% regeneração de vida por nível
+                    {"manaRegen", 0.002f},       // +0.2% regeneração de mana por nível
+                    {"staminaRegen", 0.002f},    // +0.2% regeneração de estamina por nível
+                    {"potionCooldown", -0.001f}  // -0.1% tempo de recarga de poção por nível
+                },
+                new Dictionary<int, string> {
+                    {25, "Recuperação Rápida"},
+                    {50, "Vigor Aprimorado"},
+                    {75, "Poções Potentes"},
+                    {100, "Fluxo Vital Incessante"}
+                }
             )}
         };
 

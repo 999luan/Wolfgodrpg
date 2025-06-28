@@ -1,10 +1,8 @@
 using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ModLoader;
-using Terraria.GameInput;
 using Terraria.UI;
 using System.Collections.Generic;
-using Wolfgodrpg.Common.UI;
 
 namespace Wolfgodrpg.Common.Systems
 {
@@ -34,7 +32,7 @@ namespace Wolfgodrpg.Common.Systems
             if (mouseTextIndex != -1)
             {
                 layers.Insert(mouseTextIndex, new LegacyGameInterfaceLayer(
-                    "Wolfgodrpg: RPG Stats",
+                    "Wolfgodrpg: RPG Menu", // Nome da camada da interface
                     delegate
                     {
                         RPGMenuController.Draw(Main.spriteBatch);
@@ -45,37 +43,4 @@ namespace Wolfgodrpg.Common.Systems
             }
         }
     }
-
-    public static class RPGMenuController
-    {
-        private static UserInterface _menuInterface;
-        private static RPGStatsUI _statsUI;
-
-        public static void Initialize()
-        {
-            if (!Main.dedServ)
-            {
-                _menuInterface = new UserInterface();
-                _statsUI = new RPGStatsUI();
-                _statsUI.Initialize();
-                _menuInterface.SetState(_statsUI);
-            }
-        }
-
-        public static void Unload()
-        {
-            _menuInterface = null;
-            _statsUI = null;
-        }
-
-        public static void Update(GameTime gameTime)
-        {
-            _menuInterface?.Update(gameTime);
-        }
-
-        public static void Draw(SpriteBatch spriteBatch)
-        {
-            _menuInterface?.Draw(spriteBatch, new GameTime());
-        }
-    }
-} 
+}
