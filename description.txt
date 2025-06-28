@@ -1,193 +1,55 @@
-WolfGod RPG é um mod que adiciona elementos de RPG ao Terraria!
+WolfGod RPG é um mod que adiciona elementos de RPG profundos ao Terraria, com progressão baseada em ações e sistemas totalmente configuráveis!
 
-Características:
-- 13 classes baseadas em ações: Movimento, Pulo, Combate Corpo a Corpo, Combate à Distância, Magia, Invocação, Mineração, Construção, Pesca, Coleta, Bestiário, Mercador e Defesa
-- Experiência ganha através de ações naturais do jogo (andar, pular, minerar, etc.)
-- Cada classe tem bônus e habilidades únicas desbloqueadas nos níveis 25, 50, 75 e 100
-- Sistema de fome e sanidade
-- Itens com raridades (Comum a Lendário) e status aleatórios
-- Interface grande e amigável com 3 páginas: Status Base, Classes & Níveis e Habilidades
-- Totalmente configurável através do menu de configurações do mod
+Versão: 0.4
 
-Configurações:
-- Multiplicadores de XP, dificuldade e status
-- Ativar/desativar sistemas de fome e sanidade
-- Personalizar interface e notificações
-- Ajustar taxas de fome e sanidade
-- Configurar chances de itens raros
-- E muito mais!
+Características Principais:
+- Sistema de Classes (13 classes baseadas em ações: Movimento, Pulo, Combate Corpo a Corpo, Combate à Distância, Magia, Invocação, Mineração, Construção, Pesca, Coleta, Bestiário, Mercador e Defesa).
+- Experiência ganha através de ações naturais do jogo.
+- Cada classe tem bônus e habilidades únicas desbloqueadas em níveis específicos.
+- Sistema de Fome e Sanidade.
+- Itens com raridades e status aleatórios.
+- Interface de usuário (UI) completa e amigável.
 
-Versão 0.3 - Grandes mudanças no sistema de progressão e classes!
+Sistema de Classes e Progressão:
+- Classes Principais (0-100): Guerreiro, Caçador, Mago, Invocador, Explorador, Construtor, Sobrevivente, Alquimista.
+- Subclasses (0-50, desbloqueadas no nível 50): Ex: Berserker, Paladino, Cavaleiro (para Guerreiro); Atirador de Elite, Caçador, Pistoleiro (para Caçador). Mais subclasses serão adicionadas.
+- Status Primários: Força, Destreza, Inteligência, Vitalidade, Agilidade, Sabedoria, Sorte, Controle, Engenharia, Alquimia, Resistência.
+- Sistema de Níveis de Item (0-100): Itens ganham experiência e níveis com o uso, aumentando o nível da classe relacionada.
+
+Filosofia de Design:
+Este mod foi criado com foco em BALANCEAMENTO e PROGRESSÃO NATURAL. Diferente de outros mods RPG que podem tornar o jogo muito fácil ou muito difícil, Wolf God RPG Core mantém a essência do Terraria enquanto adiciona profundidade RPG.
+- Multiplicadores de dano máximos (3x) para evitar números astronômicos.
+- O desafio é mantido em todas as fases através do scaling dinâmico.
+- A progressão é baseada em habilidade e uso, não em farming.
+- Compatível com a progressão natural do Terraria.
+- NPCs Elite fornecem desafio extra sem quebrar o balanceamento.
+
+Sistemas Implementados:
+- RPGPlayer: Sistema de stats e experiência do jogador.
+- BalancedNPC: Scaling dinâmico de NPCs baseado na progressão.
+- ProgressiveItem: Sistema de evolução de armas e itens.
+- RPGStatsUI: Interface simples para visualização de stats.
+- RPGKeybinds: Sistema de teclas de atalho.
 
 Controles:
-M - Abrir/Fechar Menu
-Q/E - Navegar entre páginas
-Clique nos botões para interagir
+- M: Abrir/Fechar Menu RPG completo.
+- Q/E: Navegar entre páginas do menu.
+- ESC: Fechar menu RPG.
+- R: Stats rápidos no chat.
 
-Classes:
-- Movimento (dash, velocidade)
-- Pulo (altura, pulo duplo)
-- Combate Corpo a Corpo
-- Combate à Distância
-- Magia
-- Invocação
-- Mineração
-- Construção
-- Pesca
-- Coleta
-- Bestiário
-- Comerciante
-- Defesa
-
-Cada classe tem seus próprios bônus e habilidades únicas que são desbloqueadas ao progredir!
-
-Versão 0.3 - Expansão de Classes e Status
-
-CARACTERÍSTICAS:
-
-- Sistema de Classes Principais (0-100):
-  * Guerreiro - Mestre do combate corpo a corpo
-  * Caçador - Especialista em combate à distância
-  * Mago - Mestre das artes arcanas
-  * Invocador - Controlador de minions
-  * Explorador - Mestre da mobilidade e coleta
-  * Construtor - Especialista em construção
-  * Sobrevivente - Mestre da sobrevivência
-  * Alquimista - Mestre das poções
-
-- Sistema de Subclasses (0-50, desbloqueadas no nível 50):
-  * Guerreiro:
-    - Berserker - Ganha poder ao receber dano
-    - Paladino - Guerreiro sagrado com poderes de cura
-    - Cavaleiro - Mestre da defesa e escudos
-  * Caçador:
-    - Atirador de Elite - Mestre da precisão
-    - Caçador - Especialista em rastreamento
-    - Pistoleiro - Mestre do tiro rápido
-  * (Mais subclasses serão adicionadas em breve!)
-
-- Status Primários:
-  * Força - Aumenta dano corpo a corpo e vida
-  * Destreza - Aumenta dano à distância e velocidade
-  * Inteligência - Aumenta dano mágico e mana
-  * Vitalidade - Aumenta vida e regeneração
-  * Agilidade - Aumenta velocidade e esquiva
-  * Sabedoria - Aumenta regeneração de mana e duração de buffs
-  * Sorte - Aumenta drops e críticos
-  * Controle - Aumenta poder dos minions
-  * Engenharia - Aumenta habilidades de construção
-  * Alquimia - Aumenta efeitos de poções
-  * Resistência - Aumenta defesa e redução de dano
-
-- Sistema de Fome e Sanidade:
-  * Fome afeta regeneração de vida
-  * Sanidade afeta vários aspectos do jogo
-
-- Sistema de Níveis de Item (0-100):
-  * Itens ganham experiência ao serem usados
-  * A cada 25 níveis, aumenta o nível da classe relacionada
-
-- Interface Melhorada:
-  * Menu completo com [M]
-  * Stats rápidos com [R]
-  * Navegação com [Q/E]
-  * Barras de progresso para tudo
-
-- Progressão Balanceada:
-  * Começa muito fraco
-  * Cada ação dá XP para classes relevantes
-  * Dificuldade dos chefes escala com nível total
-  * Sistema de XP progressivo
-
-DICAS:
-- Use [M] para abrir o menu completo
-- Use [R] para ver stats rápidos
-- Alimente-se para manter a regeneração
-- Foque em uma classe principal primeiro
-- Desbloqueie subclasses no nível 50
-- Melhore itens usando-os constantemente
+Dicas:
+- Use [M] para abrir o menu completo.
+- Use [R] para ver stats rápidos.
+- Alimente-se para manter a regeneração.
+- Foque em uma classe principal primeiro.
+- Desbloqueie subclasses no nível 50.
+- Melhore itens usando-os constantemente.
 
 Em breve:
-- Mais subclasses
-- Sistema de talentos
-- Missões especiais
-- Itens únicos por classe
-- Eventos especiais
+- Mais subclasses.
+- Sistema de talentos.
+- Missões especiais.
+- Itens únicos por classe.
+- Eventos especiais.
 
 Transforme sua jornada em Terraria em uma verdadeira aventura RPG!
-
-=== CARACTERÍSTICAS PRINCIPAIS ===
-
-🎯 SISTEMA DE STATS PROGRESSIVO
-• 5 atributos principais: Força, Agilidade, Inteligência, Vitalidade e Resistência
-• Stats crescem baseados no USO, não em pontos arbitrários
-• Balanceamento cuidadoso para manter o desafio do jogo original
-• Caps de crescimento previnem progressão descontrolada
-
-⚔️ SKILL LEVELS BASEADOS EM EXPERIÊNCIA
-• Níveis separados para Combate Corpo a Corpo, À Distância, Mágico, Invocação e Defesa
-• Quanto mais você usa um tipo de combate, melhor fica nele
-• Fórmula exponencial suave evita crescimento descontrolado
-• Experiência varia baseada na progressão do mundo
-
-🛡️ INIMIGOS QUE ESCALAM DINAMICAMENTE
-• Monstros ficam mais fortes conforme você progride
-• NPCs Elite raros (5% chance) com 20% mais vida e 10% mais dano
-• Bosses recebem scaling especial para manter o desafio
-• Sistema inteligente que detecta a progressão do mundo e nível dos jogadores
-
-⚡ ARMAS E MAGIAS QUE EVOLUEM
-• Itens ganham experiência e níveis com o uso (máximo nível 50)
-• Bônus de 2% de dano por nível (máximo 150% de bônus)
-• Experiência extra para acertos críticos e derrotar bosses
-• Tooltips informativos mostram a progressão e estatísticas
-
-🎮 SISTEMA DE MENU COMPLETO
-• Pressione 'R' para stats rápidos no chat
-• Pressione 'M' para abrir o MENU RPG COMPLETO com 5 páginas:
-  - STATS: Atributos e bônus detalhados
-  - SKILLS: Habilidades com barras de progresso
-  - ITENS: Lista de itens com progressão
-  - PROGRESSO: Visão geral e marcos do mundo
-  - INFO: Informações e configurações do mod
-• Design elegante com navegação por páginas
-• Sistema não intrusivo que não atrapalha o gameplay
-
-=== FILOSOFIA DE DESIGN ===
-
-Este mod foi criado com foco em BALANCEAMENTO e PROGRESSÃO NATURAL. 
-Diferente de outros mods RPG que podem tornar o jogo muito fácil ou muito difícil, 
-Wolf God RPG Core mantém a essência do Terraria enquanto adiciona profundidade RPG.
-
-• Multiplicadores de dano máximos (3x) para evitar números astronômicos
-• O desafio é mantido em todas as fases através do scaling dinâmico
-• A progressão é baseada em habilidade e uso, não em farming
-• Compatível com a progressão natural do Terraria
-• NPCs Elite fornecem desafio extra sem quebrar o balanceamento
-
-=== SISTEMAS IMPLEMENTADOS ===
-
-• RPGPlayer: Sistema de stats e experiência do jogador
-• BalancedNPC: Scaling dinâmico de NPCs baseado na progressão
-• ProgressiveItem: Sistema de evolução de armas e itens
-• RPGStatsUI: Interface simples para visualização de stats
-• RPGKeybinds: Sistema de teclas de atalho
-
-=== CONTROLES ===
-
-R - Stats rápidos no chat
-M - Menu RPG completo (5 páginas navegáveis!)
-Q/E - Navegar páginas (quando menu aberto)
-ESC - Fechar menu RPG
-
-=== BALANCEAMENTO ===
-
-• Stats iniciais: 10 em todos os atributos
-• Máximo de bônus por stat: +200 pontos
-• Multiplicador de dano máximo: 3.0x
-• Nível máximo de itens: 50
-• Chance de NPCs Elite: 5%
-• Fórmulas exponenciais suaves para progressão natural
-
-Desenvolvido com amor para a comunidade Terraria/tModLoader!
-Versão 1.0.0 - Sistema completo e balanceado

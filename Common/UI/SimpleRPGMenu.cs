@@ -33,15 +33,20 @@ namespace Wolfgodrpg.Common.UI
         private bool isVisible = false;
         private MenuPage currentPage = MenuPage.Stats;
 
+        private int currentClassPage = 0;
+        private const int classesPerPage = 5; // Ajustar conforme necessário
+
         public override void OnInitialize()
         {
             mainPanel = new UIPanel();
-            mainPanel.Width.Set(0.3f, 0f); // 30% da largura da tela
-            mainPanel.Height.Set(0f, -56f); // Altura total da tela menos 56 pixels (hotbar)
+            float panelWidth = Main.screenWidth * 0.8f; // 80% da largura da tela
+            float panelHeight = Main.screenHeight - 56f - 20f; // Altura total da tela menos a hotbar e uma margem inferior
+            mainPanel.Width.Set(panelWidth, 0f);
+            mainPanel.Height.Set(panelHeight, 0f);
             mainPanel.HAlign = 0f; // Alinhado à esquerda
             mainPanel.VAlign = 0f; // Alinhado ao topo
             mainPanel.Top.Set(56f, 0f); // Começa 56 pixels abaixo do topo (abaixo da hotbar)
-            mainPanel.Left.Set(0f, 0f); // Alinhado à esquerda
+            mainPanel.Left.Set(50f, 0f); // Adicionar uma margem de 50 pixels à esquerda
             mainPanel.BackgroundColor = new Color(33, 43, 79) * 0.8f;
             Append(mainPanel);
 
@@ -207,7 +212,6 @@ namespace Wolfgodrpg.Common.UI
             int pageCount = Enum.GetNames(typeof(MenuPage)).Length;
             pageIndex = (pageIndex + (forward ? 1 : -1) + pageCount) % pageCount;
             currentPage = (MenuPage)pageIndex;
-            Main.NewText($"[SimpleRPGMenu] Page changed to: {currentPage}", Color.Yellow); // Debug line
         }
 
         public void Show() { isVisible = true; }

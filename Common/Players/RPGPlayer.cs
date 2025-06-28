@@ -31,6 +31,9 @@ namespace Wolfgodrpg.Common.Players
         public int StaminaRegenDelay = 0;
         public int CombatTimer = 0; // Cronômetro para rastrear tempo em combate
 
+        private int _lastLife;
+        private bool _wasWellFed;
+
         // Configuração
         private RPGConfig Config => ModContent.GetInstance<RPGConfig>();
 
@@ -55,11 +58,26 @@ namespace Wolfgodrpg.Common.Players
             var totalStats = RPGCalculations.CalculateTotalStats(this);
             RPGCalculations.ApplyStatsToPlayer(Player, totalStats);
             ApplySpecialAbilities();
+
+            // XP para Sobrevivente (Regeneração de Vida)
+            if (Player.statLife > _lastLife && _lastLife != 0)
+            {
+                float lifeRegained = Player.statLife - _lastLife;
+                GainClassExp("survivor", lifeRegained * 0.1f); // Ganha XP baseado na vida regenerada
+            }
+
+            // XP para Sobrevivente (Comer - Buff Well Fed)
+            bool isWellFed = Player.HasBuff(Terraria.ID.BuffID.WellFed);
+            if (isWellFed && !_wasWellFed)
+            {
+                GainClassExp("survivor", 5f); // Ganha uma pequena quantidade de XP ao ficar Well Fed
+            }
+            _wasWellFed = isWellFed;
+            _lastLife = Player.statLife;
         }
 
         private void ApplySpecialAbilities()
         {
-            Main.NewText($"[RPGPlayer] ApplySpecialAbilities called. Current dash: {Player.dash}", Color.Orange); // Debug
             Player.waterWalk = false;
             Player.lavaImmune = false;
             Player.wingsLogic = 0;
@@ -70,8 +88,7 @@ namespace Wolfgodrpg.Common.Players
                 switch (ability)
                 {
                     case "movement_50": // Dash Duplo (Exemplo)
-                        if (Player.dashType == 0) Player.dash = 1;
-                        Main.NewText($"[RPGPlayer] movement_50 ability applied. Player.dash set to: {Player.dash}", Color.Orange); // Debug
+                        if (Player.dashType == 0) Player.dash = 2;
                         break;
                 }
             }
@@ -91,13 +108,11 @@ namespace Wolfgodrpg.Common.Players
 
         public void GainClassExp(string className, float amount)
         {
-            Main.NewText($"[RPGPlayer] Gaining XP for class '{className}': Base amount = {amount:F2}", Color.LightGreen); // Debug
             if (!ClassExperience.ContainsKey(className)) return;
 
             float finalAmount = amount * Config.ExpMultiplier;
             if (Main.hardMode) finalAmount *= 1.5f;
             if (NPC.downedMoonlord) finalAmount *= 2f;
-            Main.NewText($"[RPGPlayer] Final XP for class '{className}': {finalAmount:F2}", Color.LightGreen); // Debug
 
             ClassExperience[className] += finalAmount;
 
@@ -143,7 +158,7 @@ namespace Wolfgodrpg.Common.Players
             if (UnlockedAbilities.Add(ability))
             {
                 Main.NewText($"Nova habilidade desbloqueada: {ability}!", Color.LightBlue);
-                Main.NewText($"[RPGPlayer] Ability '{ability}' unlocked.", Color.LightBlue); // Debug
+                Main.NewText($"[RPGPlayer] Ability '{ability}' unlocked.", Color.LightBlue); // Reativado
             }
         }
 
@@ -167,6 +182,8 @@ namespace Wolfgodrpg.Common.Players
         {
             // Ao ser atingido, reseta o cronômetro de combate
             CombatTimer = 0;
+            // Ganha XP para a classe de Defesa ao tomar dano
+            GainClassExp("defense", hurtInfo.Damage * 0.1f); // Ajuste o multiplicador conforme necessário
         }
 
         public override void Kill(double damage, int hitDirection, bool pvp, PlayerDeathReason damageSource)

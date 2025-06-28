@@ -55,21 +55,28 @@ namespace Wolfgodrpg.Common.Systems
                     {
                         var rpgPlayer = Main.LocalPlayer.GetModPlayer<RPGPlayer>();
                         SpriteBatch spriteBatch = Main.spriteBatch;
-                        Vector2 position = new Vector2(10, 10); // Posição inicial, ajustar conforme necessário
+                        Vector2 position = new Vector2(Main.screenWidth - 50, Main.screenHeight - 50); // Posição inicial, canto inferior direito
 
-                        // Desenhar Fome
-                        string hungerText = $"Fome: {rpgPlayer.CurrentHunger:F0}%";
-                        Utils.DrawBorderStringFourWay(spriteBatch, Terraria.GameContent.FontAssets.MouseText.Value, hungerText, position.X, position.Y, Color.Orange, Color.Black, Vector2.Zero, 1f);
-                        position.Y += Terraria.GameContent.FontAssets.MouseText.Value.MeasureString(hungerText).Y + 2; // Mover para baixo
+                        // Desenhar Stamina (desenhar de baixo para cima para alinhar ao fundo)
+                        string staminaText = $"Stamina: {rpgPlayer.CurrentStamina:F0}%";
+                        Vector2 staminaSize = Terraria.GameContent.FontAssets.MouseText.Value.MeasureString(staminaText);
+                        position.X -= staminaSize.X; // Ajustar X para alinhar à direita
+                        position.Y -= staminaSize.Y; // Ajustar Y para alinhar ao fundo
+                        Utils.DrawBorderStringFourWay(spriteBatch, Terraria.GameContent.FontAssets.MouseText.Value, staminaText, position.X, position.Y, Color.Yellow, Color.Black, Vector2.Zero, 1f);
 
                         // Desenhar Sanidade
                         string sanityText = $"Sanidade: {rpgPlayer.CurrentSanity:F0}%";
+                        Vector2 sanitySize = Terraria.GameContent.FontAssets.MouseText.Value.MeasureString(sanityText);
+                        position.X = Main.screenWidth - 20 - sanitySize.X; // Resetar X e ajustar
+                        position.Y -= sanitySize.Y + 2; // Mover para cima
                         Utils.DrawBorderStringFourWay(spriteBatch, Terraria.GameContent.FontAssets.MouseText.Value, sanityText, position.X, position.Y, Color.Purple, Color.Black, Vector2.Zero, 1f);
-                        position.Y += Terraria.GameContent.FontAssets.MouseText.Value.MeasureString(sanityText).Y + 2; // Mover para baixo
 
-                        // Desenhar Stamina
-                        string staminaText = $"Stamina: {rpgPlayer.CurrentStamina:F0}%";
-                        Utils.DrawBorderStringFourWay(spriteBatch, Terraria.GameContent.FontAssets.MouseText.Value, staminaText, position.X, position.Y, Color.Yellow, Color.Black, Vector2.Zero, 1f);
+                        // Desenhar Fome
+                        string hungerText = $"Fome: {rpgPlayer.CurrentHunger:F0}%";
+                        Vector2 hungerSize = Terraria.GameContent.FontAssets.MouseText.Value.MeasureString(hungerText);
+                        position.X = Main.screenWidth - 20 - hungerSize.X; // Resetar X e ajustar
+                        position.Y -= hungerSize.Y + 2; // Mover para cima
+                        Utils.DrawBorderStringFourWay(spriteBatch, Terraria.GameContent.FontAssets.MouseText.Value, hungerText, position.X, position.Y, Color.Orange, Color.Black, Vector2.Zero, 1f);
 
                         return true;
                     },

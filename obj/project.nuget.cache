@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "j45jXGrapBA=",
+  "dgSpecHash": "L5FJuzzLDk8=",
   "success": true,
-  "projectFilePath": "C:\\Users\\tatal\\Documents\\My games\\Terraria\\tModLoader\\ModSources\\Wolfgodrpg\\Wolfgodrpg.csproj",
+  "projectFilePath": "C:\\Users\\tatal\\Documents\\My Games\\Terraria\\tModLoader\\ModSources\\Wolfgodrpg\\Wolfgodrpg.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\tatal\\.nuget\\packages\\tmodloader.codeassist\\0.1.5\\tmodloader.codeassist.0.1.5.nupkg.sha512"
   ],

@@ -1,10 +1,10 @@
-[h1]WolfGod RPG (VERSÃO ALFA)[/h1]
-Um mod que adiciona elementos de RPG profundos ao Terraria, com progressão baseada em ações e sistemas totalmente configuráveis! Esta é uma versão ALFA, sujeita a mudanças e pode conter bugs. Seu feedback é crucial!
+[h1]WolfGod RPG (v0.4)[/h1]
+Um mod que adiciona elementos de RPG profundos ao Terraria, com progressão baseada em ações e sistemas totalmente configuráveis!
 
 [h2]Características Principais[/h2]
 [list]
 [*] [b]Progressão por Ação:[/b] Ganhe experiência em 13 classes (Combate, Mineração, Movimento, etc.) simplesmente jogando. Cada ação contribui para o desenvolvimento de classes específicas.
-[*] [b]Habilidades Únicas:[/b] Desbloqueie habilidades especiais e passivas em cada classe ao atingir certos níveis (ex: dash aprimorado, pulo duplo, bônus de dano).
+[*] [b]Habilidades Únicas:[/b] Desbloqueie habilidades especiais e passivas em cada classe ao atingir certos níveis.
 [*] [b]Sistema de Itens Aprimorado:[/b] Encontre itens com raridades e status aleatórios que se adaptam à sua progressão.
 [*] [b]Sistemas de Sobrevivência:[/b] Gerencie Fome e Sanidade, que afetam seu personagem e são totalmente configuráveis.
 [*] [b]Configurações Extensivas:[/b] Personalize quase todos os aspectos do mod, incluindo multiplicadores de XP, UI, vitals e balanceamento.
@@ -13,21 +13,16 @@ Um mod que adiciona elementos de RPG profundos ao Terraria, com progressão base
 [h2]Controles[/h2]
 [list]
 [*] M - Abrir/fechar menu principal do RPG
-[*] PageDown/PageUp - Navegar entre as páginas do menu
+[*] Q/E - Navegar entre as páginas do menu
+[*] R - Stats rápidos no chat
 [/list]
 
 [h2]Links Úteis[/h2]
 [url=https://github.com/wolfgod/terraria-rpg-mod]GitHub[/url] - Código fonte e relatório de bugs
 [url=https://discord.gg/wolfgod]Discord[/url] - Comunidade e suporte
 
-[h2]Instalação[/h2]
-1. Instale via Workshop do Steam.
-2. Ative o mod no tModLoader.
-3. Crie um novo personagem ou use um existente.
-4. Aproveite sua nova aventura RPG!
-
 [h2]Bugs e Sugestões[/h2]
-Como esta é uma versão ALFA, bugs são esperados. Por favor, reporte qualquer problema ou envie sugestões na página de discussão do Workshop ou no nosso GitHub. Sua colaboração é muito importante!
+Por favor, reporte qualquer problema ou envie sugestões na página de discussão do Workshop ou no nosso GitHub. Sua colaboração é muito importante!
 
 [h2]Créditos[/h2]
 Desenvolvido por Wolf God Team.
