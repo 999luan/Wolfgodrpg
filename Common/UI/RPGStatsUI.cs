@@ -10,7 +10,7 @@ namespace Wolfgodrpg.Common.UI
 {
     public class RPGStatsUI : UIState
     {
-        private UIPanel mainPanel;
+        private RPGPanel mainPanel;
         private bool isVisible = false;
 
         // Elementos da UI para os Vitals

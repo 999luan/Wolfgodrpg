@@ -33,7 +33,7 @@ namespace Wolfgodrpg.Common.Systems
 
             var rpgPlayer = player.GetModPlayer<RPGPlayer>();
 
-            // Movimento (Explorer XP)
+            // Movimento (Movement XP)
             float currentX = player.position.X;
             float currentY = player.position.Y;
             
@@ -46,7 +46,7 @@ namespace Wolfgodrpg.Common.Systems
                 
                 distanceTraveled += distance;
                 
-                // A cada 1000 unidades de distância, ganha XP de Explorer
+                // A cada 1000 unidades de distância, ganha XP de Movement
                 if (distanceTraveled >= 1000f)
                 {
                     rpgPlayer.GainClassExp("movement", 10f);
@@ -150,7 +150,7 @@ namespace Wolfgodrpg.Common.Systems
                 modPlayer.GainClassExp("melee", baseXP);
                 modPlayer.GainClassExp("ranged", baseXP);
                 modPlayer.GainClassExp("magic", baseXP);
-                modPlayer.GainClassExp("summoner", baseXP);
+                modPlayer.GainClassExp("summon", baseXP);
                 modPlayer.GainClassExp("defense", baseXP * 0.5f);
                 modPlayer.GainClassExp("bestiary", baseXP * 0.2f); // Add XP for bestiary
             }
@@ -181,7 +181,7 @@ namespace Wolfgodrpg.Common.Systems
             }
             else if (item.DamageType == DamageClass.Summon)
             {
-                modPlayer.GainClassExp("summoner", baseXP);
+                modPlayer.GainClassExp("summon", baseXP);
             }
         }
 
@@ -200,7 +200,7 @@ namespace Wolfgodrpg.Common.Systems
                 rpgPlayer.MaxHunger
             );
 
-            rpgPlayer.GainClassExp("defense", 5f);
+            rpgPlayer.GainClassExp("survivor", 5f);
         }
     }
 } 

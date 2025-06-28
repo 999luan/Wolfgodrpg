@@ -241,87 +241,97 @@ namespace Wolfgodrpg.Common.Classes
                 "Defesa",
                 "Mestre da sobrevivência",
                 new Dictionary<string, float> {
-                    {"defense", 0.1f},           // +0.1 defesa por nível
+                    {"defense", 0.5f},           // +0.5 defesa por nível
+                    {"maxLife", 2f},             // +2 vida máxima por nível
+                    {"lifeRegen", 0.1f},         // +0.1 regeneração de vida por nível
                     {"damageReduction", 0.001f}, // +0.1% redução de dano por nível
-                    {"lifeRegen", 0.001f},       // +0.1% regeneração de vida por nível
-                    {"maxLife", 0.002f},         // +0.2% vida máxima por nível
                 },
                 new Dictionary<int, string> {
-                    {25, "Defesa reforçada"},
-                    {50, "Defesa aprimorada"},
+                    {25, "Defesa básica"},
+                    {50, "Defesa avançada"},
                     {75, "Defesa mestre"},
                     {100, "Defesa suprema"}
                 }
             )},
 
-            // Classe de Fazendeiro
-            {"farming", new ClassInfo(
-                "Fazendeiro",
-                "Mestre da agricultura e culinária",
+            // Sobrevivente
+            {"survivor", new ClassInfo(
+                "Sobrevivente",
+                "Mestre da sobrevivência",
                 new Dictionary<string, float> {
-                    {"harvestChance", 0.005f},    // +0.5% chance de colheita dupla por nível
-                    {"seedChance", 0.005f},       // +0.5% chance de sementes extras por nível
-                    {"foodDuration", 0.002f},     // +0.2% duração dos buffs de comida por nível
-                    {"potionBonus", 0.001f}        // +0.1% bônus de poções de cura por nível
+                    {"maxLife", 1f},             // +1 vida máxima por nível
+                    {"lifeRegen", 0.05f},        // +0.05 regeneração de vida por nível
+                    {"hungerResistance", 0.002f}, // +0.2% resistência à fome por nível
+                    {"sanityResistance", 0.002f}, // +0.2% resistência à sanidade por nível
                 },
                 new Dictionary<int, string> {
-                    {25, "Mãos Verdes"},
-                    {50, "Colheita Abundante"},
-                    {75, "Culinária Mestre"},
-                    {100, "Sementes Douradas"}
+                    {25, "Sobrevivência básica"},
+                    {50, "Sobrevivência avançada"},
+                    {75, "Sobrevivência mestre"},
+                    {100, "Sobrevivência suprema"}
                 }
             )},
 
-            // Classe de Regeneração
+            // Regeneração
             {"regeneration", new ClassInfo(
                 "Regeneração",
-                "Mestre da recuperação vital",
+                "Mestre da regeneração",
                 new Dictionary<string, float> {
-                    {"lifeRegen", 0.003f},       // +0.3% regeneração de vida por nível
-                    {"manaRegen", 0.002f},       // +0.2% regeneração de mana por nível
-                    {"staminaRegen", 0.002f},    // +0.2% regeneração de estamina por nível
-                    {"potionCooldown", -0.001f}  // -0.1% tempo de recarga de poção por nível
+                    {"lifeRegen", 0.1f},         // +0.1 regeneração de vida por nível
+                    {"manaRegen", 0.05f},        // +0.05 regeneração de mana por nível
+                    {"healingBonus", 0.002f},    // +0.2% bônus de cura por nível
+                    {"regenEfficiency", 0.001f}, // +0.1% eficiência de regeneração por nível
                 },
                 new Dictionary<int, string> {
-                    {25, "Recuperação Rápida"},
-                    {50, "Vigor Aprimorado"},
-                    {75, "Poções Potentes"},
-                    {100, "Fluxo Vital Incessante"}
+                    {25, "Regeneração básica"},
+                    {50, "Regeneração avançada"},
+                    {75, "Regeneração mestre"},
+                    {100, "Regeneração suprema"}
                 }
             )}
         };
 
-        // Status aleatórios possíveis para itens
+        // Stats aleatórios que podem aparecer em itens
         public static readonly Dictionary<string, StatInfo> RandomStats = new Dictionary<string, StatInfo>
         {
-            {"expGain", new StatInfo("Ganho de Experiência", 0.01f, 0.05f)},
-            {"classExpGain", new StatInfo("Ganho de Exp. de Classe", 0.02f, 0.1f)},
-            {"moveSpeed", new StatInfo("Velocidade de Movimento", 0.01f, 0.05f)},
-            {"jumpBoost", new StatInfo("Altura do Pulo", 0.01f, 0.05f)},
-            {"meleeDamage", new StatInfo("Dano Corpo a Corpo", 0.01f, 0.05f)},
-            {"rangedDamage", new StatInfo("Dano à Distância", 0.01f, 0.05f)},
-            {"magicDamage", new StatInfo("Dano Mágico", 0.01f, 0.05f)},
-            {"minionDamage", new StatInfo("Dano de Minion", 0.01f, 0.05f)},
-            {"critChance", new StatInfo("Chance Crítica", 0.01f, 0.05f)},
-            {"defense", new StatInfo("Defesa", 1f, 5f)},
-            {"lifeRegen", new StatInfo("Regeneração de Vida", 0.1f, 0.5f)},
-            {"manaRegen", new StatInfo("Regeneração de Mana", 0.1f, 0.5f)},
-            {"maxLife", new StatInfo("Vida Máxima", 5f, 25f)},
-            {"maxMana", new StatInfo("Mana Máxima", 5f, 25f)},
-            {"luck", new StatInfo("Sorte", 0.01f, 0.05f)}
+            // Ofensivo
+            {"meleeDamage", new StatInfo("Dano Corpo a Corpo", 0.05f, 0.15f)},
+            {"rangedDamage", new StatInfo("Dano à Distância", 0.05f, 0.15f)},
+            {"magicDamage", new StatInfo("Dano Mágico", 0.05f, 0.15f)},
+            {"minionDamage", new StatInfo("Dano de Minion", 0.05f, 0.15f)},
+            {"critChance", new StatInfo("Chance Crítica", 1f, 5f)},
+            
+            // Defensivo
+            {"defense", new StatInfo("Defesa", 1f, 3f)},
+            {"maxLife", new StatInfo("Vida Máxima", 5f, 15f)},
+            {"lifeRegen", new StatInfo("Regeneração de Vida", 0.5f, 2f)},
+            {"damageReduction", new StatInfo("Redução de Dano", 0.01f, 0.05f)},
+            
+            // Utilidade
+            {"moveSpeed", new StatInfo("Velocidade", 0.05f, 0.15f)},
+            {"jumpHeight", new StatInfo("Altura do Pulo", 0.05f, 0.15f)},
+            {"maxMana", new StatInfo("Mana Máxima", 10f, 30f)},
+            {"manaRegen", new StatInfo("Regeneração de Mana", 0.5f, 2f)},
+            {"manaCost", new StatInfo("Redução de Custo de Mana", 0.05f, 0.15f)},
+            {"minionSlots", new StatInfo("Slots de Minion", 0.5f, 1.5f)},
+            {"miningSpeed", new StatInfo("Velocidade de Mineração", 0.05f, 0.15f)},
+            
+            // Especiais
+            {"luck", new StatInfo("Sorte", 0.1f, 0.3f)},
+            {"expGain", new StatInfo("Ganho de Experiência", 0.05f, 0.15f)}
         };
 
-        // Número de status aleatórios por raridade
+        // Quantidade de stats por raridade
         public static readonly Dictionary<ItemRarity, int> StatsPerRarity = new Dictionary<ItemRarity, int>
         {
-            {ItemRarity.Common, 0},
-            {ItemRarity.Uncommon, 1},
-            {ItemRarity.Rare, 2},
-            {ItemRarity.Epic, 3},
-            {ItemRarity.Legendary, 4}
+            {ItemRarity.Common, 1},
+            {ItemRarity.Uncommon, 2},
+            {ItemRarity.Rare, 3},
+            {ItemRarity.Epic, 4},
+            {ItemRarity.Legendary, 5}
         };
 
-        // Multiplicador de valor dos status por raridade
+        // Multiplicador de stats por raridade
         public static readonly Dictionary<ItemRarity, float> StatMultiplierPerRarity = new Dictionary<ItemRarity, float>
         {
             {ItemRarity.Common, 1.0f},

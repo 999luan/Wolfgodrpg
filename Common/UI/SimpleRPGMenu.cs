@@ -24,21 +24,24 @@ namespace Wolfgodrpg.Common.UI
 
     public class SimpleRPGMenu : UIState
     {
-        private UIPanel mainPanel;
+        private RPGPanel mainPanel;
         private UIText pageTitle;
-        private UIText pageContent;
-        
-        
+        private RPGStatsPageUI _statsPageUI;
+        private RPGClassesPageUI _classesPageUI;
+        private RPGItemsPageUI _itemsPageUI;
+        private RPGProgressPageUI _progressPageUI;
+        private RPGProgressPageUI _progressPageUI;
+        private List<RPGTabButton> _tabButtons;
+        private UIElement _tabButtonContainer;
 
         private bool isVisible = false;
         private MenuPage currentPage = MenuPage.Stats;
 
-        private int currentClassPage = 0;
-        private const int classesPerPage = 5; // Ajustar conforme necessário
+        
 
         public override void OnInitialize()
         {
-            mainPanel = new UIPanel();
+            mainPanel = new RPGPanel();
             float panelWidth = Main.screenWidth * 0.8f; // 80% da largura da tela
             float panelHeight = Main.screenHeight - 56f - 20f; // Altura total da tela menos a hotbar e uma margem inferior
             mainPanel.Width.Set(panelWidth, 0f);
@@ -47,7 +50,6 @@ namespace Wolfgodrpg.Common.UI
             mainPanel.VAlign = 0f; // Alinhado ao topo
             mainPanel.Top.Set(56f, 0f); // Começa 56 pixels abaixo do topo (abaixo da hotbar)
             mainPanel.Left.Set(50f, 0f); // Adicionar uma margem de 50 pixels à esquerda
-            mainPanel.BackgroundColor = new Color(33, 43, 79) * 0.8f;
             Append(mainPanel);
 
             pageTitle = new UIText("", 1.2f, true);
@@ -55,17 +57,76 @@ namespace Wolfgodrpg.Common.UI
             pageTitle.Top.Set(15f, 0f);
             mainPanel.Append(pageTitle);
 
-            pageContent = new UIText("", 0.9f);
-            pageContent.Width.Set(0, 0.9f);
-            pageContent.Height.Set(0, 0.8f);
-            pageContent.HAlign = 0.5f;
-            pageContent.VAlign = 0.5f;
-            pageContent.Top.Set(20f, 0f);
-            mainPanel.Append(pageContent);
+            _statsPageUI = new RPGStatsPageUI();
+            _statsPageUI.Width.Set(0, 0.9f);
+            _statsPageUI.Height.Set(0, 0.8f);
+            _statsPageUI.HAlign = 0.5f;
+            _statsPageUI.VAlign = 0.5f;
+            _statsPageUI.Top.Set(80f, 0f); // Adjusted top position
+            mainPanel.Append(_statsPageUI);
+            _statsPageUI.Deactivate(); // Ensure it's hidden initially
 
-            
+            _classesPageUI = new RPGClassesPageUI();
+            _classesPageUI.Width.Set(0, 0.9f);
+            _classesPageUI.Height.Set(0, 0.8f);
+            _classesPageUI.HAlign = 0.5f;
+            _classesPageUI.VAlign = 0.5f;
+            _classesPageUI.Top.Set(80f, 0f); // Adjusted top position
+            mainPanel.Append(_classesPageUI);
+            _classesPageUI.Deactivate();
 
+            _itemsPageUI = new RPGItemsPageUI();
+            _itemsPageUI.Width.Set(0, 0.9f);
+            _itemsPageUI.Height.Set(0, 0.8f);
+            _itemsPageUI.HAlign = 0.5f;
+            _itemsPageUI.VAlign = 0.5f;
+            _itemsPageUI.Top.Set(80f, 0f); // Adjusted top position
+            mainPanel.Append(_itemsPageUI);
+            _itemsPageUI.Deactivate();
+
+            _progressPageUI = new RPGProgressPageUI();
+            _progressPageUI.Width.Set(0, 0.9f);
+            _progressPageUI.Height.Set(0, 0.8f);
+            _progressPageUI.HAlign = 0.5f;
+            _progressPageUI.VAlign = 0.5f;
+            _progressPageUI.Top.Set(80f, 0f); // Adjusted top position
+            mainPanel.Append(_progressPageUI);
+            _progressPageUI.Deactivate();
+
+            _tabButtonContainer = new UIElement();
+            _tabButtonContainer.Width.Set(0, 1f);
+            _tabButtonContainer.Height.Set(30f, 0f); // Height for tab buttons
+            _tabButtonContainer.Top.Set(50f, 0f); // Position below title
+            mainPanel.Append(_tabButtonContainer);
+
+            _tabButtons = new List<RPGTabButton>();
+
+            // Create tab buttons
+            RPGTabButton statsTab = new RPGTabButton("Stats", "Wolfgodrpg/Assets/UI/ButtonNext", "Wolfgodrpg/Assets/UI/ButtonPrevious");
+            statsTab.Left.Set(10f, 0f);
+            statsTab.OnClick += (evt, element) => SetPage(MenuPage.Stats);
+            _tabButtonContainer.Append(statsTab);
+            _tabButtons.Add(statsTab);
+
+            RPGTabButton classesTab = new RPGTabButton("Classes", "Wolfgodrpg/Assets/UI/ButtonNext", "Wolfgodrpg/Assets/UI/ButtonPrevious");
+            classesTab.Left.Set(statsTab.Width.Pixels + 20f, 0f); // Position next to statsTab
+            classesTab.OnClick += (evt, element) => SetPage(MenuPage.Classes);
+            _tabButtonContainer.Append(classesTab);
+            _tabButtons.Add(classesTab);
+
+            RPGTabButton itemsTab = new RPGTabButton("Items", "Wolfgodrpg/Assets/UI/ButtonNext", "Wolfgodrpg/Assets/UI/ButtonPrevious");
+            itemsTab.Left.Set(statsTab.Width.Pixels + classesTab.Width.Pixels + 30f, 0f); // Position next to classesTab
+            itemsTab.OnClick += (evt, element) => SetPage(MenuPage.Items);
+            _tabButtonContainer.Append(itemsTab);
+            _tabButtons.Add(itemsTab);
+
+            RPGTabButton progressTab = new RPGTabButton("Progress", "Wolfgodrpg/Assets/UI/ButtonNext", "Wolfgodrpg/Assets/UI/ButtonPrevious");
+            progressTab.Left.Set(statsTab.Width.Pixels + classesTab.Width.Pixels + itemsTab.Width.Pixels + 40f, 0f); // Position next to itemsTab
+            progressTab.OnClick += (evt, element) => SetPage(MenuPage.Progress);
+            _tabButtonContainer.Append(progressTab);
+            _tabButtons.Add(progressTab);
             
+            SetPage(currentPage); // Set initial page and select the correct tab
         }
 
         public override void Update(GameTime gameTime)
@@ -79,6 +140,13 @@ namespace Wolfgodrpg.Common.UI
         private void UpdatePageContent()
         {
             var modPlayer = Main.LocalPlayer.GetModPlayer<RPGPlayer>();
+
+            // Hide all page UIs first
+            _statsPageUI.Deactivate();
+            _classesPageUI.Deactivate();
+            _itemsPageUI.Deactivate();
+            _progressPageUI.Deactivate();
+
             switch (currentPage)
             {
                 case MenuPage.Stats:
@@ -99,119 +167,57 @@ namespace Wolfgodrpg.Common.UI
         private void ShowStatsPage(RPGPlayer modPlayer)
         {
             pageTitle.SetText("Atributos do Personagem");
-            var player = modPlayer.Player;
-            var totalStats = RPGCalculations.CalculateTotalStats(modPlayer);
-            var sb = new StringBuilder();
-
-            sb.AppendLine($"Vida: {player.statLife} / {player.statLifeMax2}");
-            sb.AppendLine($"Mana: {player.statMana} / {player.statManaMax2}");            sb.AppendLine($"Defesa: {player.statDefense}");            sb.AppendLine("\n--- Bônus Totais ---");
-
-            foreach (var stat in totalStats)
-            {
-                string statName = RPGClassDefinitions.RandomStats.ContainsKey(stat.Key) ? RPGClassDefinitions.RandomStats[stat.Key].Name : stat.Key;
-                string valueString = stat.Value < 1 && stat.Value > 0 ? $"+{stat.Value:P1}" : $"+{stat.Value:F2}";
-                sb.AppendLine($"{statName}: {valueString}");
-            }
-
-            pageContent.SetText(sb.ToString());
+            _statsPageUI.UpdateStats(modPlayer);
+            _statsPageUI.Activate(); // Activate makes the element visible
         }
 
         private void ShowClassesPage(RPGPlayer modPlayer)
         {
             pageTitle.SetText("Classes e Habilidades");
-            var sb = new StringBuilder();
-
-            foreach (var classEntry in RPGClassDefinitions.ActionClasses)
-            {
-                string className = classEntry.Key;
-                var classInfo = classEntry.Value;
-                float level = modPlayer.GetClassLevel(className);
-                float currentExp = modPlayer.ClassExperience.ContainsKey(className) ? modPlayer.ClassExperience[className] : 0;
-                
-                sb.AppendLine($"--- {classInfo.Name} ---");
-                sb.AppendLine($"Nível: {level:F0} (XP: {currentExp:F0})");
-
-                foreach (var milestone in classInfo.Milestones)
-                {
-                    string abilityId = $"{className}_{milestone.Key}";
-                    bool unlocked = modPlayer.HasUnlockedAbility(abilityId);
-                    string status = unlocked ? "[Desbloqueado]" : "[Bloqueado]";
-                    sb.AppendLine($"  Nível {milestone.Key}: {milestone.Value} {status}");
-                }
-                sb.AppendLine();
-            }
-
-            pageContent.SetText(sb.ToString());
+            _classesPageUI.UpdateClasses(modPlayer);
+            _classesPageUI.Activate();
         }
 
         private void ShowItemsPage()
         {
             pageTitle.SetText("Itens com Atributos");
-            var sb = new StringBuilder();
-            var player = Main.LocalPlayer;
-
-            // Armadura e Acessórios
-            for (int i = 0; i < player.armor.Length; i++)
-            {
-                Item item = player.armor[i];
-                if (item != null && !item.IsAir && item.TryGetGlobalItem(out RPGGlobalItem globalItem) && globalItem.randomStats.Count > 0)
-                {
-                    sb.AppendLine($"--- {item.Name} ---");
-                    foreach (var stat in globalItem.randomStats)
-                    {
-                        var statInfo = RPGClassDefinitions.RandomStats[stat.Key];
-                        string valueString = stat.Value < 1 ? $"+{stat.Value:P1}" : $"+{stat.Value:F0}";
-                        sb.AppendLine($"  {valueString} {statInfo.Name}");
-                    }
-                    sb.AppendLine();
-                }
-            }
-
-            // Item Segurado
-            Item heldItem = player.HeldItem;
-            if (heldItem != null && !heldItem.IsAir && heldItem.TryGetGlobalItem(out RPGGlobalItem heldGlobalItem) && heldGlobalItem.randomStats.Count > 0)
-            {
-                sb.AppendLine($"--- {heldItem.Name} (Segurando) ---");
-                foreach (var stat in heldGlobalItem.randomStats)
-                {
-                    var statInfo = RPGClassDefinitions.RandomStats[stat.Key];
-                    string valueString = stat.Value < 1 ? $"+{stat.Value:P1}" : $"+{stat.Value:F0}";
-                    sb.AppendLine($"  {valueString} {statInfo.Name}");
-                }
-            }
-
-            if (sb.Length == 0)
-            {
-                sb.AppendLine("Nenhum item com atributos equipado.");
-            }
-
-            pageContent.SetText(sb.ToString());
+            _itemsPageUI.UpdateItems();
+            _itemsPageUI.Activate();
         }
 
         private void ShowProgressPage(RPGPlayer modPlayer)
         {
             pageTitle.SetText("Progresso do Jogo");
-            var sb = new StringBuilder();
-            
-            sb.AppendLine("--- Chefes Derrotados ---");
-            sb.AppendLine($"Olho de Cthulhu: {(NPC.downedBoss1 ? "Sim" : "Não")}");
-            sb.AppendLine($"Devorador/Cérebro: {(NPC.downedBoss2 ? "Sim" : "Não")}");
-            sb.AppendLine($"Esqueletron: {(NPC.downedBoss3 ? "Sim" : "Não")}");
-            sb.AppendLine($"Rainha Abelha: {(NPC.downedQueenBee ? "Sim" : "Não")}");
-            sb.AppendLine($"Parede de Carne: {(Main.hardMode ? "Sim" : "Não")}");
-            sb.AppendLine($"Plantera: {(NPC.downedPlantBoss ? "Sim" : "Não")}");
-            sb.AppendLine($"Golem: {(NPC.downedGolemBoss ? "Sim" : "Não")}");
-            sb.AppendLine($"Senhor da Lua: {(NPC.downedMoonlord ? "Sim" : "Não")}");
-
-            pageContent.SetText(sb.ToString());
+            _progressPageUI.UpdateProgress(modPlayer);
+            _progressPageUI.Activate();
         }
 
-        public void ChangePage(bool forward)
+        public void SetPage(MenuPage page)
         {
-            int pageIndex = (int)currentPage;
-            int pageCount = Enum.GetNames(typeof(MenuPage)).Length;
-            pageIndex = (pageIndex + (forward ? 1 : -1) + pageCount) % pageCount;
-            currentPage = (MenuPage)pageIndex;
+            currentPage = page;
+            UpdatePageContent();
+
+            // Update tab button selection
+            foreach (var tabButton in _tabButtons)
+            {
+                tabButton.IsSelected = false;
+            }
+
+            switch (currentPage)
+            {
+                case MenuPage.Stats:
+                    _tabButtons[0].IsSelected = true;
+                    break;
+                case MenuPage.Classes:
+                    _tabButtons[1].IsSelected = true;
+                    break;
+                case MenuPage.Items:
+                    _tabButtons[2].IsSelected = true;
+                    break;
+                case MenuPage.Progress:
+                    _tabButtons[3].IsSelected = true;
+                    break;
+            }
         }
 
         public void Show() { isVisible = true; }
