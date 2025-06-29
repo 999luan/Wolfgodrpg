@@ -1,712 +1,392 @@
 # WolfGod RPG - Mod para Terraria
 
-## Visão Geral
+## 📋 Índice
+1. [Visão Geral](#visão-geral)
+2. [Arquitetura do Mod](#arquitetura-do-mod)
+3. [Sistemas Principais](#sistemas-principais)
+4. [Sistema de Debug e Logging](#sistema-de-debug-e-logging)
+5. [UI e Interface](#ui-e-interface)
+6. [Progression e Balanceamento](#progression-e-balanceamento)
+7. [Vitals e Status](#vitals-e-status)
+8. [Item Stats e Evolução](#item-stats-e-evolução)
+9. [Compatibilidade e Multiplayer](#compatibilidade-e-multiplayer)
+10. [Melhores Práticas](#melhores-práticas)
+11. [Debugging e Troubleshooting](#debugging-e-troubleshooting)
+12. [Recursos e Links](#recursos-e-links)
+
+---
+
+## 🎯 Visão Geral
 WolfGod RPG é um mod para Terraria que adiciona elementos de RPG profundos com progressão baseada em ações e sistemas totalmente configuráveis. O mod foi desenvolvido com foco em **balanceamento** e **progressão natural**, mantendo a essência do Terraria enquanto adiciona profundidade RPG.
 
-**Versão atual:** 0.3  
+**Versão atual:** 0.6  
 **Autor:** WolfGod  
 **Compatibilidade:** Cliente e Servidor (Both)
 
-## Filosofia de Design
+### Filosofia de Design
 - **Balanceamento Equilibrado**: Multiplicadores de dano máximos (3x) para evitar números astronômicos
 - **Progressão Natural**: Baseada em habilidade e uso, não em farming
 - **Desafio Mantido**: Scaling dinâmico mantém o desafio em todas as fases
 - **Compatibilidade**: Compatível com a progressão natural do Terraria
 
-## Arquitetura do Sistema
+## 🏗️ Arquitetura do Mod
 
-### 1. Classe Principal: `Wolfgodrpg.cs`
-```csharp
-public class Wolfgodrpg : Mod
-{
-    public static readonly string RPG_VERSION = "1.0.0";
-    public static Wolfgodrpg Instance { get; private set; }
-}
-```
-
-**Métodos principais:**
-- `Load()`: Inicializa o mod e sistemas RPG
-- `Unload()`: Limpa referências estáticas
-- `PostSetupContent()`: Adiciona callbacks para XP de criação
-- `LogRPGSystems()`: Registra a inicialização dos sistemas RPG
-
-### 2. Sistema de Jogador: `RPGPlayer.cs`
-```csharp
-public class RPGPlayer : ModPlayer
-{
-    // Sistema de Classes
-    public Dictionary<string, float> ClassLevels = new Dictionary<string, float>();
-    public Dictionary<string, float> ClassExperience = new Dictionary<string, float>();
-    public HashSet<string> UnlockedAbilities = new HashSet<string>();
-
-    // Vitals do Jogador
-    public float CurrentHunger = 100f;
-    public float MaxHunger = 100f;
-    public float CurrentSanity = 100f;
-    public float MaxSanity = 100f;
-    public float CurrentStamina = 100f;
-    public float MaxStamina = 100f;
-}
-```
-
-**Métodos principais:**
-- `GainClassExp(string className, float amount)`: Ganha experiência para uma classe
-- `ConsumeStamina(float amount)`: Consome stamina do jogador
-- `UnlockAbility(string ability)`: Desbloqueia novas habilidades
-- `CalculateLevelFromXP(float xp)`: Calcula nível baseado na experiência
-- `CheckForNewAbilities(string className, float level)`: Verifica novas habilidades
-
-### 3. Sistema de Classes: `RPGClassDefinitions.cs`
-Define 13 classes baseadas em ações:
-
-**Classes Principais:**
-1. **movement** - Movimento e mobilidade
-2. **jumping** - Pulos e controle aéreo
-3. **melee** - Combate corpo a corpo
-4. **ranged** - Combate à distância
-5. **magic** - Magia e artes arcanas
-6. **summon** - Invocação de minions
-7. **mining** - Mineração e escavação
-8. **building** - Construção e arquitetura
-9. **fishing** - Pesca e aquicultura
-10. **gathering** - Coleta de recursos
-11. **bestiary** - Conhecimento de criaturas
-12. **merchant** - Comércio e economia
-13. **defense** - Defesa e sobrevivência
-
-**Estrutura de Classe:**
-```csharp
-public class ClassInfo
-{
-    public string Name { get; private set; }
-    public string Description { get; private set; }
-    public Dictionary<string, float> StatBonuses { get; private set; }
-    public Dictionary<int, string> Milestones { get; private set; }
-}
-```
-
-### 4. Sistema de Cálculos: `RPGCalculations.cs`
-```csharp
-public static class RPGCalculations
-{
-    public static Dictionary<string, float> CalculateTotalStats(RPGPlayer modPlayer)
-    public static void ApplyStatsToPlayer(Player player, Dictionary<string, float> stats)
-}
-```
-
-**Stats Suportados:**
-- **Ofensivo**: meleeDamage, rangedDamage, magicDamage, minionDamage, critChance
-- **Defensivo**: defense, maxLife, lifeRegen, damageReduction
-- **Utilidade**: moveSpeed, jumpHeight, maxMana, manaRegen, miningSpeed
-- **Especiais**: luck, expGain
-
-### 5. Sistema de Itens: `RPGGlobalItem.cs`
-```csharp
-public class RPGGlobalItem : GlobalItem
-{
-    public Dictionary<string, float> randomStats = new Dictionary<string, float>();
-}
-```
-
-**Raridades de Item:**
-- **Common** (0): Branco - 1-2 stats
-- **Uncommon** (1): Verde - 2-3 stats
-- **Rare** (2): Azul - 3-4 stats
-- **Epic** (3): Roxo - 4-5 stats
-- **Legendary** (4): Laranja - 5-6 stats
-
-### 6. Sistema de Configuração: `RPGConfig.cs`
-```csharp
-public class RPGConfig : ModConfig
-{
-    // Experiência
-    public float ExpMultiplier = 1.0f;
-    public bool KeepXPOnDeath = false;
-    
-    // Vitals
-    public bool EnableHunger = true;
-    public float HungerRate = 1.0f;
-    public bool EnableSanity = true;
-    public float SanityRate = 1.0f;
-    
-    // Itens
-    public bool RandomStats = true;
-    public float ItemStatMultiplier = 1.0f;
-    
-    // Dificuldade
-    public float MonsterHealthMultiplier = 1.0f;
-    public float MonsterDamageMultiplier = 1.0f;
-    
-    // Níveis
-    public int MaxLevel = 100;
-    public int StartingLevel = 1;
-}
-```
-
-### 7. Sistema de Interface
-
-O sistema de interface foi modularizado e refatorado para uma melhor experiência do usuário e consistência visual.
-
-#### Componentes Base de UI:
-- `RPGPanel.cs`: Um `UIElement` base para painéis com suporte a 9-slice scaling, utilizando `uibg.png` para o fundo.
-- `RPGButton.cs`: Um `UIElement` para botões customizados, utilizando `ButtonNext.png` e `ButtonPrevious.png` para texturas.
-- `RPGTabButton.cs`: Um `UIElement` especializado para botões de aba, com estados visualmente distintos para selecionado/não selecionado.
-
-#### UIs Principais:
-- `SimpleRPGMenu.cs`: O menu principal do mod, agora refatorado para usar um sistema de abas para navegação entre as páginas.
-  - **Páginas Modulares:** O conteúdo de cada aba é gerenciado por `UIElement`s dedicados:
-    - `RPGStatsPageUI.cs`: Exibe os atributos do personagem.
-    - `RPGClassesPageUI.cs`: Exibe informações sobre classes e habilidades.
-    - `RPGItemsPageUI.cs`: Exibe itens com atributos aleatórios.
-    - `RPGProgressPageUI.cs`: Exibe o progresso do jogo (chefes derrotados, etc.).
-- `RPGStatsUI.cs`: Mostra barras de Fome, Sanidade e Stamina, agora utilizando `RPGPanel` para consistência visual.
-- `QuickStatsUI.cs`: Interface rápida para stats essenciais, agora utilizando `RPGPanel` para consistência visual.
-
-
-### 8. Sistema de Teclas: `RPGKeybinds.cs`
-```csharp
-public class RPGKeybinds : ModSystem
-{
-    public static ModKeybind OpenRPGMenuKeybind { get; private set; }
-    public static ModKeybind NextPageKeybind { get; private set; }
-    public static ModKeybind PreviousPageKeybind { get; private set; }
-}
-```
-
-## Controles e Interface
-
-### Teclas de Atalho:
-- **M**: Abrir/Fechar Menu RPG completo
-- **ESC**: Fechar menu RPG
-- **R**: Stats rápidos no chat
-
-### Interface de Usuário:
-- **RPGStatsUI**: Mostra barras de Fome, Sanidade e Stamina
-- **SimpleRPGMenu**: Menu completo com todas as informações, agora com navegação por abas.
-- **QuickStatsUI**: Interface rápida para stats essenciais
-
-## Sistema de Progressão
-
-### Experiência e Níveis:
-- **Fórmula de XP**: `BASE_XP_NEEDED = 100f`, `XP_MULTIPLIER = 1.1f`
-- **Cálculo de Nível**: Progressão exponencial
-- **Multiplicadores**: 
-  - Hardmode: 1.5x XP
-  - Pós-Moon Lord: 2x XP
-  - Configurável via RPGConfig
-
-### Ganho de Experiência:
-- **Combate**: Dano causado/recebido
-- **Mineração**: Blocos quebrados
-- **Construção**: Blocos colocados
-- **Pesca**: Peixes capturados
-- **Coleta**: Recursos coletados
-- **Sobrevivência**: Regeneração de vida, alimentação
-
-### Habilidades e Milestones:
-- **Nível 25**: Habilidades básicas
-- **Nível 50**: Habilidades avançadas
-- **Nível 75**: Habilidades mestre
-- **Nível 100**: Habilidades supremas
-
-## Sistema de Vitals
-
-### Fome:
-- Diminui com o tempo
-- Afeta regeneração de vida
-- Recuperada com comida
-
-### Sanidade:
-- Diminui em áreas perigosas
-- Afeta resistência a debuffs
-- Recuperada em áreas seguras
-
-### Stamina:
-- Consumida em ações especiais
-- Regenera automaticamente
-- Afeta habilidades especiais
-
-## Sistema de Itens
-
-### Stats Aleatórios:
-- Gerados automaticamente no spawn do item
-- Baseados na raridade do item
-- Aplicados via `RPGGlobalItem`
-
-### Progressão de Itens:
-- Itens ganham experiência com uso
-- Níveis de item (0-100)
-- Bônus baseados no nível
-
-## Compatibilidade e Integração
-
-### Hooks do Terraria:
-- `OnHitNPC`: XP de combate
-- `OnHitByNPC`: XP de defesa
-- `PostUpdate`: Aplicação de stats
-- `SaveData/LoadData`: Persistência de dados
-
-### Sistemas Integrados:
-- Sistema de receitas do Terraria
-- Sistema de buffs/debuffs
-- Sistema de dano e defesa
-- Sistema de interface nativo
-
-## Estrutura de Arquivos
-
+### Estrutura de Pastas
 ```
 Wolfgodrpg/
-├── Wolfgodrpg.cs                 # Classe principal do mod
 ├── Common/
-│   ├── Classes/
-│   │   └── RPGClassDefinitions.cs    # Definições de classes
-│   ├── GlobalItems/
-│   │   ├── ProgressiveItem.cs        # Sistema de itens progressivos
-│   │   └── RPGGlobalItem.cs          # Stats aleatórios em itens
-│   ├── GlobalNPCs/
-│   │   └── BalancedNPC.cs            # Balanceamento de NPCs
-│   ├── Players/
-│   │   └── RPGPlayer.cs              # Sistema de jogador RPG
-│   ├── Systems/
-│   │   ├── PlayerVitalsSystem.cs     # Sistema de vitais
-│   │   ├── RPGActionSystem.cs        # Sistema de ações
-│   │   ├── RPGCalculations.cs        # Cálculos de stats
-│   │   ├── RPGConfig.cs              # Configurações
-│   │   ├── RPGHooks.cs               # Hooks do sistema
-│   │   ├── RPGKeybinds.cs            # Teclas de atalho
-│   │   ├── RPGMenuController.cs      # Controlador de menu
-│   │   └── RPGMenuControls.cs        # Controles de menu
-│   └── UI/
-│       ├── QuickStatsUI.cs           # UI de stats rápidos
-│       ├── RPGStatsUI.cs             # UI de stats RPG
-│       ├── SimpleRPGMenu.cs          # Menu principal
-│       ├── RPGPanel.cs               # Painel base para UI
-│       ├── RPGButton.cs              # Botão base para UI
-│       ├── RPGTabButton.cs           # Botão de aba para UI
-│       ├── RPGStatsPageUI.cs         # Página de Stats do menu RPG
-│       ├── RPGClassesPageUI.cs       # Página de Classes do menu RPG
-│       ├── RPGItemsPageUI.cs         # Página de Itens do menu RPG
-│       └── RPGProgressPageUI.cs      # Página de Progresso do menu RPG
-├── Assets/UI/                       # Recursos de interface
-└── Localization/                    # Arquivos de localização
+│   ├── Classes/          # Definições de classes RPG
+│   ├── GlobalItems/      # Modificações globais de itens
+│   ├── GlobalNPCs/       # Modificações globais de NPCs
+│   ├── Players/          # ModPlayer e lógica do jogador
+│   ├── Systems/          # Sistemas centrais (Debug, Config, etc.)
+│   └── UI/              # Interface de usuário
+├── Assets/              # Texturas e recursos
+└── Localization/        # Arquivos de tradução
 ```
 
-## Padrões de Código e Boas Práticas
+### Componentes Principais
+- **RPGPlayer**: Gerencia classes, vitals e progressão do jogador
+- **BalancedNPC**: Sistema de scaling dinâmico para NPCs
+- **ProgressiveItem**: Sistema de evolução de itens
+- **SimpleRPGMenu**: Interface principal do mod
+- **DebugLog**: Sistema centralizado de logging
 
-### 1. Padrões de Design Utilizados
+## 🔧 Sistemas Principais
 
-#### Singleton Pattern
+### Sistema de Classes
+- **Classes Disponíveis**: Melee, Ranged, Magic, Summoner, Defense
+- **Progressão**: XP baseado em ações específicas
+- **Habilidades**: Desbloqueadas em milestones
+- **Balanceamento**: Multiplicadores configuráveis
+
+### Sistema de Vitals
+- **Fome**: Decai com o tempo, afeta regeneração
+- **Sanidade**: Afetada por combate e áreas perigosas
+- **Stamina**: Consumida por ações especiais (dash, etc.)
+
+### Sistema de Itens
+- **Evolução**: Itens ganham XP e evoluem
+- **Stats Aleatórios**: Bônus aleatórios em itens
+- **Tooltips**: Informações detalhadas de progresso
+
+## 🐛 Sistema de Debug e Logging
+
+### DebugLog - Sistema Centralizado
+O mod implementa um sistema robusto de logging para facilitar desenvolvimento e debugging:
+
+#### Métodos Disponíveis
 ```csharp
-// Para acesso global ao mod
-public static Wolfgodrpg Instance { get; private set; }
+// Logs gerais
+DebugLog.Info("Player", "GainClassExp", "Mensagem de informação");
+DebugLog.Warn("NPC", "OnSpawn", "Aviso importante");
+DebugLog.Error("UI", "SetPage", "Erro crítico", exception);
 
-public override void Load()
-{
-    Instance = this;
+// Logs específicos por área
+DebugLog.Player("Initialize", "Jogador inicializado");
+DebugLog.NPC("OnKill", "NPC morto, XP distribuído");
+DebugLog.Item("GainExperience", "Item ganhou XP");
+DebugLog.UI("SetPage", "Aba trocada");
+DebugLog.System("SaveData", "Dados salvos");
+
+// Logs de gameplay
+DebugLog.Gameplay("Player", "GainClassExp", "LEVEL UP! Classe aumentou");
+```
+
+#### Configuração de Logs
+```csharp
+// Ativar/desativar logs por área
+DebugLog.SetLogging("player", true);
+DebugLog.SetLogging("ui", false);
+
+// Controles globais
+DebugLog.EnableAllLogs();
+DebugLog.DisableAllLogs();
+```
+
+#### Padrão de Logs
+Cada log segue o formato:
+```
+[WolfGodRPG][Área][Método] Mensagem
+[WolfGodRPG][Player][GainClassExp] Classe: melee, XP ganho: 50, Level: 2->3
+```
+
+#### Pontos de Log Instrumentados
+- **Player**: Inicialização, ganho de XP, level up, mudanças de status
+- **NPC**: Spawn, morte, distribuição de XP, scaling
+- **Item**: Ganho de XP, level up, modificação de stats
+- **UI**: Abertura/fechamento, troca de abas, atualizações
+- **System**: Save/load, configurações, eventos globais
+
+## 🖥️ UI e Interface
+
+### Arquitetura da UI
+- **SimpleRPGMenu**: Menu principal com sistema de abas, modular e fácil de estender
+- **Sub-UIs**: Cada aba é um componente independente (Status, Classes, Itens, Progresso)
+- **Inicialização Tardia**: UI carregada em `PostSetupContent`
+- **Estado Centralizado**: Gerenciamento de estado no menu principal
+
+### Novos Padrões de UI (tModLoader 1.4+)
+
+#### ✅ Estrutura Recomendada
+```csharp
+// Menu principal
+public class SimpleRPGMenu : UIState {
+    // ...
+    private List<UIElement> _pages;
+    private List<UITextPanel<string>> _tabButtons;
+    // ...
+    public override void OnInitialize() {
+        // Criação dos containers e abas
+        // Uso de OnLeftClick para eventos de botão
+    }
+    private void SetPage(MenuPage page) {
+        // Troca de aba sem reconstrução excessiva
+        // Atualiza apenas a página ativa
+    }
 }
 
-public override void Unload()
-{
-    Instance = null;
-}
-```
-
-#### Observer Pattern
-```csharp
-// Para hooks de eventos do Terraria
-public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
-{
-    // Responde a eventos de combate
-}
-```
-
-#### Factory Pattern
-```csharp
-// Para criação de stats aleatórios
-public static Dictionary<string, float> GenerateRandomStats(ItemRarity rarity)
-{
-    // Lógica de criação de stats
-}
-```
-
-#### Strategy Pattern
-```csharp
-// Para diferentes tipos de classes
-public static Dictionary<string, float> CalculateClassStats(string className, float level)
-{
-    // Estratégia específica por classe
-}
-```
-
-### 2. Convenções de Nomenclatura
-
-#### Classes e Namespaces
-```csharp
-// Classes principais do mod
-namespace Wolfgodrpg.Common.Players
-public class RPGPlayer : ModPlayer
-
-// Sistemas
-namespace Wolfgodrpg.Common.Systems
-public class RPGCalculations
-
-// Classes globais
-namespace Wolfgodrpg.Common.GlobalItems
-public class RPGGlobalItem : GlobalItem
-```
-
-#### Variáveis e Métodos
-```csharp
-// Constantes em MAIÚSCULAS
-private const float BASE_XP_NEEDED = 100f;
-private const float XP_MULTIPLIER = 1.1f;
-
-// Campos privados com underscore
-private int _lastLife;
-private bool _wasWellFed;
-
-// Propriedades públicas em PascalCase
-public Dictionary<string, float> ClassLevels { get; private set; }
-public float CurrentHunger { get; set; }
-
-// Métodos em PascalCase
-public void GainClassExp(string className, float amount)
-public bool ConsumeStamina(float amount)
-```
-
-### 3. Organização de Código
-
-#### Estrutura de Arquivos
-```
-Common/
-├── Classes/          # Definições de classes RPG
-├── GlobalItems/      # Modificações globais de itens
-├── GlobalNPCs/       # Modificações globais de NPCs
-├── Players/          # Modificações de jogador
-├── Systems/          # Sistemas principais
-└── UI/              # Interfaces de usuário
-```
-
-#### Ordem de Membros em Classes
-```csharp
-public class RPGPlayer : ModPlayer
-{
-    // 1. Constantes
-    private const float BASE_XP_NEEDED = 100f;
-    
-    // 2. Campos privados
-    private int _lastLife;
-    
-    // 3. Propriedades públicas
-    public Dictionary<string, float> ClassLevels { get; private set; }
-    
-    // 4. Construtor (se houver)
-    
-    // 5. Overrides do ModPlayer
-    public override void Initialize() { }
-    public override void PostUpdate() { }
-    
-    // 6. Métodos públicos
-    public void GainClassExp(string className, float amount) { }
-    
-    // 7. Métodos privados
-    private void CalculateLevelFromXP(float xp) { }
-}
-```
-
-### 4. Tratamento de Erros e Validação
-
-#### Validação de Parâmetros
-```csharp
-public void GainClassExp(string className, float amount)
-{
-    if (string.IsNullOrEmpty(className)) return;
-    if (amount <= 0) return;
-    if (!ClassExperience.ContainsKey(className)) return;
-    
-    // Lógica principal
-}
-```
-
-#### Logging e Debug
-```csharp
-// Logs informativos
-Logger.Info($"Wolf God RPG Core v{RPG_VERSION} carregado com sucesso!");
-
-// Logs de debug (remover em produção)
-#if DEBUG
-Logger.Debug($"XP gained: {amount} for class: {className}");
-#endif
-```
-
-### 5. Performance e Otimização
-
-#### Cache de Valores
-```csharp
-// Cache de configuração
-private RPGConfig Config => ModContent.GetInstance<RPGConfig>();
-
-// Cache de referências
-private int _lastLife;
-private bool _wasWellFed;
-```
-
-#### Evitar Cálculos Desnecessários
-```csharp
-public override void PostUpdate()
-{
-    // Só calcula se necessário
-    if (Player.statLife != _lastLife)
-    {
-        // Lógica de cálculo
-        _lastLife = Player.statLife;
+// Exemplo de aba modular
+public class RPGStatsPageUI : UIElement {
+    private UIElement _statsContainer;
+    public override void OnInitialize() {
+        // Criação do container
+    }
+    public void UpdateStats(RPGPlayer modPlayer) {
+        // Atualização segura, checagem de null
     }
 }
 ```
 
-## Documentação e Recursos do tModLoader
+#### ✅ Boas Práticas para UI
+- **Cada aba é um UIElement independente**
+- **Atualização só quando necessário** (ex: ao trocar de aba)
+- **Checagem de null para jogador e dados**
+- **Uso de eventos corretos (`OnLeftClick`) para botões**
+- **Sem reconstrução excessiva da UI**
+- **Fácil extensão: para adicionar uma nova aba, basta criar um novo UIElement e adicionar à lista**
+- **Comentários claros e código limpo**
 
-### 1. Documentação Oficial
+#### ✅ Checklist de UI
+- [x] Menu principal modular (UIState)
+- [x] Abas independentes (UIElement)
+- [x] Atualização segura (null checks)
+- [x] Uso correto de eventos
+- [x] Fácil extensão
+- [x] Sem reconstrução excessiva
 
-#### tModLoader Wiki
-- **URL**: https://github.com/tModLoader/tModLoader/wiki
-- **Conteúdo**: Guias básicos, tutoriais, referência de API
-- **Seções Importantes**:
-  - [Getting Started](https://github.com/tModLoader/tModLoader/wiki/Getting-Started)
-  - [Basic Mod](https://github.com/tModLoader/tModLoader/wiki/Basic-Mod)
-  - [ModPlayer](https://github.com/tModLoader/tModLoader/wiki/ModPlayer)
-  - [GlobalItem](https://github.com/tModLoader/tModLoader/wiki/GlobalItem)
+#### Exemplo de extensão:
+```csharp
+// Para adicionar uma nova aba:
+public class RPGQuestsPageUI : UIElement { /* ... */ }
+// No SimpleRPGMenu:
+_pages.Add(new RPGQuestsPageUI());
+_tabButtons.Add(new UITextPanel<string>("Quests", ...));
+```
 
-#### tModLoader Documentation
-- **URL**: https://tmodloader.github.io/tModLoader/
-- **Conteúdo**: Documentação técnica completa, referência de classes
-- **Recursos**:
-  - API Reference
-  - Code Examples
-  - Best Practices
+## 📈 Progression e Balanceamento
 
-### 2. Repositórios GitHub Importantes
+### Sistema de XP
+- **Base**: 100 XP para nível 1
+- **Multiplicador**: 1.1x por nível
+- **Configuração**: Multiplicadores ajustáveis via config
 
-#### tModLoader Official
-- **URL**: https://github.com/tModLoader/tModLoader
-- **Descrição**: Repositório principal do tModLoader
-- **Uso**: Código fonte, issues, releases
+### Scaling de NPCs
+- **Baseado no Jogador**: Nível médio dos jogadores próximos
+- **Progressão do Mundo**: Hardmode, bosses derrotados
+- **Elite NPCs**: 5% de chance, bônus significativos
 
-#### tModLoader Examples
-- **URL**: https://github.com/tModLoader/tModLoader/tree/master/ExampleMod
-- **Descrição**: Mod de exemplo oficial
-- **Uso**: Exemplos práticos de implementação
+### Balanceamento de Itens
+- **Evolução**: XP baseado no uso e dano causado
+- **Bônus**: Dano, velocidade de ataque, crit
+- **Limites**: Máximo de 50 níveis, bônus limitados
 
-#### Terraria Wiki
-- **URL**: https://github.com/Terraria/Terraria
-- **Descrição**: Código fonte do Terraria (para referência)
-- **Uso**: Entender mecânicas do jogo base
+## ❤️ Vitals e Status
 
-### 3. Comunidade e Fóruns
+### Sistema de Fome
+- **Decaimento**: 0.01 por segundo (configurável)
+- **Efeitos**: Sem regeneração abaixo de 20%
+- **Restauração**: Comida e itens específicos
 
-#### tModLoader Discord
-- **URL**: https://discord.gg/tmodloader
-- **Descrição**: Comunidade oficial do Discord
-- **Canais Úteis**:
-  - #mod-development
-  - #code-help
-  - #mod-showcase
+### Sistema de Sanidade
+- **Regeneração**: 0.05 por segundo durante o dia
+- **Perda**: 0.1 por segundo em combate
+- **Efeitos**: Penalidades em valores baixos
 
-#### Terraria Community Forums
-- **URL**: https://forums.terraria.org/index.php?forums/tmodloader.88/
-- **Descrição**: Fórum oficial do tModLoader
-- **Seções**:
-  - Mod Development
-  - Code Help
-  - Mod Showcase
+### Sistema de Stamina
+- **Regeneração**: 15 por segundo
+- **Consumo**: Dash e ações especiais
+- **Delay**: 1 segundo após consumo
 
-#### Reddit r/tModLoader
-- **URL**: https://www.reddit.com/r/tModLoader/
-- **Descrição**: Subreddit da comunidade
-- **Conteúdo**: Discussões, ajuda, showcases
+## ⚔️ Item Stats e Evolução
 
-### 4. Tutoriais e Guias Avançados
+### Stats Aleatórios
+- **Geração**: Ao spawn do item
+- **Raridade**: Baseada na raridade do item
+- **Tipos**: Dano, velocidade, crit, etc.
 
-#### Blog Posts e Artigos
+### Sistema de Evolução
+- **XP por Uso**: Baseado no dano causado
+- **Multiplicadores**: Crit (1.5x), Boss (3x), Elite (2x)
+- **Bônus Progressivos**: Dano, velocidade, crit
 
-**1. Mod Development Series**
-- **URL**: https://forums.terraria.org/index.php?threads/guide-mod-development-series.12345/
-- **Conteúdo**: Série completa de desenvolvimento de mods
-- **Tópicos**: Básico ao avançado
+### Tooltips Informativos
+- Nível atual e progresso
+- Bônus aplicados
+- Estatísticas de uso
 
-**2. Advanced UI Development**
-- **URL**: https://forums.terraria.org/index.php?threads/advanced-ui-development-guide.67890/
-- **Conteúdo**: Guia avançado de interface
-- **Tópicos**: Custom UI, animations, responsive design
+## 🌐 Compatibilidade e Multiplayer
 
-**3. Performance Optimization**
-- **URL**: https://forums.terraria.org/index.php?threads/performance-optimization-guide.11111/
-- **Conteúdo**: Otimização de performance
-- **Tópicos**: Memory management, caching, profiling
-
-#### YouTube Channels
-
-**1. tModLoader Official**
-- **URL**: https://www.youtube.com/c/tModLoader
-- **Conteúdo**: Tutoriais oficiais, updates
-- **Playlists**: Mod Development Tutorials
-
-**2. Mod Development Community**
-- **URL**: https://www.youtube.com/results?search_query=tmodloader+mod+development
-- **Conteúdo**: Tutoriais da comunidade
-- **Tópicos**: Variados, desde básico até avançado
-
-### 5. Ferramentas e Recursos de Desenvolvimento
-
-#### IDEs e Editores
-- **Visual Studio**: IDE principal recomendada
-- **Visual Studio Code**: Alternativa leve
-- **Rider**: IDE da JetBrains (pago)
-
-#### Extensões Úteis
-- **C# Extension**: Para VS Code
-- **tModLoader Tools**: Ferramentas específicas
-- **ILSpy**: Para decompilar e analisar código
-
-#### Debugging Tools
-- **tModLoader Debug Mode**: Modo debug integrado
-- **ILSpy**: Análise de código compilado
-- **Visual Studio Debugger**: Debugging avançado
-
-### 6. Bibliotecas e Frameworks Úteis
-
-#### Bibliotecas Populares
-- **tModLoader Extensions**: Extensões comuns
-- **Mod Helpers**: Helpers para desenvolvimento
-- **UI Library**: Biblioteca de componentes UI
-
-#### Frameworks de Teste
-- **NUnit**: Framework de testes unitários
-- **MSTest**: Framework de testes da Microsoft
-- **xUnit**: Framework de testes alternativo
-
-### 7. Recursos de Aprendizado Específicos
-
-#### Conceitos Básicos
-- **Mod Structure**: Estrutura básica de um mod
-- **Content Loading**: Carregamento de conteúdo
-- **Hooks and Events**: Sistema de hooks
-- **Data Persistence**: Persistência de dados
-
-#### Conceitos Avançados
-- **Custom UI Development**: Desenvolvimento de UI customizada
+### Hooks Implementados
+- **Save/Load**: Dados persistentes
 - **Networking**: Sincronização multiplayer
-- **Content Generation**: Geração procedural de conteúdo
-- **Performance Optimization**: Otimização de performance
+- **Persistence**: Manutenção de estado entre sessões
 
-#### Padrões de Design
-- **Singleton Pattern**: Para acesso global
-- **Observer Pattern**: Para eventos
-- **Factory Pattern**: Para criação de objetos
-- **Strategy Pattern**: Para algoritmos variáveis
+### Melhores Práticas
+- Verificação de `Main.netMode` para operações multiplayer
+- Uso de `TagCompound` para serialização
+- Tratamento de exceções em operações críticas
 
-## Métodos de Desenvolvimento
+## ✅ Melhores Práticas
 
-### Padrões Utilizados:
-1. **Singleton Pattern**: Para acesso global ao mod
-2. **Observer Pattern**: Para hooks de eventos
-3. **Factory Pattern**: Para criação de stats aleatórios
-4. **Strategy Pattern**: Para diferentes tipos de classes
+### Código Limpo
+- **Nomes Descritivos**: Variáveis e métodos claros
+- **Comentários**: Explicações para lógica complexa
+- **Modularização**: Funções pequenas e focadas
 
-### Boas Práticas:
-- Separação de responsabilidades
-- Configuração centralizada
-- Sistema de hooks modular
-- Interface de usuário responsiva
-- Persistência de dados robusta
+### Performance
+- **Lazy Loading**: Assets carregados quando necessário
+- **Caching**: Evitar recálculos desnecessários
+- **Otimização**: Logs condicionais e verificações eficientes
 
-## Configuração e Customização
+### Debugging
+- **Logs Detalhados**: Rastreamento de eventos importantes
+- **Tratamento de Erros**: Try-catch em operações críticas
+- **Validação**: Verificação de dados antes do uso
 
-### Arquivos de Configuração:
-- `build.txt`: Metadados do mod
-- `RPGConfig.cs`: Configurações in-game
-- `Localization/`: Arquivos de tradução
+## 🔍 Debugging e Troubleshooting
 
-### Personalização:
-- Multiplicadores de XP configuráveis
-- Taxas de vitais ajustáveis
-- Multiplicadores de dificuldade
-- Configurações de interface
+### Problemas Comuns e Soluções
 
-## Dicas de Uso para IA
+#### 1. UI Não Funciona
+**Sintomas**: Menu não abre, botões não respondem
+**Causas**: Inicialização prematura, estado incorreto, Activate() manual
+**Solução**: 
+- Verificar logs de UI
+- Garantir inicialização em `PostSetupContent`
+- **NÃO chamar Activate() manualmente**
+- Seguir padrão correto do tModLoader
 
-### Para Análise de Código:
-1. Sempre verifique as dependências entre sistemas
-2. Considere o impacto no balanceamento do jogo
-3. Mantenha compatibilidade com o Terraria vanilla
-4. Use os hooks apropriados para integração
+#### 2. IndexOutOfRangeException
+**Sintomas**: Erro ao acessar `Main.LocalPlayer`
+**Causas**: Jogador não inicializado
+**Solução**: Sempre verificar `Main.LocalPlayer != null && Main.LocalPlayer.active`
 
-### Para Modificações:
-1. Teste mudanças em pequenas quantidades
-2. Verifique a persistência de dados
-3. Considere o impacto na performance
-4. Mantenha a filosofia de balanceamento
+#### 3. KeyNotFoundException
+**Sintomas**: Erro ao acessar dicionários
+**Causas**: Chave não existe
+**Solução**: Usar `TryGetValue` ou inicializar chaves necessárias
 
-### Para Debugging:
-1. Use `Logger.Info()` para logs informativos
-2. Verifique os valores de stats em tempo real
-3. Teste diferentes configurações
-4. Monitore o uso de memória
+#### 4. UI Tremendo/Travando
+**Sintomas**: Interface instável, FPS baixo
+**Causas**: Reconstrução excessiva da UI, logs excessivos
+**Solução**: 
+- Atualizar apenas quando necessário, não a cada frame
+- Reduzir logs excessivos
+- Usar estrutura de UI simples e eficiente
 
-## Roadmap e Recursos Futuros
+#### 5. Abas Não Carregam
+**Sintomas**: Algumas abas não mostram conteúdo
+**Causas**: Inicialização incorreta, logs excessivos, verificações complexas
+**Solução**:
+- Seguir padrão simples das abas funcionais
+- Remover logs excessivos
+- Simplificar verificações
 
-### Planejado:
-- Sistema de talentos avançado
-- Missões especiais por classe
-- Itens únicos por classe
-- Eventos especiais
-- Sistema de guildas
-- Mais subclasses
+#### 6. AssetLoadException
+**Sintomas**: Erro ao carregar texturas
+**Causas**: Arquivo não encontrado, caminho incorreto
+**Solução**:
+- Verificar se arquivo existe em `Assets/`
+- Usar caminho correto: `"Wolfgodrpg/Assets/UI/arquivo"`
+- Verificar extensão do arquivo
 
-### Considerações Técnicas:
-- Otimização de performance
-- Melhor integração com outros mods
-- Sistema de achievements
-- Analytics de progressão
-- Modo multiplayer aprimorado
+### Checklist de Debug
+- [ ] Verificar logs do sistema DebugLog
+- [ ] Confirmar inicialização correta dos sistemas
+- [ ] Testar em mundo limpo
+- [ ] Verificar compatibilidade com outros mods
+- [ ] Validar dados de save/load
+- [ ] **Verificar se não há Activate() manual**
+- [ ] **Confirmar estrutura de UI simples**
+- [ ] **Testar todas as abas individualmente**
+
+### Comandos Úteis
+```csharp
+// Ativar todos os logs para debug
+DebugLog.EnableAllLogs();
+
+// Desativar logs de UI para performance
+DebugLog.SetLogging("ui", false);
+
+// Log específico para investigação
+DebugLog.Info("System", "Debug", "Verificando estado do sistema");
+```
+
+### Script de Debug Automatizado
+```bash
+# Executar script de debug
+./debug_logs.bat
+
+# Ver logs em tempo real
+tail -f "C:\Users\tatal\Documents\My Games\Terraria\tModLoader\Logs\client.log" | grep "WolfGodRPG"
+```
+
+## 📚 Recursos e Links
+
+### Documentação Oficial
+- [tModLoader Wiki](https://github.com/tModLoader/tModLoader/wiki)
+- [ExampleMod](https://github.com/tModLoader/tModLoader/tree/master/ExampleMod)
+- [tModLoader Discord](https://discord.gg/tmodloader)
+
+### Tutoriais Recomendados
+- [Modding Guide](https://github.com/tModLoader/tModLoader/wiki/Basic-tModLoader-Modding-Guide)
+- [UI Tutorial](https://github.com/tModLoader/tModLoader/wiki/UI-Development)
+- [Multiplayer Guide](https://github.com/tModLoader/tModLoader/wiki/Multiplayer-Support)
+
+### Ferramentas Úteis
+- [tModLoader](https://github.com/tModLoader/tModLoader/releases)
+- [Visual Studio](https://visualstudio.microsoft.com/)
+- [ILSpy](https://github.com/icsharpcode/ILSpy) (para decompilar Terraria)
+
+### Comunidade
+- [tModLoader Forums](https://forums.terraria.org/index.php?forums/tmodloader.161/)
+- [Reddit r/tModLoader](https://www.reddit.com/r/tModLoader/)
+- [GitHub Issues](https://github.com/tModLoader/tModLoader/issues)
+
+## 🚀 Próximos Passos
+
+### Funcionalidades Planejadas
+- [ ] Sistema de quests
+- [ ] Mais classes e habilidades
+- [ ] Sistema de crafting avançado
+- [ ] Bosses customizados
+- [ ] Sistema de guildas
+
+### Melhorias Técnicas
+- [ ] Otimização de performance
+- [ ] Mais opções de configuração
+- [ ] Sistema de achievements
+- [ ] Integração com outros mods
+
+### Manutenção
+- [ ] Atualização para novas versões do tModLoader
+- [ ] Correção de bugs reportados
+- [ ] Melhoria da documentação
+- [ ] Testes de compatibilidade
 
 ---
 
-# 🧩 Diagnóstico Profundo de Métodos e Funções da UI
-
-| Método/Função                | Situação Atual | Padrão Recomendado (Doc) | Problema Detectado | Correção Sugerida |
-|------------------------------|---------------|--------------------------|--------------------|-------------------|
-| RPGMenuController.Initialize | Chama cedo    | Inicializar após player  | Pode ser cedo      | Mover para PostAddRecipes ou checar player ativo |
-| RPGMenuController.ToggleMenu | SetState só se visível | Sempre garantir SetState | Pode travar UI    | Sempre sincronizar SetState com visibilidade     |
-| SimpleRPGMenu.Show/Hide      | Só muda bool  | Sempre SetState          | UI pode não aparecer | Chamar SetState no Show/Hide                    |
-| SimpleRPGMenu.OnInitialize   | Inicializa tudo de uma vez | Inicializar assets pesados sob demanda | Pode causar lag ou erro | Carregar assets apenas quando necessário         |
-| Sub-UIs Activate/Deactivate  | Só muda bool  | Remover/adicionar do visual tree | Pode deixar UI "fantasma" | Usar Remove/Append para visibilidade            |
-| RPGMenuControls.Load         | Chama Initialize cedo | Usar PostAddRecipes/OnWorldLoad | Pode ser cedo      | Mover inicialização/quit para hook mais tardio        |
-| Update/Draw (UIState)        | OK, mas log extra | Não fazer lógica extra no Draw | Polui log/lento   | Remover logs do Draw                            |
-
-## Erros comuns detectados:
-- SetState não garantido
-- Inicialização fora de ordem
-- Falta de checagem de jogador ativo
-- Draw manual/log extra
-- Falta de modularização
-- Falta de hooks multiplayer/persistência
-- Falta de tratamento de assets
-
-## Plano de Correção:
-1. Sempre use `UserInterface.SetState` ao mostrar/esconder UI.
-2. Inicialize UI apenas após jogador estar ativo.
-3. Use hooks adequados para multiplayer e persistência.
-4. Modularize sub-UIs para facilitar manutenção.
-5. Garanta que assets estejam carregados antes de inicializar UI.
-6. Remova lógica extra do Draw do UIState.
-7. Teste em singleplayer, multiplayer, e com reloads.
-
-### Referências:
-- [tModLoader UI Guide](https://github.com/tModLoader/tModLoader/wiki/UI-Guide)
-- [ExampleMod UI](https://github.com/tModLoader/tModLoader/tree/1.4/ExampleMod/Common/UI)
-- [tModLoader Hook List](https://github.com/tModLoader/tModLoader/wiki/Hook-List)
-
----
-
-Essas recomendações vão ajudar a garantir uma UI robusta, fluida e compatível com futuras versões do tModLoader. 
+*Última atualização: Dezembro 2024*
+*Versão do mod: 0.6*
+*Compatível com tModLoader: v2023.01.100* 

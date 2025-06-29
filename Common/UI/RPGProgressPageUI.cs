@@ -12,6 +12,7 @@ using System.Linq;
 
 namespace Wolfgodrpg.Common.UI
 {
+    // Aba de Progresso do menu RPG
     public class RPGProgressPageUI : UIElement
     {
         private UIList _progressList;
@@ -27,10 +28,11 @@ namespace Wolfgodrpg.Common.UI
             Append(_progressList);
         }
 
+        // Só popula conteúdo via método público
         public void UpdateProgress(RPGPlayer modPlayer)
         {
             _progressList.Clear();
-            if (modPlayer == null) return;
+            if (modPlayer == null || modPlayer.Player == null) return;
 
             AddProgressEntry("--- Chefes Derrotados ---", "");
             AddProgressEntry("Olho de Cthulhu", NPC.downedBoss1 ? "Sim" : "Não");
@@ -43,11 +45,13 @@ namespace Wolfgodrpg.Common.UI
             AddProgressEntry("Senhor da Lua", NPC.downedMoonlord ? "Sim" : "Não");
         }
 
+        // Adiciona uma entrada visual de progresso
         private void AddProgressEntry(string name, string status)
         {
             _progressList.Add(new ProgressEntry(name, status));
         }
 
+        // Elemento visual para cada entrada de progresso
         private class ProgressEntry : UIElement
         {
             public ProgressEntry(string name, string status)

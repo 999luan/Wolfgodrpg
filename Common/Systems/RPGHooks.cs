@@ -29,6 +29,31 @@ namespace Wolfgodrpg.Common.Systems
                 if (!rpgPlayer.ConsumeStamina(staminaCost))
                 {
                     Player.dash = 0; // Cancela o dash se não houver stamina
+                    DebugLog.Gameplay("Player", "Dash", $"Dash cancelado por falta de stamina");
+                }
+                else
+                {
+                    DebugLog.Gameplay("Player", "Dash", $"Dash executado, stamina consumida: {staminaCost}");
+                }
+            }
+
+            // Dash vertical manual (duplo-toque para cima/baixo)
+            if (Player.controlUp && Player.releaseUp && Player.doubleTapCardinalTimer[0] > 0 && Player.doubleTapCardinalTimer[0] < 15)
+            {
+                float staminaCost = 25f;
+                if (rpgPlayer.ConsumeStamina(staminaCost))
+                {
+                    Player.velocity.Y = -Player.jumpSpeed * 2f;
+                    DebugLog.Gameplay("Player", "Dash", "Dash vertical para cima executado");
+                }
+            }
+            if (Player.controlDown && Player.releaseDown && Player.doubleTapCardinalTimer[1] > 0 && Player.doubleTapCardinalTimer[1] < 15)
+            {
+                float staminaCost = 25f;
+                if (rpgPlayer.ConsumeStamina(staminaCost))
+                {
+                    Player.velocity.Y = Player.jumpSpeed * 2f;
+                    DebugLog.Gameplay("Player", "Dash", "Dash vertical para baixo executado");
                 }
             }
 
@@ -37,6 +62,10 @@ namespace Wolfgodrpg.Common.Systems
             {
                 int damageTaken = (int)(lastHealth - Player.statLife);
                 RPGActionSystem.OnHurt(Player, damageTaken);
+                
+                // Resetar timer de combate quando toma dano
+                rpgPlayer.CombatTimer = 0;
+                DebugLog.Gameplay("Player", "PreUpdate", $"Jogador tomou {damageTaken} de dano - timer de combate resetado");
             }
             lastHealth = Player.statLife;
 
@@ -44,11 +73,19 @@ namespace Wolfgodrpg.Common.Systems
             if (Player.justJumped && Player.velocity.Y < 0)
             {
                 jumpCount++;
+                DebugLog.Gameplay("Player", "Jumping", $"Pulo detectado. Contador: {jumpCount}/50");
                 if (jumpCount >= 50) // XP a cada 50 pulos
                 {
                     rpgPlayer.GainClassExp("jumping", 10f);
+                    DebugLog.Gameplay("Player", "Jumping", "XP de pulo concedido!");
                     jumpCount = 0;
                 }
+            }
+            
+            // Detectar combate baseado em ações do jogador
+            if (Player.itemAnimation > 0 || Player.velocity.Length() > 2f)
+            {
+                rpgPlayer.CombatTimer = 0; // Resetar timer quando está ativo
             }
         }
 

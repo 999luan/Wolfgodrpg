@@ -51,7 +51,7 @@ namespace Wolfgodrpg
 			Logger.Info("- GlobalRecipe: RPGGlobalRecipe");
 			Logger.Info("- GlobalTile: RPGGlobalTile");
 			Logger.Info("- UIState: QuickStatsUI, RPGStatsUI, SimpleRPGMenu");
-			Logger.Info("- Systems: PlayerVitalsSystem, RPGActionSystem, RPGCalculations, RPGConfig, RPGFishingProjectile, RPGHooks, RPGKeybinds, RPGMenuController, RPGMenuControls");
+			Logger.Info("- Systems: PlayerVitalsSystem, RPGActionSystem, RPGCalculations, RPGConfig, RPGFishingProjectile, RPGHooks, RPGKeybinds, RPGMenuController, RPGMenuControls, RPGDebugSystem");
 		}
 	}
 }

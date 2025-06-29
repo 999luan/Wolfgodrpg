@@ -28,12 +28,18 @@ namespace Wolfgodrpg.Common.Systems
             }
             else
             {
+                float oldStamina = rpgPlayer.CurrentStamina;
                 rpgPlayer.CurrentStamina = System.Math.Min(rpgPlayer.MaxStamina, rpgPlayer.CurrentStamina + (STAMINA_REGEN_RATE / 60f));
+                if (rpgPlayer.CurrentStamina > oldStamina)
+                {
+                    DebugLog.Player("PostUpdatePlayers", $"Stamina regenerada: {oldStamina:F1} -> {rpgPlayer.CurrentStamina:F1}");
+                }
             }
 
             // --- LÓGICA DE FOME ---
             if (config.EnableHunger)
             {
+                float oldHunger = rpgPlayer.CurrentHunger;
                 rpgPlayer.CurrentHunger -= (HUNGER_DECAY_RATE / 60f) * config.HungerRate;
                 if (rpgPlayer.CurrentHunger < 0) rpgPlayer.CurrentHunger = 0;
 
@@ -43,21 +49,30 @@ namespace Wolfgodrpg.Common.Systems
                     player.lifeRegen = 0;
                     player.lifeRegenTime = 0;
                 }
+                
+                if (rpgPlayer.CurrentHunger < oldHunger)
+                {
+                    DebugLog.Player("PostUpdatePlayers", $"Fome diminuída: {oldHunger:F1} -> {rpgPlayer.CurrentHunger:F1}");
+                }
             }
 
             // --- LÓGICA DE SANIDADE ---
             if (config.EnableSanity)
             {
+                float oldSanity = rpgPlayer.CurrentSanity;
+                
                 // Regenera de dia e fora de combate
-                if (Main.dayTime && rpgPlayer.CombatTimer < COMBAT_TIMER_THRESHOLD)
+                if (Main.dayTime && rpgPlayer.CombatTimer > COMBAT_TIMER_THRESHOLD)
                 {
                     rpgPlayer.CurrentSanity += (SANITY_REGEN_RATE / 60f);
+                    DebugLog.Player("PostUpdatePlayers", $"Sanidade regenerando: {oldSanity:F1} -> {rpgPlayer.CurrentSanity:F1} (fora de combate)");
                 }
 
                 // Perde em combate prolongado
                 if (rpgPlayer.CombatTimer >= COMBAT_TIMER_THRESHOLD)
                 {
                     rpgPlayer.CurrentSanity -= (SANITY_LOSS_RATE / 60f) * config.SanityRate;
+                    DebugLog.Player("PostUpdatePlayers", $"Sanidade diminuindo: {oldSanity:F1} -> {rpgPlayer.CurrentSanity:F1} (em combate)");
                 }
 
                 if (rpgPlayer.CurrentSanity < 0) rpgPlayer.CurrentSanity = 0;
@@ -70,12 +85,19 @@ namespace Wolfgodrpg.Common.Systems
                     if (Main.rand.NextBool(900)) // A cada ~15 segundos
                     {
                         player.AddBuff(Terraria.ID.BuffID.Confused, 240);
+                        DebugLog.Player("PostUpdatePlayers", "Sanidade baixa: jogador confuso");
                     }
                 }
             }
 
             // Atualiza o cronômetro de combate (aumenta fora de combate, reseta em combate)
             rpgPlayer.CombatTimer++;
+            
+            // Log periódico do estado dos vitals
+            if (Main.GameUpdateCount % 3600 == 0) // A cada 60 segundos
+            {
+                DebugLog.Player("PostUpdatePlayers", $"Estado dos vitals - Hunger: {rpgPlayer.CurrentHunger:F1}%, Sanity: {rpgPlayer.CurrentSanity:F1}%, Stamina: {rpgPlayer.CurrentStamina:F1}%, CombatTimer: {rpgPlayer.CombatTimer}");
+            }
         }
     }
 }

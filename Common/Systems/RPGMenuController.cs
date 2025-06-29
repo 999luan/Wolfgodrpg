@@ -19,7 +19,6 @@ namespace Wolfgodrpg.Common.Systems
 
             _menuInterface = new UserInterface();
             _menuUI = new SimpleRPGMenu();
-            _menuUI.Activate();
         }
 
         public static void Unload()

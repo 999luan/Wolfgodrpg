@@ -25,17 +25,17 @@ namespace Wolfgodrpg.Common.UI
 
     public class SimpleRPGMenu : UIState
     {
-        private RPGPanel mainPanel;
-        private UIText pageTitle;
-        private UIElement pageContainer; // Container for the pages
+        private UIPanel _mainPanel;
+        private UIText _pageTitle;
+        private UIElement _pageContainer;
+        private List<UIElement> _pages;
+        private List<UITextPanel<string>> _tabButtons;
+        private MenuPage _currentPage = MenuPage.Stats;
 
         private RPGStatsPageUI _statsPageUI;
         private RPGClassesPageUI _classesPageUI;
         private RPGItemsPageUI _itemsPageUI;
         private RPGProgressPageUI _progressPageUI;
-        
-        private List<RPGTabButton> _tabButtons;
-        private MenuPage _currentPage = MenuPage.Stats;
 
         public override void OnInitialize()
         {
@@ -44,30 +44,33 @@ namespace Wolfgodrpg.Common.UI
             if (Wolfgodrpg.Instance != null)
                 Wolfgodrpg.Instance.Logger.Info("[SimpleRPGMenu] OnInitialize called.");
             
-            mainPanel = new RPGPanel();
-            mainPanel.Width.Set(0, 0.8f);
-            mainPanel.Height.Set(0, 0.8f);
-            mainPanel.HAlign = 0.5f;
-            mainPanel.VAlign = 0.5f;
-            mainPanel.SetPadding(12f);
-            Append(mainPanel);
+            Width.Set(0, 0.8f);
+            Height.Set(0, 0.8f);
+            HAlign = 0.5f;
+            VAlign = 0.5f;
 
-            pageTitle = new UIText("", 1.2f, true);
-            pageTitle.HAlign = 0.5f;
-            pageTitle.Top.Set(10, 0f);
-            mainPanel.Append(pageTitle);
+            _mainPanel = new UIPanel();
+            _mainPanel.Width.Set(0, 1f);
+            _mainPanel.Height.Set(0, 1f);
+            _mainPanel.SetPadding(12f);
+            Append(_mainPanel);
+
+            _pageTitle = new UIText("", 1.2f, true);
+            _pageTitle.HAlign = 0.5f;
+            _pageTitle.Top.Set(10, 0f);
+            _mainPanel.Append(_pageTitle);
 
             var tabButtonContainer = new UIElement();
             tabButtonContainer.Width.Set(0, 1f);
             tabButtonContainer.Height.Set(30f, 0f);
             tabButtonContainer.Top.Set(40f, 0f);
-            mainPanel.Append(tabButtonContainer);
+            _mainPanel.Append(tabButtonContainer);
             
-            pageContainer = new UIElement();
-            pageContainer.Width.Set(0, 1f);
-            pageContainer.Height.Set(-80f, 1f); // Fill remaining space
-            pageContainer.Top.Set(80f, 0f);
-            mainPanel.Append(pageContainer);
+            _pageContainer = new UIElement();
+            _pageContainer.Width.Set(0, 1f);
+            _pageContainer.Height.Set(-80f, 1f);
+            _pageContainer.Top.Set(80f, 0f);
+            _mainPanel.Append(_pageContainer);
 
             _statsPageUI = new RPGStatsPageUI();
             _statsPageUI.Activate();
@@ -78,29 +81,27 @@ namespace Wolfgodrpg.Common.UI
             _progressPageUI = new RPGProgressPageUI();
             _progressPageUI.Activate();
             
-            _tabButtons = new List<RPGTabButton>();
-            int tabCount = Enum.GetValues(typeof(MenuPage)).Length;
+            _pages = new List<UIElement> { _statsPageUI, _classesPageUI, _itemsPageUI, _progressPageUI };
+            _tabButtons = new List<UITextPanel<string>>();
+
+            string[] tabNames = { "Status", "Classes", "Itens", "Progresso" };
             float buttonWidth = 120f;
-            float totalWidth = tabCount * buttonWidth + (tabCount - 1) * 10f;
-            float startX = (mainPanel.Width.Pixels - totalWidth) / 2f;
-            
-            DebugLog.UI("OnInitialize", $"Criando {tabCount} botões de aba com largura total {totalWidth:F1}");
-            
-            for (int i = 0; i < tabCount; i++)
+            float spacing = 10f;
+            for (int i = 0; i < tabNames.Length; i++)
             {
-                var page = (MenuPage)i;
-                var button = new RPGTabButton(GetPageTitle(page), () => SetPage(page));
-                button.Left.Set(startX + i * (buttonWidth + 10f), 0f);
-                button.Width.Set(buttonWidth, 0f);
-                button.Height.Set(30f, 0f);
-                tabButtonContainer.Append(button);
-                _tabButtons.Add(button);
+                int pageIndex = i;
+                var btn = new UITextPanel<string>(tabNames[i], 0.9f, true);
+                btn.Width.Set(buttonWidth, 0f);
+                btn.Height.Set(30f, 0f);
+                btn.Left.Set(i * (buttonWidth + spacing), 0f);
+                btn.OnLeftClick += (evt, elm) => SetPage((MenuPage)pageIndex);
+                tabButtonContainer.Append(btn);
+                _tabButtons.Add(btn);
                 
-                DebugLog.UI("OnInitialize", $"Botão de aba '{GetPageTitle(page)}' criado na posição {startX + i * (buttonWidth + 10f):F1}");
+                DebugLog.UI("OnInitialize", $"Botão de aba '{tabNames[i]}' criado na posição {i * (buttonWidth + spacing):F1}");
             }
 
-            // Set initial page
-            SetPage(MenuPage.Stats, true);
+            SetPage(MenuPage.Stats);
             
             DebugLog.UI("OnInitialize", "SimpleRPGMenu inicializado com sucesso");
         }
@@ -117,80 +118,41 @@ namespace Wolfgodrpg.Common.UI
             base.OnDeactivate();
         }
 
-        private string GetPageTitle(MenuPage page)
+        private void SetPage(MenuPage page)
         {
-            return page switch
-            {
-                MenuPage.Stats => "Status",
-                MenuPage.Classes => "Classes",
-                MenuPage.Items => "Itens",
-                MenuPage.Progress => "Progresso",
-                _ => "Desconhecido"
-            };
-        }
-
-        private void SetPage(MenuPage page, bool firstTime = false)
-        {
-            DebugLog.UI("SetPage", $"Trocando para aba: {page} (firstTime: {firstTime})");
-            
             _currentPage = page;
-            pageTitle.SetText(GetPageTitle(page));
+            _pageTitle.SetText(_tabButtons[(int)page].Text);
+            _pageContainer.RemoveAllChildren();
+            _pageContainer.Append(_pages[(int)page]);
+            UpdateTabButtonStates();
 
-            // Remove current page content
-            pageContainer.RemoveAllChildren();
+            // Atualiza só a aba ativa
+            if (Main.LocalPlayer == null || !Main.LocalPlayer.active) return;
+            var modPlayer = Main.LocalPlayer.GetModPlayer<RPGPlayer>();
+            if (modPlayer == null || modPlayer.Player == null) return;
 
-            // Add new page content
-            switch (page)
+            switch (_currentPage)
             {
                 case MenuPage.Stats:
-                    pageContainer.Append(_statsPageUI);
-                    DebugLog.UI("SetPage", "Aba Status carregada");
+                    _statsPageUI.UpdateStats(modPlayer);
                     break;
                 case MenuPage.Classes:
-                    pageContainer.Append(_classesPageUI);
-                    DebugLog.UI("SetPage", "Aba Classes carregada");
+                    _classesPageUI.UpdateClasses(modPlayer);
                     break;
                 case MenuPage.Items:
-                    pageContainer.Append(_itemsPageUI);
-                    DebugLog.UI("SetPage", "Aba Itens carregada");
+                    _itemsPageUI.UpdateItems();
                     break;
                 case MenuPage.Progress:
-                    pageContainer.Append(_progressPageUI);
-                    DebugLog.UI("SetPage", "Aba Progresso carregada");
+                    _progressPageUI.UpdateProgress(modPlayer);
                     break;
             }
+        }
 
-            // Update tab button states
+        private void UpdateTabButtonStates()
+        {
             for (int i = 0; i < _tabButtons.Count; i++)
             {
-                _tabButtons[i].SetSelected((MenuPage)i == page);
-            }
-
-            if (!firstTime)
-            {
-                if (Main.LocalPlayer != null && Main.LocalPlayer.active)
-                {
-                    try
-                    {
-                        var modPlayer = Main.LocalPlayer.GetModPlayer<RPGPlayer>();
-                        DebugLog.UI("SetPage", $"Atualizando conteúdo da aba {page} para jogador '{Main.LocalPlayer.name}'");
-                        
-                        _statsPageUI.UpdateStats(modPlayer);
-                        _classesPageUI.UpdateClasses(modPlayer);
-                        _itemsPageUI.UpdateItems();
-                        _progressPageUI.UpdateProgress(modPlayer);
-                        
-                        DebugLog.UI("SetPage", "Conteúdo da aba atualizado com sucesso");
-                    }
-                    catch (Exception ex)
-                    {
-                        DebugLog.Error("UI", "SetPage", $"Erro ao atualizar conteúdo da aba {page}", ex);
-                    }
-                }
-                else
-                {
-                    DebugLog.UI("SetPage", "Jogador não disponível para atualizar conteúdo da aba");
-                }
+                _tabButtons[i].BackgroundColor = (i == (int)_currentPage) ? new Color(70, 120, 200) : new Color(63, 82, 151) * 0.7f;
             }
         }
 
@@ -204,6 +166,12 @@ namespace Wolfgodrpg.Common.UI
         protected override void DrawSelf(SpriteBatch spriteBatch)
         {
             base.DrawSelf(spriteBatch);
+        }
+
+        public override void ScrollWheel(UIScrollWheelEvent evt)
+        {
+            base.ScrollWheel(evt); // Propaga o evento para a UI vanilla/jogo
+            // Não consome o evento, deixa passar para o jogo
         }
     }
 }

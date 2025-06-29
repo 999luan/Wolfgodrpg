@@ -14,6 +14,7 @@ using System.Linq;
 
 namespace Wolfgodrpg.Common.UI
 {
+    // Aba de Itens do menu RPG
     public class RPGItemsPageUI : UIElement
     {
         private UIList _itemsList;
@@ -30,10 +31,11 @@ namespace Wolfgodrpg.Common.UI
             Append(_itemsList);
         }
 
+        // Atualiza o conteúdo da aba de itens
         public void UpdateItems()
         {
             _itemsList.Clear();
-            if (Main.LocalPlayer?.inventory == null) return;
+            if (Main.LocalPlayer == null || !Main.LocalPlayer.active || Main.LocalPlayer.inventory == null) return;
             
             bool foundItems = false;
             foreach (var item in Main.LocalPlayer.inventory)
@@ -51,6 +53,7 @@ namespace Wolfgodrpg.Common.UI
             }
         }
         
+        // Elemento visual para cada item
         private class ItemEntry : UIElement
         {
             public ItemEntry(Item item, RPGGlobalItem globalItem)
@@ -61,7 +64,7 @@ namespace Wolfgodrpg.Common.UI
                 
                 var text = new UIText($"{item.Name}: {string.Join(", ", globalItem.randomStats.Keys)}");
                 Append(text);
-                // More detailed UI for each item can be added here
+                // Adicione mais detalhes visuais do item aqui se desejar
             }
         }
     }

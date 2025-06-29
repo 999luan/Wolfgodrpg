@@ -5,6 +5,7 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
+using Wolfgodrpg.Common.Systems;
 
 namespace Wolfgodrpg.Common.GlobalItems
 {
@@ -54,16 +55,20 @@ namespace Wolfgodrpg.Common.GlobalItems
             multiplier *= GetRarityMultiplier(item.rare);
             
             int oldLevel = GetItemLevel();
+            float oldExp = Experience;
             Experience += amount * multiplier;
             UsageCount++;
             
             int newLevel = GetItemLevel();
+            
+            DebugLog.Item("GainExperience", $"Item '{item.Name}' ganhou {amount * multiplier:F1} XP (base: {amount:F1}, mult: {multiplier:F2}, reason: {reason}) - Level: {oldLevel}->{newLevel}, Total XP: {oldExp:F1}->{Experience:F1}");
             
             if (newLevel > oldLevel && Main.myPlayer >= 0 && Main.myPlayer < Main.player.Length)
             {
                 Player player = Main.player[Main.myPlayer];
                 if (player.active)
                 {
+                    DebugLog.Gameplay("Item", "GainExperience", $"LEVEL UP! Item '{item.Name}' subiu para nível {newLevel}");
                     Main.NewText($"{item.Name} subiu para nível {newLevel}!", Color.Gold);
                 }
             }
@@ -94,54 +99,47 @@ namespace Wolfgodrpg.Common.GlobalItems
         // === VERIFICAR SE DEVE GANHAR EXPERIÊNCIA ===
         private bool ShouldGainExperience(Item item)
         {
-            return item.damage > 0 || item.healLife > 0 || item.healMana > 0 || 
-                   item.pick > 0 || item.axe > 0 || item.hammer > 0;
+            // Itens que não devem ganhar experiência
+            if (item.damage <= 0) return false;
+            if (item.axe > 0 || item.hammer > 0 || item.pick > 0) return false; // Ferramentas
+            if (item.fishingPole > 0) return false; // Varas de pesca
+            if (item.createTile >= -1 || item.createWall >= -1) return false; // Blocos
+            if (item.consumable) return false; // Consumíveis
+            
+            return true;
         }
 
-        // === MODIFICAR DANO ===
+        // === APLICAR BÔNUS DE NÍVEL ===
         public override void ModifyWeaponDamage(Item item, Player player, ref StatModifier damage)
         {
             if (!ShouldGainExperience(item)) return;
             
             int level = GetItemLevel();
-            if (level <= 1) return;
-            
-            float damageBonus = (level - 1) * DAMAGE_BONUS_PER_LEVEL;
-            damageBonus = Math.Min(damageBonus, MAX_DAMAGE_BONUS);
-            
-            damage += damageBonus;
+            if (level > 1)
+            {
+                float damageBonus = (level - 1) * DAMAGE_BONUS_PER_LEVEL;
+                damageBonus = Math.Min(damageBonus, MAX_DAMAGE_BONUS);
+                
+                if (damageBonus > 0)
+                {
+                    damage += damageBonus;
+                    DebugLog.Item("ModifyWeaponDamage", $"Item '{item.Name}' (Nível {level}) - Bônus de dano aplicado: +{damageBonus:P0}");
+                }
+            }
         }
 
-        // === MODIFICAR KNOCKBACK ===
-        public override void ModifyWeaponKnockback(Item item, Player player, ref StatModifier knockback)
+        public override void ModifyWeaponCrit(Item item, Player player, ref float crit)
         {
             if (!ShouldGainExperience(item)) return;
             
             int level = GetItemLevel();
-            if (level <= 1) return;
-            
-            float knockbackBonus = (level - 1) * 0.005f;
-            knockbackBonus = Math.Min(knockbackBonus, 0.25f);
-            
-            knockback += knockbackBonus;
-        }
-
-        // === USO DO ITEM ===
-        public override bool? UseItem(Item item, Player player)
-        {
-            if (ShouldGainExperience(item))
+            if (level > 10) // Bônus de crit a partir do nível 10
             {
-                float baseExp = 1.0f;
+                float critBonus = (level - 10) * 0.5f; // +0.5% crit por nível após 10
+                crit += critBonus;
                 
-                if (item.damage > 0)
-                {
-                    baseExp += item.damage * 0.1f;
-                }
-                
-                GainExperience(item, baseExp, "usage");
+                DebugLog.Item("ModifyWeaponCrit", $"Item '{item.Name}' (Nível {level}) - Bônus de crit aplicado: +{critBonus:F1}%");
             }
-            
-            return null;
         }
 
         // === HIT NPC ===
@@ -158,7 +156,17 @@ namespace Wolfgodrpg.Common.GlobalItems
             var balancedNPC = target.GetGlobalNPC<GlobalNPCs.BalancedNPC>();
             if (balancedNPC.IsElite) reason = "elite";
             
+            DebugLog.Item("OnHitNPC", $"Item '{item.Name}' acertou '{target.FullName}' - Dano: {damageDone}, XP: {expGain:F1}, Reason: {reason}");
+            
             GainExperience(item, expGain, reason);
+        }
+
+        // === TESTE DE USO DE ITEM ===
+        public override void OnConsumeItem(Item item, Player player)
+        {
+            if (!ShouldGainExperience(item)) return;
+            
+            DebugLog.Item("OnConsumeItem", $"Item '{item.Name}' foi usado pelo jogador '{player.name}'");
         }
 
         // === MODIFICAR TOOLTIPS ===
@@ -219,13 +227,26 @@ namespace Wolfgodrpg.Common.GlobalItems
             {
                 tag["experience"] = Experience;
                 tag["usageCount"] = UsageCount;
+                
+                DebugLog.Item("SaveData", $"Item '{item.Name}' salvo - XP: {Experience:F1}, Usos: {UsageCount}");
             }
         }
 
         public override void LoadData(Item item, TagCompound tag)
         {
-            Experience = tag.GetFloat("experience");
-            UsageCount = tag.GetInt("usageCount");
+            try
+            {
+                Experience = tag.GetFloat("experience");
+                UsageCount = tag.GetInt("usageCount");
+                
+                DebugLog.Item("LoadData", $"Item '{item.Name}' carregado - XP: {Experience:F1}, Usos: {UsageCount}, Nível: {GetItemLevel()}");
+            }
+            catch (Exception ex)
+            {
+                DebugLog.Error("Item", "LoadData", $"Erro ao carregar dados do item '{item.Name}'", ex);
+                Experience = 0f;
+                UsageCount = 0;
+            }
         }
 
         // === CLONE ===
@@ -234,6 +255,9 @@ namespace Wolfgodrpg.Common.GlobalItems
             var clone = (ProgressiveItem)base.Clone(item, itemClone);
             clone.Experience = Experience;
             clone.UsageCount = UsageCount;
+            
+            DebugLog.Item("Clone", $"Item '{item.Name}' clonado - XP: {Experience:F1}, Usos: {UsageCount}");
+            
             return clone;
         }
     }

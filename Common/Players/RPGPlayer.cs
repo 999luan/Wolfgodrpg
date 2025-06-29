@@ -31,7 +31,6 @@ namespace Wolfgodrpg.Common.Players
         public int StaminaRegenDelay = 0;
         public int CombatTimer = 0; // Cronômetro para rastrear tempo em combate
 
-        private int _lastLife;
         private bool _wasWellFed;
 
         // Configuração
@@ -41,21 +40,44 @@ namespace Wolfgodrpg.Common.Players
         {
             DebugLog.Player("Initialize", "Inicializando RPGPlayer");
             InitializeClasses();
+            DebugLog.Player("Initialize", $"Dicionário de classes após inicialização: {string.Join(", ", ClassLevels.Select(kv => kv.Key + ":" + kv.Value))}");
             DebugLog.Player("Initialize", "RPGPlayer inicializado com sucesso");
         }
 
         private void InitializeClasses()
         {
-            DebugLog.Player("InitializeClasses", "Inicializando classes do jogador");
+            DebugLog.Player("InitializeClasses", "Iniciando inicialização das classes do jogador");
+            DebugLog.Player("InitializeClasses", $"RPGClassDefinitions.ActionClasses.Count: {RPGClassDefinitions.ActionClasses.Count}");
+            
+            int classesInitialized = 0;
             foreach (var className in RPGClassDefinitions.ActionClasses.Keys)
             {
                 if (!ClassLevels.ContainsKey(className))
+                {
                     ClassLevels[className] = 1f;
+                    DebugLog.Player("InitializeClasses", $"Classe '{className}' inicializada com level 1");
+                    classesInitialized++;
+                }
+                else
+                {
+                    DebugLog.Player("InitializeClasses", $"Classe '{className}' já existe com level {ClassLevels[className]}");
+                }
+
                 if (!ClassExperience.ContainsKey(className))
+                {
                     ClassExperience[className] = 0f;
-                
-                DebugLog.Player("InitializeClasses", $"Classe '{className}' inicializada - Level: {ClassLevels[className]}, XP: {ClassExperience[className]}");
+                    DebugLog.Player("InitializeClasses", $"XP da classe '{className}' inicializado com 0");
+                }
+                else
+                {
+                    DebugLog.Player("InitializeClasses", $"XP da classe '{className}' já existe: {ClassExperience[className]}");
+                }
             }
+            
+            DebugLog.Player("InitializeClasses", $"Total de classes inicializadas: {classesInitialized}");
+            DebugLog.Player("InitializeClasses", $"ClassLevels.Count final: {ClassLevels.Count}");
+            DebugLog.Player("InitializeClasses", $"ClassExperience.Count final: {ClassExperience.Count}");
+            DebugLog.Player("InitializeClasses", $"Conteúdo do ClassLevels: {string.Join(", ", ClassLevels.Select(kv => kv.Key + ":" + kv.Value))}");
         }
 
         public override void PostUpdate()
@@ -97,12 +119,16 @@ namespace Wolfgodrpg.Common.Players
 
         public float GetClassLevel(string className)
         {
-            if (!ClassLevels.ContainsKey(className))
+            if (ClassLevels.TryGetValue(className, out float level))
             {
-                DebugLog.Warn("Player", "GetClassLevel", $"Classe '{className}' não encontrada, retornando 1");
-                return 1f;
+                DebugLog.Player("GetClassLevel", $"Classe '{className}' encontrada, level: {level}");
+                return level;
             }
-            return ClassLevels[className];
+            
+            DebugLog.Warn("Player", "GetClassLevel", $"Classe '{className}' não encontrada no dicionário ClassLevels");
+            DebugLog.Warn("Player", "GetClassLevel", $"Classes disponíveis: {string.Join(", ", ClassLevels.Keys)}");
+            DebugLog.Warn("Player", "GetClassLevel", $"Retornando level 1 como fallback");
+            return 1f;
         }
 
         public void GainClassExp(string className, float amount)
@@ -213,50 +239,55 @@ namespace Wolfgodrpg.Common.Players
         public override void SaveData(TagCompound tag)
         {
             DebugLog.Player("SaveData", "Salvando dados do RPGPlayer");
-            
-            // Salvar classes
-            tag["classLevels"] = ClassLevels;
-            tag["classExperience"] = ClassExperience;
+            // Serializar dicionários como duas listas separadas
+            tag["classLevelKeys"] = ClassLevels.Keys.ToList();
+            tag["classLevelValues"] = ClassLevels.Values.ToList();
+            tag["classExpKeys"] = ClassExperience.Keys.ToList();
+            tag["classExpValues"] = ClassExperience.Values.ToList();
             tag["unlockedAbilities"] = UnlockedAbilities.ToList();
-            
-            // Salvar vitals
             tag["currentHunger"] = CurrentHunger;
             tag["maxHunger"] = MaxHunger;
             tag["currentSanity"] = CurrentSanity;
             tag["maxSanity"] = MaxSanity;
             tag["currentStamina"] = CurrentStamina;
             tag["maxStamina"] = MaxStamina;
-            
             DebugLog.Player("SaveData", "Dados do RPGPlayer salvos com sucesso");
         }
 
         public override void LoadData(TagCompound tag)
         {
             DebugLog.Player("LoadData", "Carregando dados do RPGPlayer");
-            
             try
             {
-                // Carregar classes
-                ClassLevels = tag.Get<Dictionary<string, float>>("classLevels") ?? new Dictionary<string, float>();
-                ClassExperience = tag.Get<Dictionary<string, float>>("classExperience") ?? new Dictionary<string, float>();
+                // Reconstruir dicionários a partir de duas listas
+                var keys = tag.Get<List<string>>("classLevelKeys") ?? new List<string>();
+                var values = tag.Get<List<float>>("classLevelValues") ?? new List<float>();
+                ClassLevels = new Dictionary<string, float>();
+                for (int i = 0; i < keys.Count && i < values.Count; i++)
+                    ClassLevels[keys[i]] = values[i];
+
+                var expKeys = tag.Get<List<string>>("classExpKeys") ?? new List<string>();
+                var expValues = tag.Get<List<float>>("classExpValues") ?? new List<float>();
+                ClassExperience = new Dictionary<string, float>();
+                for (int i = 0; i < expKeys.Count && i < expValues.Count; i++)
+                    ClassExperience[expKeys[i]] = expValues[i];
+
                 var unlockedAbilitiesList = tag.Get<List<string>>("unlockedAbilities") ?? new List<string>();
                 UnlockedAbilities = new HashSet<string>(unlockedAbilitiesList);
-                
-                // Carregar vitals
-                CurrentHunger = tag.GetFloat("currentHunger", 100f);
-                MaxHunger = tag.GetFloat("maxHunger", 100f);
-                CurrentSanity = tag.GetFloat("currentSanity", 100f);
-                MaxSanity = tag.GetFloat("maxSanity", 100f);
-                CurrentStamina = tag.GetFloat("currentStamina", 100f);
-                MaxStamina = tag.GetFloat("maxStamina", 100f);
-                
+                CurrentHunger = tag.ContainsKey("currentHunger") ? tag.GetFloat("currentHunger") : 100f;
+                MaxHunger = tag.ContainsKey("maxHunger") ? tag.GetFloat("maxHunger") : 100f;
+                CurrentSanity = tag.ContainsKey("currentSanity") ? tag.GetFloat("currentSanity") : 100f;
+                MaxSanity = tag.ContainsKey("maxSanity") ? tag.GetFloat("maxSanity") : 100f;
+                CurrentStamina = tag.ContainsKey("currentStamina") ? tag.GetFloat("currentStamina") : 100f;
+                MaxStamina = tag.ContainsKey("maxStamina") ? tag.GetFloat("maxStamina") : 100f;
                 DebugLog.Player("LoadData", $"Dados carregados - Classes: {ClassLevels.Count}, Habilidades: {UnlockedAbilities.Count}, Vitals: Hunger={CurrentHunger:F1}, Sanity={CurrentSanity:F1}, Stamina={CurrentStamina:F1}");
+                DebugLog.Player("LoadData", $"Dicionário de classes após LoadData: {string.Join(", ", ClassLevels.Select(kv => kv.Key + ":" + kv.Value))}");
             }
             catch (System.Exception ex)
             {
                 DebugLog.Error("Player", "LoadData", "Erro ao carregar dados do RPGPlayer", ex);
-                // Reinicializar com valores padrão em caso de erro
                 InitializeClasses();
+                DebugLog.Player("LoadData", $"Dicionário de classes após fallback: {string.Join(", ", ClassLevels.Select(kv => kv.Key + ":" + kv.Value))}");
             }
         }
 
@@ -264,6 +295,12 @@ namespace Wolfgodrpg.Common.Players
         {
             DebugLog.Player("OnEnterWorld", $"Jogador '{Player.name}' entrou no mundo");
             DebugLog.Player("OnEnterWorld", $"Status inicial - Hunger: {CurrentHunger:F1}%, Sanity: {CurrentSanity:F1}%, Stamina: {CurrentStamina:F1}%");
+            if (ClassLevels == null || ClassLevels.Count == 0)
+            {
+                DebugLog.Player("OnEnterWorld", "ClassLevels estava vazio, inicializando...");
+                InitializeClasses();
+            }
+            DebugLog.Player("OnEnterWorld", $"Dicionário de classes ao entrar no mundo: {string.Join(", ", ClassLevels.Select(kv => kv.Key + ":" + kv.Value))}");
         }
 
         public override void OnRespawn()

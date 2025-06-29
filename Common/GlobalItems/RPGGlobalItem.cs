@@ -1,5 +1,6 @@
 using Terraria;
 using Terraria.ModLoader;
+using Terraria.ModLoader.IO;
 using System.Collections.Generic;
 using Wolfgodrpg.Common.Classes;
 using System.Linq;
@@ -77,6 +78,21 @@ namespace Wolfgodrpg.Common.GlobalItems
             return RPGClassDefinitions.ItemRarity.Common;
         }
 
-        
+        public override void SaveData(Item item, TagCompound tag)
+        {
+            tag["statKeys"] = randomStats.Keys.ToList();
+            tag["statValues"] = randomStats.Values.ToList();
+        }
+
+        public override void LoadData(Item item, TagCompound tag)
+        {
+            var keys = tag.Get<List<string>>("statKeys") ?? new List<string>();
+            var values = tag.Get<List<float>>("statValues") ?? new List<float>();
+            randomStats = new Dictionary<string, float>();
+            for (int i = 0; i < keys.Count && i < values.Count; i++)
+            {
+                randomStats[keys[i]] = values[i];
+            }
+        }
     }
 }
