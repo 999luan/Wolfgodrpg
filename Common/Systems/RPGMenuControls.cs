@@ -12,7 +12,7 @@ namespace Wolfgodrpg.Common.Systems
 {
     public class RPGMenuControls : ModSystem
     {
-        public override void Load()
+        public override void PostSetupContent()
         {
             if (!Main.dedServ)
             {
@@ -39,7 +39,7 @@ namespace Wolfgodrpg.Common.Systems
                     "Wolfgodrpg: RPG Menu", // Nome da camada da interface
                     delegate
                     {
-                        RPGMenuController.Draw(Main.spriteBatch);
+                        RPGMenuController.Draw(Main.spriteBatch, Main._drawInterfaceGameTime);
                         return true;
                     },
                     InterfaceScaleType.UI)

@@ -4,6 +4,7 @@ using Terraria;
 using Terraria.GameContent.UI.Elements;
 using Terraria.ModLoader;
 using Terraria.UI;
+using ReLogic.Content;
 
 namespace Wolfgodrpg.Common.UI
 {
@@ -25,6 +26,8 @@ namespace Wolfgodrpg.Common.UI
             set => _isSelected = value;
         }
 
+        public string Text => _text;
+
         public RPGTabButton(string text, string normalTexturePath = "Wolfgodrpg/Assets/UI/ButtonNext", string selectedTexturePath = "Wolfgodrpg/Assets/UI/ButtonPrevious")
         {
             _text = text;
@@ -34,8 +37,26 @@ namespace Wolfgodrpg.Common.UI
 
         public override void OnInitialize()
         {
-            _normalTexture = ModContent.Request<Texture2D>(_normalTexturePath).Value;
-            _selectedTexture = ModContent.Request<Texture2D>(_selectedTexturePath).Value;
+            _normalTexture = ModContent.Request<Texture2D>(_normalTexturePath, AssetRequestMode.ImmediateLoad).Value;
+            _selectedTexture = ModContent.Request<Texture2D>(_selectedTexturePath, AssetRequestMode.ImmediateLoad).Value;
+
+            if (_normalTexture == null)
+            {
+                Wolfgodrpg.Instance.Logger.Warn($"[RPGTabButton] Failed to load normal texture from: {_normalTexturePath}");
+            }
+            else
+            {
+                Wolfgodrpg.Instance.Logger.Info($"[RPGTabButton] Loaded normal texture: {_normalTexturePath}, Dimensions: {_normalTexture.Width}x{_normalTexture.Height}");
+            }
+
+            if (_selectedTexture == null)
+            {
+                Wolfgodrpg.Instance.Logger.Warn($"[RPGTabButton] Failed to load selected texture from: {_selectedTexturePath}");
+            }
+            else
+            {
+                Wolfgodrpg.Instance.Logger.Info($"[RPGTabButton] Loaded selected texture: {_selectedTexturePath}, Dimensions: {_selectedTexture.Width}x{_selectedTexture.Height}");
+            }
 
             Width.Set(_normalTexture.Width, 0f);
             Height.Set(_normalTexture.Height, 0f);

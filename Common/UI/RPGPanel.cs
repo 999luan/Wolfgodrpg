@@ -15,14 +15,22 @@ namespace Wolfgodrpg.Common.UI
         // Ex: se a borda tem 12 pixels de largura/altura, use 12.
         private const int BorderSize = 12; 
 
-        public RPGPanel(string texturePath = "Wolfgodrpg/Assets/UI/uibg")
+        public RPGPanel(string texturePath = null)
         {
-            _texturePath = texturePath;
+            _texturePath = texturePath ?? "Wolfgodrpg/Assets/UI/uibg";
         }
 
         public override void OnInitialize()
         {
             _backgroundTexture = ModContent.Request<Texture2D>(_texturePath).Value;
+            if (_backgroundTexture == null)
+            {
+                Wolfgodrpg.Instance.Logger.Warn($"[RPGPanel] Failed to load background texture from: {_texturePath}");
+            }
+            else
+            {
+                Wolfgodrpg.Instance.Logger.Info($"[RPGPanel] Loaded background texture: {_texturePath}, Dimensions: {_backgroundTexture.Width}x{_backgroundTexture.Height}");
+            }
         }
 
         protected override void DrawSelf(SpriteBatch spriteBatch)

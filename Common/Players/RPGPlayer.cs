@@ -39,89 +39,98 @@ namespace Wolfgodrpg.Common.Players
 
         public override void Initialize()
         {
+            DebugLog.Player("Initialize", "Inicializando RPGPlayer");
             InitializeClasses();
+            DebugLog.Player("Initialize", "RPGPlayer inicializado com sucesso");
         }
 
         private void InitializeClasses()
         {
+            DebugLog.Player("InitializeClasses", "Inicializando classes do jogador");
             foreach (var className in RPGClassDefinitions.ActionClasses.Keys)
             {
                 if (!ClassLevels.ContainsKey(className))
                     ClassLevels[className] = 1f;
                 if (!ClassExperience.ContainsKey(className))
                     ClassExperience[className] = 0f;
+                
+                DebugLog.Player("InitializeClasses", $"Classe '{className}' inicializada - Level: {ClassLevels[className]}, XP: {ClassExperience[className]}");
             }
         }
 
         public override void PostUpdate()
         {
-            var totalStats = RPGCalculations.CalculateTotalStats(this);
-            RPGCalculations.ApplyStatsToPlayer(Player, totalStats);
-            ApplySpecialAbilities();
-
-            // XP para Sobrevivente (Regeneração de Vida)
-            if (Player.statLife > _lastLife && _lastLife != 0)
+            // Atualizar timer de combate
+            if (CombatTimer > 0)
             {
-                float lifeRegained = Player.statLife - _lastLife;
-                GainClassExp("survivor", lifeRegained * 0.1f); // Ganha XP baseado na vida regenerada
-            }
-
-            // XP para Sobrevivente (Comer - Buff Well Fed)
-            bool isWellFed = Player.HasBuff(Terraria.ID.BuffID.WellFed);
-            if (isWellFed && !_wasWellFed)
-            {
-                GainClassExp("survivor", 5f); // Ganha uma pequena quantidade de XP ao ficar Well Fed
-            }
-            _wasWellFed = isWellFed;
-            _lastLife = Player.statLife;
-        }
-
-        private void ApplySpecialAbilities()
-        {
-            Player.waterWalk = false;
-            Player.lavaImmune = false;
-            Player.wingsLogic = 0;
-            Player.dash = 0;
-
-            foreach (var ability in UnlockedAbilities)
-            {
-                switch (ability)
+                CombatTimer--;
+                if (CombatTimer == 0)
                 {
-                    case "movement_50": // Dash Duplo (Exemplo)
-                        if (Player.dashType == 0) Player.dash = 2;
-                        break;
+                    DebugLog.Player("PostUpdate", "Timer de combate expirado - jogador saiu do combate");
                 }
             }
+
+            // Verificar mudanças de status
+            CheckStatusChanges();
         }
 
-        // Novo método para consumir Stamina
-        public bool ConsumeStamina(float amount)
+        private void CheckStatusChanges()
         {
-            if (CurrentStamina >= amount)
+            // Verificar mudanças de fome
+            if (CurrentHunger < 20f && _wasWellFed)
             {
-                CurrentStamina -= amount;
-                StaminaRegenDelay = 30; // Atraso de meio segundo para regenerar
-                return true;
+                DebugLog.Player("CheckStatusChanges", $"Fome crítica detectada: {CurrentHunger:F1}% - regeneração de vida desabilitada");
+                _wasWellFed = false;
             }
-            return false;
+            else if (CurrentHunger >= 20f && !_wasWellFed)
+            {
+                DebugLog.Player("CheckStatusChanges", $"Fome normalizada: {CurrentHunger:F1}% - regeneração de vida reabilitada");
+                _wasWellFed = true;
+            }
+
+            // Verificar mudanças de sanidade
+            if (CurrentSanity < 30f)
+            {
+                DebugLog.Player("CheckStatusChanges", $"Sanidade baixa: {CurrentSanity:F1}% - efeitos negativos podem ocorrer");
+            }
+        }
+
+        public float GetClassLevel(string className)
+        {
+            if (!ClassLevels.ContainsKey(className))
+            {
+                DebugLog.Warn("Player", "GetClassLevel", $"Classe '{className}' não encontrada, retornando 1");
+                return 1f;
+            }
+            return ClassLevels[className];
         }
 
         public void GainClassExp(string className, float amount)
         {
-            if (!ClassExperience.ContainsKey(className)) return;
+            if (!ClassExperience.ContainsKey(className)) 
+            {
+                DebugLog.Error("Player", "GainClassExp", $"Classe '{className}' não encontrada no dicionário de experiência");
+                return;
+            }
 
+            float oldXP = ClassExperience[className];
+            float oldLevel = ClassLevels[className];
+            
             float finalAmount = amount * Config.ExpMultiplier;
             if (Main.hardMode) finalAmount *= 1.5f;
             if (NPC.downedMoonlord) finalAmount *= 2f;
 
             ClassExperience[className] += finalAmount;
+            float newXP = ClassExperience[className];
 
-            float oldLevel = ClassLevels[className];
+            DebugLog.Gameplay("Player", "GainClassExp", $"Classe: {className}, XP ganho: {finalAmount:F1}, XP total: {newXP:F1}, Level atual: {oldLevel:F1}");
+
             float newLevel = CalculateLevelFromXP(ClassExperience[className]);
 
             if (newLevel > oldLevel)
             {
                 ClassLevels[className] = newLevel;
+                DebugLog.Gameplay("Player", "GainClassExp", $"LEVEL UP! Classe: {className}, Level: {oldLevel:F1} -> {newLevel:F1}");
                 Main.NewText($"Nível de {RPGClassDefinitions.ActionClasses[className].Name} aumentou para {newLevel:F0}!", Color.Yellow);
                 CheckForNewAbilities(className, newLevel);
             }
@@ -142,6 +151,7 @@ namespace Wolfgodrpg.Common.Players
 
         private void CheckForNewAbilities(string className, float level)
         {
+            DebugLog.Player("CheckForNewAbilities", $"Verificando habilidades para classe '{className}' no nível {level:F1}");
             var milestones = RPGClassDefinitions.ActionClasses[className].Milestones;
             foreach (var milestone in milestones)
             {
@@ -157,8 +167,12 @@ namespace Wolfgodrpg.Common.Players
         {
             if (UnlockedAbilities.Add(ability))
             {
+                DebugLog.Gameplay("Player", "UnlockAbility", $"Nova habilidade desbloqueada: {ability}");
                 Main.NewText($"Nova habilidade desbloqueada: {ability}!", Color.LightBlue);
-                Main.NewText($"[RPGPlayer] Ability '{ability}' unlocked.", Color.LightBlue); // Reativado
+            }
+            else
+            {
+                DebugLog.Player("UnlockAbility", $"Habilidade '{ability}' já estava desbloqueada");
             }
         }
 
@@ -167,88 +181,99 @@ namespace Wolfgodrpg.Common.Players
             return UnlockedAbilities.Contains(ability);
         }
 
-        public float GetClassLevel(string className)
+        // === SISTEMA DE STAMINA ===
+        public bool ConsumeStamina(float amount)
         {
-            return ClassLevels.ContainsKey(className) ? ClassLevels[className] : 1f;
-        }
-
-        public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
-        {
-            // Ao acertar um NPC, reseta o cronômetro de combate
-            CombatTimer = 0;
-        }
-
-        public override void OnHitByNPC(NPC npc, Player.HurtInfo hurtInfo)
-        {
-            // Ao ser atingido, reseta o cronômetro de combate
-            CombatTimer = 0;
-            // Ganha XP para a classe de Defesa ao tomar dano
-            GainClassExp("defense", hurtInfo.Damage * 0.1f); // Ajuste o multiplicador conforme necessário
-        }
-
-        public override void Kill(double damage, int hitDirection, bool pvp, PlayerDeathReason damageSource)
-        {
-            if (!Config.KeepXPOnDeath)
+            if (CurrentStamina >= amount)
             {
-                foreach (var className in ClassExperience.Keys.ToList())
-                {
-                    ClassExperience[className] *= 0.9f; // Perde 10% do XP
-                }
+                float oldStamina = CurrentStamina;
+                CurrentStamina -= amount;
+                StaminaRegenDelay = 60; // 1 segundo de delay
+                
+                DebugLog.Player("ConsumeStamina", $"Stamina consumida: {amount:F1}, Stamina restante: {CurrentStamina:F1}/{MaxStamina:F1}");
+                return true;
+            }
+            
+            DebugLog.Player("ConsumeStamina", $"Stamina insuficiente: necessário {amount:F1}, disponível {CurrentStamina:F1}");
+            return false;
+        }
+
+        public void RestoreStamina(float amount)
+        {
+            float oldStamina = CurrentStamina;
+            CurrentStamina = System.Math.Min(MaxStamina, CurrentStamina + amount);
+            
+            if (CurrentStamina > oldStamina)
+            {
+                DebugLog.Player("RestoreStamina", $"Stamina restaurada: {amount:F1}, Stamina atual: {CurrentStamina:F1}/{MaxStamina:F1}");
             }
         }
 
+        // === SAVE/LOAD ===
         public override void SaveData(TagCompound tag)
         {
-            var classLevels = new List<string>();
-            var classExp = new List<string>();
-            foreach (var kvp in ClassLevels)
-            {
-                classLevels.Add($"{kvp.Key}:{kvp.Value}");
-                classExp.Add($"{kvp.Key}:{ClassExperience[kvp.Key]}");
-            }
-            tag["ClassLevels"] = classLevels;
-            tag["ClassExperience"] = classExp;
-            tag["UnlockedAbilities"] = new List<string>(UnlockedAbilities);
-            tag["CurrentHunger"] = CurrentHunger;
-            tag["CurrentSanity"] = CurrentSanity;
+            DebugLog.Player("SaveData", "Salvando dados do RPGPlayer");
+            
+            // Salvar classes
+            tag["classLevels"] = ClassLevels;
+            tag["classExperience"] = ClassExperience;
+            tag["unlockedAbilities"] = UnlockedAbilities.ToList();
+            
+            // Salvar vitals
+            tag["currentHunger"] = CurrentHunger;
+            tag["maxHunger"] = MaxHunger;
+            tag["currentSanity"] = CurrentSanity;
+            tag["maxSanity"] = MaxSanity;
+            tag["currentStamina"] = CurrentStamina;
+            tag["maxStamina"] = MaxStamina;
+            
+            DebugLog.Player("SaveData", "Dados do RPGPlayer salvos com sucesso");
         }
 
         public override void LoadData(TagCompound tag)
         {
-            var classLevels = tag.GetList<string>("ClassLevels");
-            if (classLevels != null)
+            DebugLog.Player("LoadData", "Carregando dados do RPGPlayer");
+            
+            try
             {
-                foreach (var entry in classLevels)
-                {
-                    var parts = entry.Split(':');
-                    if (parts.Length == 2 && float.TryParse(parts[1], out float level))
-                    {
-                        ClassLevels[parts[0]] = level;
-                    }
-                }
+                // Carregar classes
+                ClassLevels = tag.Get<Dictionary<string, float>>("classLevels") ?? new Dictionary<string, float>();
+                ClassExperience = tag.Get<Dictionary<string, float>>("classExperience") ?? new Dictionary<string, float>();
+                var unlockedAbilitiesList = tag.Get<List<string>>("unlockedAbilities") ?? new List<string>();
+                UnlockedAbilities = new HashSet<string>(unlockedAbilitiesList);
+                
+                // Carregar vitals
+                CurrentHunger = tag.GetFloat("currentHunger", 100f);
+                MaxHunger = tag.GetFloat("maxHunger", 100f);
+                CurrentSanity = tag.GetFloat("currentSanity", 100f);
+                MaxSanity = tag.GetFloat("maxSanity", 100f);
+                CurrentStamina = tag.GetFloat("currentStamina", 100f);
+                MaxStamina = tag.GetFloat("maxStamina", 100f);
+                
+                DebugLog.Player("LoadData", $"Dados carregados - Classes: {ClassLevels.Count}, Habilidades: {UnlockedAbilities.Count}, Vitals: Hunger={CurrentHunger:F1}, Sanity={CurrentSanity:F1}, Stamina={CurrentStamina:F1}");
             }
-
-            var classExp = tag.GetList<string>("ClassExperience");
-            if (classExp != null)
+            catch (System.Exception ex)
             {
-                foreach (var entry in classExp)
-                {
-                    var parts = entry.Split(':');
-                    if (parts.Length == 2 && float.TryParse(parts[1], out float exp))
-                    {
-                        ClassExperience[parts[0]] = exp;
-                    }
-                }
+                DebugLog.Error("Player", "LoadData", "Erro ao carregar dados do RPGPlayer", ex);
+                // Reinicializar com valores padrão em caso de erro
+                InitializeClasses();
             }
+        }
 
-            var unlockedAbilities = tag.GetList<string>("UnlockedAbilities");
-            if (unlockedAbilities != null)
-            {
-                UnlockedAbilities = new HashSet<string>(unlockedAbilities);
-            }
+        public override void OnEnterWorld()
+        {
+            DebugLog.Player("OnEnterWorld", $"Jogador '{Player.name}' entrou no mundo");
+            DebugLog.Player("OnEnterWorld", $"Status inicial - Hunger: {CurrentHunger:F1}%, Sanity: {CurrentSanity:F1}%, Stamina: {CurrentStamina:F1}%");
+        }
 
-            CurrentHunger = tag.GetFloat("CurrentHunger");
-            CurrentSanity = tag.GetFloat("CurrentSanity");
+        public override void OnRespawn()
+        {
+            DebugLog.Player("OnRespawn", $"Jogador '{Player.name}' respawnou");
+            // Restaurar vitals ao respawnar
+            CurrentHunger = MaxHunger;
+            CurrentSanity = MaxSanity;
+            CurrentStamina = MaxStamina;
+            DebugLog.Player("OnRespawn", "Vitals restaurados ao respawnar");
         }
     }
 }

@@ -15,12 +15,11 @@ namespace Wolfgodrpg.Common.Systems
 
         public static void Initialize()
         {
-            if (_menuInterface == null)
-            {
-                _menuInterface = new UserInterface();
-                _menuUI = new SimpleRPGMenu();
-                _menuUI.Initialize();
-            }
+            if (_menuInterface != null) return;
+
+            _menuInterface = new UserInterface();
+            _menuUI = new SimpleRPGMenu();
+            _menuUI.Activate();
         }
 
         public static void Unload()
@@ -31,36 +30,27 @@ namespace Wolfgodrpg.Common.Systems
 
         public static void Update(GameTime gameTime)
         {
-            if (_menuUI != null && _menuUI.IsVisible())
-            {
-                _menuInterface.Update(gameTime);
-            }
+            _menuInterface?.Update(gameTime);
         }
 
-        public static void Draw(SpriteBatch spriteBatch)
+        public static void Draw(SpriteBatch spriteBatch, GameTime gameTime)
         {
-            if (_menuUI != null && _menuUI.IsVisible())
+            if (_menuInterface?.CurrentState != null)
             {
-                _menuInterface.Draw(spriteBatch, new GameTime());
+                _menuInterface.Draw(spriteBatch, gameTime);
             }
         }
 
         public static void ToggleMenu()
         {
-            if (_menuUI == null) return;
-
-            if (_menuUI.IsVisible())
+            if (_menuInterface?.CurrentState == null)
             {
-                _menuUI.Hide();
-                _menuInterface?.SetState(null);
+                _menuInterface?.SetState(_menuUI);
             }
             else
             {
-                _menuUI.Show();
-                _menuInterface?.SetState(_menuUI);
+                _menuInterface?.SetState(null);
             }
         }
-
-        
     }
 }

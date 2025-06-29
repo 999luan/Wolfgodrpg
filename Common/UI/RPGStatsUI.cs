@@ -57,7 +57,7 @@ namespace Wolfgodrpg.Common.UI
         {
             base.Update(gameTime);
             if (!isVisible) return;
-
+            if (Main.LocalPlayer == null || !Main.LocalPlayer.active) return;
             var rpgPlayer = Main.LocalPlayer.GetModPlayer<RPGPlayer>();
 
             // Atualizar os valores das barras

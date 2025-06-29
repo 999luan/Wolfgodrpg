@@ -668,4 +668,45 @@ public override void PostUpdate()
 - Melhor integração com outros mods
 - Sistema de achievements
 - Analytics de progressão
-- Modo multiplayer aprimorado 
+- Modo multiplayer aprimorado
+
+---
+
+# 🧩 Diagnóstico Profundo de Métodos e Funções da UI
+
+| Método/Função                | Situação Atual | Padrão Recomendado (Doc) | Problema Detectado | Correção Sugerida |
+|------------------------------|---------------|--------------------------|--------------------|-------------------|
+| RPGMenuController.Initialize | Chama cedo    | Inicializar após player  | Pode ser cedo      | Mover para PostAddRecipes ou checar player ativo |
+| RPGMenuController.ToggleMenu | SetState só se visível | Sempre garantir SetState | Pode travar UI    | Sempre sincronizar SetState com visibilidade     |
+| SimpleRPGMenu.Show/Hide      | Só muda bool  | Sempre SetState          | UI pode não aparecer | Chamar SetState no Show/Hide                    |
+| SimpleRPGMenu.OnInitialize   | Inicializa tudo de uma vez | Inicializar assets pesados sob demanda | Pode causar lag ou erro | Carregar assets apenas quando necessário         |
+| Sub-UIs Activate/Deactivate  | Só muda bool  | Remover/adicionar do visual tree | Pode deixar UI "fantasma" | Usar Remove/Append para visibilidade            |
+| RPGMenuControls.Load         | Chama Initialize cedo | Usar PostAddRecipes/OnWorldLoad | Pode ser cedo      | Mover inicialização/quit para hook mais tardio        |
+| Update/Draw (UIState)        | OK, mas log extra | Não fazer lógica extra no Draw | Polui log/lento   | Remover logs do Draw                            |
+
+## Erros comuns detectados:
+- SetState não garantido
+- Inicialização fora de ordem
+- Falta de checagem de jogador ativo
+- Draw manual/log extra
+- Falta de modularização
+- Falta de hooks multiplayer/persistência
+- Falta de tratamento de assets
+
+## Plano de Correção:
+1. Sempre use `UserInterface.SetState` ao mostrar/esconder UI.
+2. Inicialize UI apenas após jogador estar ativo.
+3. Use hooks adequados para multiplayer e persistência.
+4. Modularize sub-UIs para facilitar manutenção.
+5. Garanta que assets estejam carregados antes de inicializar UI.
+6. Remova lógica extra do Draw do UIState.
+7. Teste em singleplayer, multiplayer, e com reloads.
+
+### Referências:
+- [tModLoader UI Guide](https://github.com/tModLoader/tModLoader/wiki/UI-Guide)
+- [ExampleMod UI](https://github.com/tModLoader/tModLoader/tree/1.4/ExampleMod/Common/UI)
+- [tModLoader Hook List](https://github.com/tModLoader/tModLoader/wiki/Hook-List)
+
+---
+
+Essas recomendações vão ajudar a garantir uma UI robusta, fluida e compatível com futuras versões do tModLoader. 

@@ -15,6 +15,13 @@ namespace Wolfgodrpg.Common.GlobalItems
 
         public override bool InstancePerEntity => true;
 
+        public override GlobalItem Clone(Item item, Item newItem)
+        {
+            var clone = (RPGGlobalItem)base.Clone(item, newItem);
+            clone.randomStats = new Dictionary<string, float>(randomStats);
+            return clone;
+        }
+
         public override void OnSpawn(Item item, IEntitySource source)
         {
             // Não adicionar status a itens vazios, de quest ou já com status

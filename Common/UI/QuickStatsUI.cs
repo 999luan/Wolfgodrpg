@@ -37,6 +37,7 @@ namespace Wolfgodrpg.Common.UI
             base.Update(gameTime);
 
             if (!_visible) return;
+            if (Main.LocalPlayer == null || !Main.LocalPlayer.active) return;
 
             var player = Main.LocalPlayer;
             var modPlayer = player.GetModPlayer<RPGPlayer>();

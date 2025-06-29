@@ -41,6 +41,8 @@ namespace Wolfgodrpg.Common.GlobalNPCs
                 originalDamage = npc.damage;
                 IsElite = Main.rand.NextFloat() < ELITE_SPAWN_CHANCE;
                 isInitialized = true;
+                
+                DebugLog.NPC("SetDefaults", $"NPC '{npc.FullName}' inicializado - Life: {originalLife}, Damage: {originalDamage}, Elite: {IsElite}");
             }
 
             var config = ModContent.GetInstance<RPGConfig>();
@@ -74,6 +76,8 @@ namespace Wolfgodrpg.Common.GlobalNPCs
         {
             if (npc.friendly || npc.lifeMax <= 5 || npc.townNPC) return;
 
+            DebugLog.NPC("OnSpawn", $"NPC '{npc.FullName}' spawnou - Life: {npc.lifeMax}, Damage: {npc.damage}, Boss: {npc.boss}");
+
             float averagePlayerLevel = GetAveragePlayerLevel(npc.Center);
             ApplyProgressionScaling(npc, averagePlayerLevel);
             
@@ -86,6 +90,8 @@ namespace Wolfgodrpg.Common.GlobalNPCs
             {
                 ApplyBossScaling(npc, averagePlayerLevel);
             }
+            
+            DebugLog.NPC("OnSpawn", $"NPC '{npc.FullName}' finalizado - Life: {npc.lifeMax}, Damage: {npc.damage}, Elite: {IsElite}, HealthMult: {HealthMultiplier:F2}, DamageMult: {DamageMultiplier:F2}");
         }
 
         // === CALCULAR NÍVEL MÉDIO DOS JOGADORES ===
@@ -94,7 +100,11 @@ namespace Wolfgodrpg.Common.GlobalNPCs
             var nearbyPlayers = Main.player.Where(p => p.active && !p.dead && 
                 Vector2.Distance(p.Center, position) < 2000f).ToList();
             
-            if (!nearbyPlayers.Any()) return 1f;
+            if (!nearbyPlayers.Any()) 
+            {
+                DebugLog.NPC("GetAveragePlayerLevel", "Nenhum jogador próximo encontrado, usando nível 1");
+                return 1f;
+            }
             
             float totalLevel = 0f;
             foreach (var player in nearbyPlayers)
@@ -107,7 +117,9 @@ namespace Wolfgodrpg.Common.GlobalNPCs
                 totalLevel += modPlayer.GetClassLevel("defense");
             }
             
-            return totalLevel / (nearbyPlayers.Count * 5f);
+            float averageLevel = totalLevel / (nearbyPlayers.Count * 5f);
+            DebugLog.NPC("GetAveragePlayerLevel", $"Nível médio dos jogadores próximos: {averageLevel:F2} (de {nearbyPlayers.Count} jogadores)");
+            return averageLevel;
         }
 
         // === APLICAR SCALING ===
@@ -119,9 +131,14 @@ namespace Wolfgodrpg.Common.GlobalNPCs
             HealthMultiplier = levelMultiplier * progressionMultiplier;
             DamageMultiplier = Math.Min(levelMultiplier * progressionMultiplier, 2.0f);
             
+            int oldLife = npc.lifeMax;
+            int oldDamage = npc.damage;
+            
             npc.lifeMax = (int)(npc.lifeMax * HealthMultiplier);
             npc.life = npc.lifeMax;
             npc.damage = (int)(npc.damage * DamageMultiplier);
+            
+            DebugLog.NPC("ApplyProgressionScaling", $"Scaling aplicado - LevelMult: {levelMultiplier:F2}, ProgressionMult: {progressionMultiplier:F2}, Health: {oldLife}->{npc.lifeMax}, Damage: {oldDamage}->{npc.damage}");
         }
 
         // === MULTIPLICADOR DE PROGRESSÃO ===
@@ -135,6 +152,7 @@ namespace Wolfgodrpg.Common.GlobalNPCs
             else if (NPC.downedPlantBoss) multiplier *= 1.6f;
             else if (NPC.downedMechBossAny) multiplier *= 1.4f;
             
+            DebugLog.NPC("GetWorldProgressionMultiplier", $"Multiplicador de progressão do mundo: {multiplier:F2}");
             return multiplier;
         }
 
@@ -145,11 +163,16 @@ namespace Wolfgodrpg.Common.GlobalNPCs
             HealthMultiplier *= ELITE_HEALTH_MULTIPLIER;
             DamageMultiplier *= ELITE_DAMAGE_MULTIPLIER;
             
+            int oldLife = npc.lifeMax;
+            int oldDamage = npc.damage;
+            
             npc.lifeMax = (int)(npc.lifeMax * ELITE_HEALTH_MULTIPLIER);
             npc.life = npc.lifeMax;
             npc.damage = (int)(npc.damage * ELITE_DAMAGE_MULTIPLIER);
             npc.scale *= 1.1f;
             npc.color = Color.Gold;
+            
+            DebugLog.NPC("MakeElite", $"NPC '{npc.FullName}' tornado ELITE - Health: {oldLife}->{npc.lifeMax}, Damage: {oldDamage}->{npc.damage}");
         }
 
         // === SCALING DE BOSS ===
@@ -161,9 +184,14 @@ namespace Wolfgodrpg.Common.GlobalNPCs
             HealthMultiplier = bossMultiplier * progressionMultiplier * BOSS_HEALTH_MULTIPLIER;
             DamageMultiplier = Math.Min(bossMultiplier * progressionMultiplier * BOSS_DAMAGE_MULTIPLIER, 2.5f);
             
+            int oldLife = npc.lifeMax;
+            int oldDamage = npc.damage;
+            
             npc.lifeMax = (int)(npc.lifeMax * HealthMultiplier);
             npc.life = npc.lifeMax;
             npc.damage = (int)(npc.damage * DamageMultiplier);
+            
+            DebugLog.NPC("ApplyBossScaling", $"Boss '{npc.FullName}' escalado - BossMult: {bossMultiplier:F2}, Health: {oldLife}->{npc.lifeMax}, Damage: {oldDamage}->{npc.damage}");
         }
 
         // === MODIFICAR DANO RECEBIDO ===
@@ -251,19 +279,34 @@ namespace Wolfgodrpg.Common.GlobalNPCs
             if (IsElite) baseExp *= 1.5f;
             if (npc.boss) baseExp *= 3.0f;
             
+            DebugLog.NPC("OnKill", $"NPC '{npc.FullName}' morto - BaseExp: {baseExp:F1}, Elite: {IsElite}, Boss: {npc.boss}");
+            
+            int playersGainedExp = 0;
             foreach (Player player in Main.player)
             {
                 if (player.active && !player.dead && 
                     Vector2.Distance(player.Center, npc.Center) < 2000f)
                 {
                     var modPlayer = player.GetModPlayer<RPGPlayer>();
-                    modPlayer.GainClassExp("melee", baseExp * 0.3f);
-                    modPlayer.GainClassExp("ranged", baseExp * 0.2f);
-                    modPlayer.GainClassExp("magic", baseExp * 0.2f);
-                    modPlayer.GainClassExp("summoner", baseExp * 0.2f);
-                    modPlayer.GainClassExp("defense", baseExp * 0.1f);
+                    float meleeExp = baseExp * 0.3f;
+                    float rangedExp = baseExp * 0.2f;
+                    float magicExp = baseExp * 0.2f;
+                    float summonerExp = baseExp * 0.2f;
+                    float defenseExp = baseExp * 0.1f;
+                    
+                    modPlayer.GainClassExp("melee", meleeExp);
+                    modPlayer.GainClassExp("ranged", rangedExp);
+                    modPlayer.GainClassExp("magic", magicExp);
+                    modPlayer.GainClassExp("summoner", summonerExp);
+                    modPlayer.GainClassExp("defense", defenseExp);
+                    
+                    playersGainedExp++;
+                    
+                    DebugLog.Gameplay("NPC", "OnKill", $"Jogador '{player.name}' ganhou XP - Melee: {meleeExp:F1}, Ranged: {rangedExp:F1}, Magic: {magicExp:F1}, Summoner: {summonerExp:F1}, Defense: {defenseExp:F1}");
                 }
             }
+            
+            DebugLog.NPC("OnKill", $"XP distribuído para {playersGainedExp} jogadores");
 
             if (IsElite)
             {
@@ -271,6 +314,7 @@ namespace Wolfgodrpg.Common.GlobalNPCs
                 {
                     Dust.NewDust(npc.position, npc.width, npc.height, DustID.Enchanted_Gold, 0f, 0f, 150, Color.Gold);
                 }
+                DebugLog.NPC("OnKill", "Efeitos visuais de elite aplicados");
             }
 
             RPGActionSystem.OnKillNPC(npc);
@@ -322,11 +366,19 @@ namespace Wolfgodrpg.Common.GlobalNPCs
             // Dar XP de defesa quando recebe dano
             float defenseXP = hurtInfo.Damage * 0.2f;
             modPlayer.GainClassExp("defense", defenseXP);
+            
+            DebugLog.Gameplay("NPC", "OnHitPlayer", $"Jogador '{target.name}' atingido por '{npc.FullName}' - Dano: {hurtInfo.Damage}, XP de defesa: {defenseXP:F1}");
 
             // Reduzir sanidade em áreas perigosas
             if (npc.boss || npc.type == NPCID.EaterofSouls || npc.type == NPCID.Crimera)
             {
+                float oldSanity = modPlayer.CurrentSanity;
                 modPlayer.CurrentSanity = Math.Max(0f, modPlayer.CurrentSanity - 5f);
+                
+                if (modPlayer.CurrentSanity < oldSanity)
+                {
+                    DebugLog.Player("OnHitPlayer", $"Sanidade reduzida por NPC perigoso: {oldSanity:F1} -> {modPlayer.CurrentSanity:F1}");
+                }
             }
         }
 

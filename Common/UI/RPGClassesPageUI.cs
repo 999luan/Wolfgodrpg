@@ -9,117 +9,53 @@ using Wolfgodrpg.Common.Systems;
 using System.Text;
 using System.Collections.Generic;
 using Wolfgodrpg.Common.Classes;
+using System.Linq;
 
 namespace Wolfgodrpg.Common.UI
 {
     public class RPGClassesPageUI : UIElement
     {
-        private UIElement _classesContainer;
-        private bool _visible = false;
+        private UIList _classesList;
 
         public override void OnInitialize()
         {
             Width.Set(0, 1f);
             Height.Set(0, 1f);
-            HAlign = 0.5f;
-            VAlign = 0.5f;
 
-            _classesContainer = new UIElement();
-            _classesContainer.Width.Set(0, 1f);
-            _classesContainer.Height.Set(0, 1f);
-            _classesContainer.SetPadding(0);
-            Append(_classesContainer);
+            _classesList = new UIList();
+            _classesList.Width.Set(0, 1f);
+            _classesList.Height.Set(0, 1f);
+            _classesList.ListPadding = 5f;
+            Append(_classesList);
         }
 
         public void UpdateClasses(RPGPlayer modPlayer)
         {
-            _classesContainer.RemoveAllChildren(); // Clear previous classes
-
-            float currentY = 0f;
-
+            _classesList.Clear();
+            if (modPlayer == null) return;
             foreach (var classEntry in RPGClassDefinitions.ActionClasses)
             {
-                string className = classEntry.Key;
                 var classInfo = classEntry.Value;
-                float level = modPlayer.GetClassLevel(className);
-                float currentExp = modPlayer.ClassExperience.ContainsKey(className) ? modPlayer.ClassExperience[className] : 0;
-
-                ClassEntry classUI = new ClassEntry(classInfo.Name, level, currentExp, classInfo.Milestones, modPlayer, className);
-                classUI.Top.Set(currentY, 0f);
-                classUI.Left.Set(0, 0.05f);
-                classUI.Width.Set(0, 0.9f);
-                classUI.Height.Set(100f, 0f); // Adjust height as needed
-                _classesContainer.Append(classUI);
-
-                currentY += classUI.Height.Pixels + 10f; // Spacing between classes
+                float level = modPlayer.GetClassLevel(classEntry.Key);
+                float currentExp = 0;
+                modPlayer.ClassExperience.TryGetValue(classEntry.Key, out currentExp);
+                float nextLevelExp = 100 * (level + 1); // Valor fixo para XP do próximo nível
+                ClassEntry entry = new ClassEntry($"Classe {classInfo.Name} lv {level} xp:{currentExp}/{nextLevelExp}", level, currentExp, classInfo.Milestones, modPlayer, classEntry.Key);
+                _classesList.Add(entry);
             }
-        }
-
-        public new void Activate()
-        {
-            _visible = true;
-        }
-
-        public new void Deactivate()
-        {
-            _visible = false;
-        }
-
-        protected override void DrawSelf(SpriteBatch spriteBatch)
-        {
-            if (!_visible) return;
-            base.DrawSelf(spriteBatch);
         }
 
         private class ClassEntry : UIElement
         {
-            private UIText _classNameText;
-            private UIText _levelText;
-            private UIText _expText;
-            private UIElement _milestonesContainer;
-
             public ClassEntry(string className, float level, float currentExp, Dictionary<int, string> milestones, RPGPlayer modPlayer, string classKey)
             {
                 Width.Set(0, 1f);
-                Height.Set(100f, 0f); // Initial height, will be adjusted
+                Height.Set(100f, 0f);
+                SetPadding(5);
 
-                _classNameText = new UIText($"--- {className} ---", 1f, true);
-                _classNameText.HAlign = 0.5f;
-                _classNameText.Top.Set(0f, 0f);
-                Append(_classNameText);
-
-                _levelText = new UIText($"Nível: {level:F0}", 0.9f);
-                _levelText.HAlign = 0.5f;
-                _levelText.Top.Set(20f, 0f);
-                Append(_levelText);
-
-                _expText = new UIText($"XP: {currentExp:F0}", 0.9f);
-                _expText.HAlign = 0.5f;
-                _expText.Top.Set(40f, 0f);
-                Append(_expText);
-
-                _milestonesContainer = new UIElement();
-                _milestonesContainer.Width.Set(0, 1f);
-                _milestonesContainer.Height.Set(0, 1f);
-                _milestonesContainer.Top.Set(60f, 0f);
-                _milestonesContainer.SetPadding(0);
-                Append(_milestonesContainer);
-
-                float milestoneY = 0f;
-                foreach (var milestone in milestones)
-                {
-                    string abilityId = $"{classKey}_{milestone.Key}";
-                    bool unlocked = modPlayer.HasUnlockedAbility(abilityId);
-                    string status = unlocked ? "[Desbloqueado]" : "[Bloqueado]";
-                    UIText milestoneText = new UIText($"  Nível {milestone.Key}: {milestone.Value} {status}", 0.8f);
-                    milestoneText.Top.Set(milestoneY, 0f);
-                    milestoneText.Left.Set(20f, 0f);
-                    _milestonesContainer.Append(milestoneText);
-                    milestoneY += 15f;
-                }
-
-                // Adjust height of the ClassEntry based on content
-                Height.Set(60f + milestoneY, 0f);
+                var text = new UIText($"--- {className} ---");
+                Append(text);
+                // ... More detailed UI for each class entry can be added here
             }
         }
     }
