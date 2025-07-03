@@ -1,7 +1,10 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System;
 using Terraria;
+using Terraria.GameContent;
 using Terraria.GameContent.UI.Elements;
+using Terraria.ID;
 using Terraria.UI;
 using Terraria.ModLoader;
 using Wolfgodrpg.Common.Players;
@@ -11,6 +14,8 @@ using System.Collections.Generic;
 using Wolfgodrpg.Common.Classes;
 using Wolfgodrpg.Common.GlobalItems;
 using System.Linq;
+using Wolfgodrpg.Common.Utils;
+using Wolfgodrpg.Common.UI.Design;
 
 namespace Wolfgodrpg.Common.UI.Menus
 {
@@ -25,14 +30,14 @@ namespace Wolfgodrpg.Common.UI.Menus
             Width.Set(0, 1f);
             Height.Set(0, 1f);
             
-            // Lista de itens com scrollbar (padrão ExampleMod)
+            // Lista de itens com scrollbar (padrão oficial tModLoader)
             _itemsList = new UIList();
             _itemsList.Width.Set(-25f, 1f);
             _itemsList.Height.Set(0, 1f);
             _itemsList.ListPadding = 5f;
             Append(_itemsList);
 
-            // Scrollbar acoplado à lista
+            // Scrollbar acoplado à lista (padrão oficial tModLoader)
             _itemsScrollbar = new UIScrollbar();
             _itemsScrollbar.SetView(100f, 1000f);
             _itemsScrollbar.Height.Set(0, 1f);
@@ -73,7 +78,7 @@ namespace Wolfgodrpg.Common.UI.Menus
 
                     if (hasRPGData)
                     {
-                        _itemsList.Add(new ItemEntry(item, globalItem, progressiveItem));
+                        _itemsList.Add(new ItemCard(item, globalItem, progressiveItem));
                         foundItems = true;
                     }
                 }
@@ -85,76 +90,165 @@ namespace Wolfgodrpg.Common.UI.Menus
             }
         }
         
-        // Elemento visual para cada item (padrão ExampleMod)
-        private class ItemEntry : UIElement
+        // Card de item com atributos RPG
+        private class ItemCard : UIElement
         {
-            public ItemEntry(Item item, RPGGlobalItem globalItem, ProgressiveItem progressiveItem)
+            private UIText _titleText;
+            private UIText _iconText;
+            private UIText _rarityText;
+            private UIText _statsText;
+            private UIText _progressiveText;
+            private Color _color;
+
+            public ItemCard(Item item, RPGGlobalItem globalItem, ProgressiveItem progressiveItem)
             {
+                _color = GetItemRarityColor(item.rare);
                 Width.Set(0, 1f);
-                Height.Set(100f, 0f);
-                SetPadding(5);
-                
-                // Nome do item
-                var nameText = new UIText($"{item.Name}", 1f);
-                nameText.TextColor = Color.White; // Cor padrão por enquanto
-                Append(nameText);
-                
-                float yOffset = 25f;
+                Height.Set(200f, 0f);
 
-                // Mostrar nível e XP se for um item progressivo
-                if (progressiveItem != null && progressiveItem.Experience > 0)
-                {
-                    int level = (int)(progressiveItem.Experience / 100); // Calcular nível baseado na experiência
-                    float currentExp = progressiveItem.Experience;
-                    float nextLevelExp = 100 * (level + 1); // Assumindo mesmo cálculo das classes
-                    
-                    var levelText = new UIText($"Nível: {level} | XP: {currentExp:F0}/{nextLevelExp:F0}", 0.8f);
-                    levelText.Top.Set(yOffset, 0f);
-                    levelText.TextColor = Color.LightBlue;
-                    Append(levelText);
-                    yOffset += 20f;
+                // Título do item
+                _titleText = new UIText(item.Name, 1.1f, true);
+                _titleText.TextColor = _color;
+                _titleText.Left.Set(20f, 0f);
+                _titleText.Top.Set(15f, 0f);
+                Append(_titleText);
 
-                    // Barra de progresso
-                    var progressText = new UIText($"Progresso: {(currentExp / nextLevelExp * 100):F1}%", 0.7f);
-                    progressText.Top.Set(yOffset, 0f);
-                    progressText.TextColor = Color.LightGreen;
-                    Append(progressText);
-                    yOffset += 20f;
-                }
+                // Ícone do item
+                _iconText = new UIText(GetItemIcon(item), 2f);
+                _iconText.TextColor = _color;
+                _iconText.Left.Set(20f, 0f);
+                _iconText.Top.Set(50f, 0f);
+                Append(_iconText);
 
-                // Mostrar stats aleatórios se houver
+                // Raridade
+                _rarityText = new UIText($"Raridade: {GetRarityName(item.rare)}", 0.9f);
+                _rarityText.TextColor = Color.LightGray;
+                _rarityText.Left.Set(80f, 0f);
+                _rarityText.Top.Set(50f, 0f);
+                Append(_rarityText);
+
+                float yOffset = 80f;
+
+                // Stats aleatórios
                 if (globalItem.RandomStats != null && globalItem.RandomStats.Any())
                 {
-                    var statsText = new UIText($"Bônus: {string.Join(", ", globalItem.RandomStats.Select(s => $"{GetStatDisplayName(s.Key)} +{s.Value:F1}"))}", 0.7f);
-                    statsText.Top.Set(yOffset, 0f);
-                    statsText.TextColor = Color.Yellow;
-                    Append(statsText);
+                    var statsHeader = new UIText("📊 Atributos RPG:", 0.9f);
+                    statsHeader.TextColor = Color.LightBlue;
+                    statsHeader.Left.Set(20f, 0f);
+                    statsHeader.Top.Set(yOffset, 0f);
+                    Append(statsHeader);
+                    yOffset += 20f;
+
+                    foreach (var stat in globalItem.RandomStats)
+                    {
+                        string statName = RPGDisplayUtils.GetStatDisplayName(stat.Key);
+                        var statText = new UIText($"  {statName}: +{stat.Value:F1}", 0.8f);
+                        statText.TextColor = Color.LightBlue;
+                        statText.Left.Set(20f, 0f);
+                        statText.Top.Set(yOffset, 0f);
+                        Append(statText);
+                        yOffset += 15f;
+                    }
+                }
+
+                // Experiência progressiva
+                if (progressiveItem != null && progressiveItem.Experience > 0)
+                {
+                    int level = progressiveItem.GetItemLevel();
+                    float nextLevelExp = GetProgressiveExperienceForLevel(level + 1);
+                    float progressPercent = nextLevelExp > 0 ? (progressiveItem.Experience / nextLevelExp) * 100f : 0f;
+                    
+                    _progressiveText = new UIText($"⚡ Nível {level:F0} | XP: {progressiveItem.Experience:F0}/{nextLevelExp:F0} ({progressPercent:F1}%)", 0.8f);
+                    _progressiveText.TextColor = Color.LightGreen;
+                    _progressiveText.Left.Set(20f, 0f);
+                    _progressiveText.Top.Set(yOffset, 0f);
+                    Append(_progressiveText);
                 }
             }
 
-            // Nome amigável para cada stat (mesmo método da aba de stats)
-            private string GetStatDisplayName(string statKey)
+            private string GetItemIcon(Item item)
             {
-                return statKey switch
+                return item.type switch
                 {
-                    "meleeDamage" => "Dano C.C.",
-                    "rangedDamage" => "Dano Dist.",
-                    "magicDamage" => "Dano Mágico",
-                    "minionDamage" => "Dano Servos",
-                    "critChance" => "Crítico",
-                    "meleeCrit" => "Crit C.C.",
-                    "rangedCrit" => "Crit Dist.",
-                    "magicCrit" => "Crit Mágico",
-                    "meleeSpeed" => "Vel. C.C.",
-                    "defense" => "Defesa",
-                    "maxLife" => "Vida Máx.",
-                    "lifeRegen" => "Regen Vida",
-                    "moveSpeed" => "Velocidade",
-                    "maxMana" => "Mana Máx.",
-                    "manaRegen" => "Regen Mana",
-                    "luck" => "Sorte",
-                    _ => statKey
+                    ItemID.WoodenSword => "⚔️",
+                    ItemID.WoodenBow => "🏹",
+                    ItemID.WandofSparking => "🔮",
+                    ItemID.SlimeStaff => "👾",
+                    ItemID.HermesBoots => "🏃",
+                    ItemID.Compass => "🧭",
+                    ItemID.Wrench => "🔧",
+                    ItemID.Campfire => "🔥",
+                    ItemID.IronAnvil => "🛠️",
+                    ItemID.BottledWater => "⚗️",
+                    ItemID.CrystalBall => "🔮",
+                    _ => "📦"
                 };
+            }
+
+            private Color GetItemRarityColor(int rarity)
+            {
+                return rarity switch
+                {
+                    -1 => Color.Gray,      // Cinza
+                    0 => Color.White,      // Branco
+                    1 => Color.Green,      // Verde
+                    2 => Color.Blue,       // Azul
+                    3 => Color.Purple,     // Roxo
+                    4 => Color.Orange,     // Laranja
+                    5 => Color.Red,        // Vermelho
+                    6 => Color.Pink,       // Rosa
+                    7 => Color.Yellow,     // Amarelo
+                    8 => Color.Cyan,       // Ciano
+                    9 => Color.Magenta,    // Magenta
+                    10 => Color.Gold,      // Dourado
+                    _ => Color.White
+                };
+            }
+
+            private string GetRarityName(int rarity)
+            {
+                return rarity switch
+                {
+                    -1 => "Comum",
+                    0 => "Branco",
+                    1 => "Verde",
+                    2 => "Azul",
+                    3 => "Roxo",
+                    4 => "Laranja",
+                    5 => "Vermelho",
+                    6 => "Rosa",
+                    7 => "Amarelo",
+                    8 => "Ciano",
+                    9 => "Magenta",
+                    10 => "Dourado",
+                    _ => "Desconhecido"
+                };
+            }
+
+            private float GetProgressiveExperienceForLevel(int level)
+            {
+                return 100f * (float)Math.Pow(level, 1.8f);
+            }
+
+            protected override void DrawSelf(SpriteBatch spriteBatch)
+            {
+                var dimensions = GetInnerDimensions();
+                var rect = dimensions.ToRectangle();
+
+                // Fundo do card
+                spriteBatch.Draw(TextureAssets.MagicPixel.Value, rect, _color * 0.1f);
+                
+                // Borda
+                spriteBatch.Draw(TextureAssets.MagicPixel.Value, new Rectangle(rect.X, rect.Y, rect.Width, 2), _color);
+                spriteBatch.Draw(TextureAssets.MagicPixel.Value, new Rectangle(rect.X, rect.Y, 2, rect.Height), _color);
+                spriteBatch.Draw(TextureAssets.MagicPixel.Value, new Rectangle(rect.X + rect.Width - 2, rect.Y, 2, rect.Height), _color);
+                spriteBatch.Draw(TextureAssets.MagicPixel.Value, new Rectangle(rect.X, rect.Y + rect.Height - 2, rect.Width, 2), _color);
+            }
+
+            public override void MouseOver(UIMouseEvent evt)
+            {
+                base.MouseOver(evt);
+                Main.instance.MouseText("Item com atributos RPG");
             }
         }
     }

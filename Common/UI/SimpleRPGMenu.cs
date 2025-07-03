@@ -227,6 +227,26 @@ namespace Wolfgodrpg.Common.UI
                 return true;
             }
 
+            // Verificar mudanças nos níveis de proficiência de armadura
+            foreach (var kvp in currentPlayer.ArmorProficiencyLevels)
+            {
+                if (!_lastPlayerData.ArmorProficiencyLevels.ContainsKey(kvp.Key) ||
+                    _lastPlayerData.ArmorProficiencyLevels[kvp.Key] != kvp.Value)
+                {
+                    return true;
+                }
+            }
+
+            // Verificar mudanças no XP de proficiência de armadura
+            foreach (var kvp in currentPlayer.ArmorProficiencyExperience)
+            {
+                if (!_lastPlayerData.ArmorProficiencyExperience.ContainsKey(kvp.Key) ||
+                    Math.Abs(_lastPlayerData.ArmorProficiencyExperience[kvp.Key] - kvp.Value) > 1f)
+                {
+                    return true;
+                }
+            }
+
             return false;
         }
 
@@ -253,6 +273,18 @@ namespace Wolfgodrpg.Common.UI
             clone.CurrentHunger = original.CurrentHunger;
             clone.CurrentSanity = original.CurrentSanity;
             clone.CurrentStamina = original.CurrentStamina;
+
+            // Clonar proficiências de armadura
+            foreach (var kvp in original.ArmorProficiencyLevels)
+            {
+                clone.ArmorProficiencyLevels[kvp.Key] = kvp.Value;
+            }
+
+            // Clonar XP de proficiência de armadura
+            foreach (var kvp in original.ArmorProficiencyExperience)
+            {
+                clone.ArmorProficiencyExperience[kvp.Key] = kvp.Value;
+            }
             
             return clone;
         }

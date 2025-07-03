@@ -104,6 +104,48 @@ namespace Wolfgodrpg.Common.Players
         /// </summary>
         public float StaminaRegenRate { get; set; } = 2.0f;
 
+        // === ATRIBUTOS PRIMÁRIOS === ⭐ NOVO
+        /// <summary>
+        /// Força do jogador. Afeta dano corpo a corpo e capacidade de carga.
+        /// </summary>
+        public int Strength { get; set; } = 10;
+        
+        /// <summary>
+        /// Destreza do jogador. Afeta dano à distância, chance crítica e velocidade de ataque.
+        /// </summary>
+        public int Dexterity { get; set; } = 10;
+        
+        /// <summary>
+        /// Inteligência do jogador. Afeta dano mágico, mana máxima e velocidade de conjuração.
+        /// </summary>
+        public int Intelligence { get; set; } = 10;
+        
+        /// <summary>
+        /// Constituição do jogador. Afeta vida máxima, defesa e regeneração de vida.
+        /// </summary>
+        public int Constitution { get; set; } = 10;
+        
+        /// <summary>
+        /// Sabedoria do jogador. Afeta dano de invocação, sorte e resistência a debuffs.
+        /// </summary>
+        public int Wisdom { get; set; } = 10;
+
+        // === NÍVEL DO JOGADOR === ⭐ NOVO
+        /// <summary>
+        /// Nível geral do jogador.
+        /// </summary>
+        public int PlayerLevel { get; set; } = 1;
+        
+        /// <summary>
+        /// Experiência geral do jogador.
+        /// </summary>
+        public float PlayerExperience { get; set; } = 0f;
+        
+        /// <summary>
+        /// Pontos de atributo disponíveis para distribuição.
+        /// </summary>
+        public int AttributePoints { get; set; } = 0;
+
         // === SISTEMA DE PROFICIÊNCIA DE ARMADURAS === ⭐ NOVO
         /// <summary>
         /// Níveis de proficiência para cada tipo de armadura.
@@ -150,6 +192,18 @@ namespace Wolfgodrpg.Common.Players
             CurrentHunger = 100f;
             CurrentSanity = 100f;
             CurrentStamina = 100f;
+            
+            // Inicializar atributos primários
+            Strength = 10;
+            Dexterity = 10;
+            Intelligence = 10;
+            Constitution = 10;
+            Wisdom = 10;
+
+            // Inicializar nível do jogador
+            PlayerLevel = 1;
+            PlayerExperience = 0f;
+            AttributePoints = 0;
             
             // Resetar dash
             DashCooldown = 0;
@@ -328,6 +382,18 @@ namespace Wolfgodrpg.Common.Players
             tag["DashesUsed"] = DashesUsed;
             tag["DashResetTimer"] = DashResetTimer;
             tag["MaxDashes"] = MaxDashes;
+
+            // Salvar atributos primários
+            tag["Strength"] = Strength;
+            tag["Dexterity"] = Dexterity;
+            tag["Intelligence"] = Intelligence;
+            tag["Constitution"] = Constitution;
+            tag["Wisdom"] = Wisdom;
+
+            // Salvar nível do jogador
+            tag["PlayerLevel"] = PlayerLevel;
+            tag["PlayerExperience"] = PlayerExperience;
+            tag["AttributePoints"] = AttributePoints;
             
             // Salvar proficiências de armadura ⭐ NOVO
             var levelsList = new List<TagCompound>();
@@ -403,6 +469,26 @@ namespace Wolfgodrpg.Common.Players
                 DashResetTimer = tag.GetInt("DashResetTimer");
             if (tag.ContainsKey("MaxDashes"))
                 MaxDashes = tag.GetInt("MaxDashes");
+
+            // Carregar atributos primários
+            if (tag.ContainsKey("Strength"))
+                Strength = tag.GetInt("Strength");
+            if (tag.ContainsKey("Dexterity"))
+                Dexterity = tag.GetInt("Dexterity");
+            if (tag.ContainsKey("Intelligence"))
+                Intelligence = tag.GetInt("Intelligence");
+            if (tag.ContainsKey("Constitution"))
+                Constitution = tag.GetInt("Constitution");
+            if (tag.ContainsKey("Wisdom"))
+                Wisdom = tag.GetInt("Wisdom");
+
+            // Carregar nível do jogador
+            if (tag.ContainsKey("PlayerLevel"))
+                PlayerLevel = tag.GetInt("PlayerLevel");
+            if (tag.ContainsKey("PlayerExperience"))
+                PlayerExperience = tag.GetFloat("PlayerExperience");
+            if (tag.ContainsKey("AttributePoints"))
+                AttributePoints = tag.GetInt("AttributePoints");
             
             // Carregar proficiências de armadura ⭐ NOVO
             if (tag.ContainsKey("ArmorProficiencyLevels"))
@@ -657,6 +743,46 @@ namespace Wolfgodrpg.Common.Players
         }
 
         /// <summary>
+        /// Adiciona experiência ao jogador.
+        /// </summary>
+        /// <param name="experience">Quantidade de experiência a adicionar</param>
+        public void AddPlayerExperience(float experience)
+        {
+            PlayerExperience += experience;
+            // TODO: Adicionar notificação de XP do jogador
+            CheckPlayerLevelUp();
+        }
+
+        /// <summary>
+        /// Verifica se o jogador subiu de nível geral.
+        /// </summary>
+        private void CheckPlayerLevelUp()
+        {
+            float expForNextLevel = GetPlayerExperienceForLevel(PlayerLevel + 1);
+            if (PlayerExperience >= expForNextLevel)
+            {
+                PlayerLevel++;
+                PlayerExperience -= expForNextLevel;
+                AttributePoints += 5; // Ganha 5 pontos de atributo por nível
+                // TODO: Adicionar notificação de level up do jogador
+                Main.NewText($"Você subiu para o nível {PlayerLevel}! Você ganhou 5 pontos de atributo!", Color.Gold);
+                SoundEngine.PlaySound(SoundID.Item37, Player.position);
+                CheckPlayerLevelUp(); // Recursivamente verifica se subiu múltiplos níveis
+            }
+        }
+
+        /// <summary>
+        /// Calcula a experiência necessária para um nível geral específico do jogador.
+        /// </summary>
+        /// <param name="level">Nível desejado</param>
+        /// <returns>Experiência necessária</returns>
+        private float GetPlayerExperienceForLevel(int level)
+        {
+            // Fórmula: 1000 * level^2 (exemplo, pode ser ajustado)
+            return 1000f * (float)Math.Pow(level, 2);
+        }
+
+        /// <summary>
         /// Verifica se o jogador subiu de nível em uma classe.
         /// </summary>
         /// <param name="className">Nome da classe</param>
@@ -842,6 +968,10 @@ namespace Wolfgodrpg.Common.Players
         public override void ResetEffects()
         {
             AutoDashEnabled = false;
+            
+            // Aplicar cálculos de atributos primários e outros bônus ⭐ NOVO
+            var totalStats = RPGCalculations.CalculateTotalStats(this);
+            RPGCalculations.ApplyStatsToPlayer(Player, totalStats);
         }
     }
 

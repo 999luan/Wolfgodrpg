@@ -16,8 +16,8 @@ namespace Wolfgodrpg.Common.Systems
             var totalStats = new Dictionary<string, float>();
             var player = modPlayer.Player;
 
-            // 1. Comece com os status base (se houver algum definido aqui)
-            // Por enquanto, vamos aplicar os bônus diretamente no jogador.
+            // 1. Aplicar bônus dos atributos primários ⭐ NOVO
+            ApplyPrimaryAttributes(modPlayer, totalStats);
 
             // 2. Adicione os bônus de todas as classes ativas
             foreach (var classEntry in RPGClassDefinitions.ActionClasses)
@@ -185,6 +185,36 @@ namespace Wolfgodrpg.Common.Systems
                         break;
                 }
             }
+        }
+
+        /// <summary>
+        /// Aplica os bônus dos atributos primários aos status do jogador.
+        /// </summary>
+        /// <param name="modPlayer">Jogador do mod</param>
+        /// <param name="totalStats">Dicionário de status para acumular os bônus</param>
+        private static void ApplyPrimaryAttributes(RPGPlayer modPlayer, Dictionary<string, float> totalStats)
+        {
+            // Força: Afeta dano corpo a corpo e capacidade de carga
+            totalStats["meleeDamage"] = (totalStats.TryGetValue("meleeDamage", out var melee) ? melee : 0f) + (modPlayer.Strength - 10) * 0.05f;
+            
+            // Destreza: Afeta dano à distância, chance crítica e velocidade de ataque
+            totalStats["rangedDamage"] = (totalStats.TryGetValue("rangedDamage", out var ranged) ? ranged : 0f) + (modPlayer.Dexterity - 10) * 0.04f;
+            totalStats["critChance"] = (totalStats.TryGetValue("critChance", out var crit) ? crit : 0f) + (modPlayer.Dexterity - 10) * 0.5f;
+            totalStats["meleeSpeed"] = (totalStats.TryGetValue("meleeSpeed", out var speed) ? speed : 0f) + (modPlayer.Dexterity - 10) * 0.02f;
+            
+            // Inteligência: Afeta dano mágico, mana máxima e velocidade de conjuração
+            totalStats["magicDamage"] = (totalStats.TryGetValue("magicDamage", out var magic) ? magic : 0f) + (modPlayer.Intelligence - 10) * 0.06f;
+            totalStats["maxMana"] = (totalStats.TryGetValue("maxMana", out var maxMana) ? maxMana : 0f) + (modPlayer.Intelligence - 10) * 2f;
+            totalStats["manaRegen"] = (totalStats.TryGetValue("manaRegen", out var manaRegen) ? manaRegen : 0f) + (modPlayer.Intelligence - 10) * 0.1f;
+            
+            // Constituição: Afeta vida máxima, defesa e regeneração de vida
+            totalStats["maxLife"] = (totalStats.TryGetValue("maxLife", out var maxLife) ? maxLife : 0f) + (modPlayer.Constitution - 10) * 5f;
+            totalStats["defense"] = (totalStats.TryGetValue("defense", out var defense) ? defense : 0f) + (modPlayer.Constitution - 10) * 0.5f;
+            totalStats["lifeRegen"] = (totalStats.TryGetValue("lifeRegen", out var lifeRegen) ? lifeRegen : 0f) + (modPlayer.Constitution - 10) * 0.2f;
+            
+            // Sabedoria: Afeta dano de invocação, sorte e resistência a debuffs
+            totalStats["minionDamage"] = (totalStats.TryGetValue("minionDamage", out var minion) ? minion : 0f) + (modPlayer.Wisdom - 10) * 0.05f;
+            totalStats["luck"] = (totalStats.TryGetValue("luck", out var luck) ? luck : 0f) + (modPlayer.Wisdom - 10) * 0.1f;
         }
 
         /// <summary>
