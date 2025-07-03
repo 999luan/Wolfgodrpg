@@ -165,7 +165,7 @@ namespace Wolfgodrpg.Common.Systems
             }
             
             // Verificar se é bloco/construção
-            if (item.createTile >= 0 || item.createWall >= 0)
+            if (item.createTile >= TileID.Dirt || item.createWall >= 0)
             {
                 return CraftingAction.CraftBuilding;
             }

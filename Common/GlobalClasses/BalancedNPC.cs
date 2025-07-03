@@ -8,7 +8,6 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using Wolfgodrpg.Common.Players;
 using Wolfgodrpg.Common.Systems;
-using Wolfgodrpg.Common.Systems; // Added for RPGClassActionMapper
 
 namespace Wolfgodrpg.Common.GlobalClasses
 {
@@ -112,15 +111,15 @@ namespace Wolfgodrpg.Common.GlobalClasses
             {
                 var modPlayer = player.GetModPlayer<RPGPlayer>();
                 float level = 0f;
-                modPlayer.ClassLevels.TryGetValue("melee", out level);
+                modPlayer.ClassLevels.TryGetValue("warrior", out level);
                 totalLevel += level;
-                modPlayer.ClassLevels.TryGetValue("ranged", out level);
+                modPlayer.ClassLevels.TryGetValue("archer", out level);
                 totalLevel += level;
-                modPlayer.ClassLevels.TryGetValue("magic", out level);
+                modPlayer.ClassLevels.TryGetValue("mage", out level);
                 totalLevel += level;
                 modPlayer.ClassLevels.TryGetValue("summoner", out level);
                 totalLevel += level;
-                modPlayer.ClassLevels.TryGetValue("defense", out level);
+                modPlayer.ClassLevels.TryGetValue("warrior", out level); // Defesa vai para guerreiro
                 totalLevel += level;
             }
             
@@ -244,7 +243,7 @@ namespace Wolfgodrpg.Common.GlobalClasses
             var modPlayer = target.GetModPlayer<RPGPlayer>();
             
             float damageReduction = 1.0f;
-            float defenseLevel = modPlayer.ClassLevels.TryGetValue("defense", out var defLevel) ? defLevel : 0f;
+            float defenseLevel = modPlayer.ClassLevels.TryGetValue("warrior", out var defLevel) ? defLevel : 0f;
             damageReduction -= defenseLevel * 0.01f;
             
             damageReduction = Math.Max(0.3f, Math.Min(damageReduction, 1.0f));
@@ -393,9 +392,9 @@ namespace Wolfgodrpg.Common.GlobalClasses
         public static bool CanDefeatBoss(string bossName, RPGPlayer rpgPlayer)
         {
             float totalLevel = 0f;
-            totalLevel += rpgPlayer.ClassLevels.TryGetValue("melee", out var t1) ? t1 : 0f;
-            totalLevel += rpgPlayer.ClassLevels.TryGetValue("ranged", out var t2) ? t2 : 0f;
-            totalLevel += rpgPlayer.ClassLevels.TryGetValue("magic", out var t3) ? t3 : 0f;
+            totalLevel += rpgPlayer.ClassLevels.TryGetValue("warrior", out var t1) ? t1 : 0f;
+            totalLevel += rpgPlayer.ClassLevels.TryGetValue("archer", out var t2) ? t2 : 0f;
+            totalLevel += rpgPlayer.ClassLevels.TryGetValue("mage", out var t3) ? t3 : 0f;
             totalLevel += rpgPlayer.ClassLevels.TryGetValue("summoner", out var t4) ? t4 : 0f;
             
             switch (bossName.ToLower())

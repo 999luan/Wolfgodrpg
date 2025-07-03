@@ -7,6 +7,7 @@ using Terraria.ModLoader;
 using Terraria.UI;
 using Wolfgodrpg.Common.Players;
 using Wolfgodrpg.Common.Utils;
+using Wolfgodrpg.Common.Systems;
 
 namespace Wolfgodrpg.Common.UI.Menus
 {
@@ -141,7 +142,7 @@ namespace Wolfgodrpg.Common.UI.Menus
         /// <returns>Barra de progresso</returns>
         private UIElement CreateProgressBar(float currentXP, float xpNeeded)
         {
-            var container = new UIElement();
+            var container = new UIPanel();
             
             // Fundo da barra
             var background = new UIPanel();
@@ -154,7 +155,7 @@ namespace Wolfgodrpg.Common.UI.Menus
             float progress = xpNeeded > 0 ? currentXP / xpNeeded : 0f;
             progress = MathHelper.Clamp(progress, 0f, 1f);
             
-            var progressBar = new UIElement();
+            var progressBar = new UIPanel();
             progressBar.Width.Set(progress, 1f);
             progressBar.Height.Set(0, 1f);
             progressBar.BackgroundColor = new Color(0, 150, 255);

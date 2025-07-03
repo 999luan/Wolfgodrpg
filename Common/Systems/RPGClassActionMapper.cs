@@ -20,14 +20,16 @@ namespace Wolfgodrpg.Common.Systems
         /// <returns>Nome da classe</returns>
         public static string MapDamageTypeToClass(DamageClass damageType)
         {
-            return damageType switch
-            {
-                DamageClass.Melee => "warrior",
-                DamageClass.Ranged => "archer", 
-                DamageClass.Magic => "mage",
-                DamageClass.Summon => "summoner",
-                _ => "warrior" // Fallback
-            };
+            if (damageType == DamageClass.Melee)
+                return "warrior";
+            else if (damageType == DamageClass.Ranged)
+                return "archer";
+            else if (damageType == DamageClass.Magic)
+                return "mage";
+            else if (damageType == DamageClass.Summon)
+                return "summoner";
+            else
+                return "warrior"; // Fallback
         }
 
         /// <summary>
