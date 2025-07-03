@@ -27,7 +27,7 @@ namespace Wolfgodrpg.Common.GlobalClasses
             // Se for uma planta colhível
             if (HarvestablePlantIDs.Contains(type))
             {
-                rpgPlayer.AddClassExperience("gathering", 5f); // XP por colher
+                rpgPlayer.AddClassExperience("explorer", 5f); // XP por colher
             }
             else // Se for qualquer outro bloco
             {

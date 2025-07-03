@@ -302,11 +302,11 @@ namespace Wolfgodrpg.Common.GlobalClasses
                     float summonerExp = baseExp * 0.2f;
                     float defenseExp = baseExp * 0.1f;
                     
-                    modPlayer.AddClassExperience("melee", meleeExp);
-                    modPlayer.AddClassExperience("ranged", rangedExp);
-                    modPlayer.AddClassExperience("magic", magicExp);
+                    modPlayer.AddClassExperience("warrior", meleeExp);
+                    modPlayer.AddClassExperience("archer", rangedExp);
+                    modPlayer.AddClassExperience("mage", magicExp);
                     modPlayer.AddClassExperience("summoner", summonerExp);
-                    modPlayer.AddClassExperience("defense", defenseExp);
+                    modPlayer.AddClassExperience("warrior", defenseExp); // Defesa vai para guerreiro
                     
                     playersGainedExp++;
                     
@@ -373,7 +373,7 @@ namespace Wolfgodrpg.Common.GlobalClasses
 
             // Dar XP de defesa quando recebe dano
             float defenseXP = hurtInfo.Damage * 0.2f;
-            modPlayer.AddClassExperience("defense", defenseXP);
+            modPlayer.AddClassExperience("warrior", defenseXP);
             
             DebugLog.Gameplay("NPC", "OnHitPlayer", $"Jogador '{target.name}' atingido por '{npc.FullName}' - Dano: {hurtInfo.Damage}, XP de defesa: {defenseXP:F1}");
 

@@ -40,7 +40,7 @@ namespace Wolfgodrpg.Content.Items
             if (modPlayer != null)
             {
                 // Concede XP de movimento
-                modPlayer.AddClassExperience("movement", 50f);
+                modPlayer.AddClassExperience("acrobat", 50f);
                 
                 // Mensagem de feedback
                 Main.NewText("XP de Movimento +50!", Color.LightBlue);

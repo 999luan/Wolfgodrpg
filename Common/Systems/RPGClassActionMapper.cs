@@ -201,10 +201,12 @@ namespace Wolfgodrpg.Common.Systems
             switch (action)
             {
                 case FishingAction.CatchFish:
-                    rpgPlayer.AddClassExperience("explorer", value * 0.1f);
+                    // Pesca dá XP para sobrevivente (habilidade de sobrevivência)
+                    rpgPlayer.AddClassExperience("survivalist", value * 0.1f);
                     break;
                 case FishingAction.CatchRareFish:
-                    rpgPlayer.AddClassExperience("explorer", value * 0.5f);
+                    // Peixes raros dão mais XP
+                    rpgPlayer.AddClassExperience("survivalist", value * 0.5f);
                     break;
             }
         }
@@ -227,9 +229,11 @@ namespace Wolfgodrpg.Common.Systems
             switch (action)
             {
                 case TradeAction.BuyItem:
+                    // Compras dão XP para explorador (descoberta de itens)
                     rpgPlayer.AddClassExperience("explorer", xpAmount);
                     break;
                 case TradeAction.SellItem:
+                    // Vendas dão XP para explorador (negociação)
                     rpgPlayer.AddClassExperience("explorer", xpAmount);
                     break;
             }

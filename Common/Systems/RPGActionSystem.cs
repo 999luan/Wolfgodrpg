@@ -242,7 +242,7 @@ namespace Wolfgodrpg.Common.Systems
                 100f
             );
 
-            rpgPlayer.AddClassExperience("survivor", 5f);
+            rpgPlayer.AddClassExperience("survivalist", 5f);
         }
     }
 }
