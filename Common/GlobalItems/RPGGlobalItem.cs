@@ -5,14 +5,16 @@ using System.Collections.Generic;
 using Wolfgodrpg.Common.Classes;
 using System.Linq;
 using Wolfgodrpg.Common.Systems;
-using Terraria.DataStructures; // Adicionado para IEntitySource
-using Microsoft.Xna.Framework; // Adicionado para Color
+using Terraria.DataStructures;
+using Microsoft.Xna.Framework;
+using Wolfgodrpg.Common.Data;
 
 namespace Wolfgodrpg.Common.GlobalItems
 {
     public class RPGGlobalItem : GlobalItem
     {
         public Dictionary<string, float> randomStats = new Dictionary<string, float>();
+        public List<ItemAffix> Affixes = new List<ItemAffix>();
 
         public override bool InstancePerEntity => true;
 
@@ -20,79 +22,99 @@ namespace Wolfgodrpg.Common.GlobalItems
         {
             var clone = (RPGGlobalItem)base.Clone(item, newItem);
             clone.randomStats = new Dictionary<string, float>(randomStats);
+            clone.Affixes = new List<ItemAffix>(Affixes);
             return clone;
+        }
+
+        public override void OnCreated(Item item, ItemCreationContext context)
+        {
+            if (CanHaveAffixes(item))
+            {
+                GenerateAffixes(item);
+            }
         }
 
         public override void OnSpawn(Item item, IEntitySource source)
         {
-            // Não adicionar status a itens vazios, de quest ou já com status
-            if (item.IsAir || item.questItem || randomStats.Any()) return;
-
-            // Determina a raridade do item para saber quantos status adicionar
-            RPGClassDefinitions.ItemRarity rarity = GetItemRarity(item);
-            int numberOfStats = RPGClassDefinitions.StatsPerRarity[rarity];
-            float statMultiplier = RPGClassDefinitions.StatMultiplierPerRarity[rarity];
-
-            if (numberOfStats > 0)
+            if (CanHaveAffixes(item))
             {
-                var possibleStats = RPGClassDefinitions.RandomStats.Keys.ToList();
-                randomStats = new Dictionary<string, float>();
+                GenerateAffixes(item);
+            }
+        }
 
-                for (int i = 0; i < numberOfStats; i++)
+        private bool CanHaveAffixes(Item item)
+        {
+            // Itens que podem ter afixos: armas e armaduras
+            bool isTool = item.pick > 0 || item.axe > 0 || item.hammer > 0;
+            bool isAccessory = item.accessory;
+            return (item.damage > 0 && !item.consumable && !isTool) || (item.defense > 0 && !isAccessory);
+        }
+
+        private void GenerateAffixes(Item item)
+        {
+            // Lógica de geração de afixos (simplificada por enquanto)
+            // Conforme gemini.md seção 5
+            if (Main.rand.NextFloat() < 0.15f) // 15% de chance de ter afixos
+            {
+                Affixes.Add(ItemAffix.CreateRandom(item));
+                
+                // Adicionar stats aleatórios baseados nos afixos
+                foreach (var affix in Affixes)
                 {
-                    if (!possibleStats.Any()) break;
-                    string randomStatName = possibleStats[Main.rand.Next(possibleStats.Count)];
-                    possibleStats.Remove(randomStatName); // Evita status duplicados
-
-                    var statInfo = RPGClassDefinitions.RandomStats[randomStatName];
-                    float value = (float)Main.rand.NextDouble() * (statInfo.MaxValue - statInfo.MinValue) + statInfo.MinValue;
-                    value *= statMultiplier;
-                    randomStats[randomStatName] = value;
+                    foreach (var stat in affix.Stats)
+                    {
+                        if (!randomStats.ContainsKey(stat.Key))
+                            randomStats[stat.Key] = 0;
+                        randomStats[stat.Key] += stat.Value;
+                    }
                 }
             }
         }
 
         public override void ModifyTooltips(Item item, List<TooltipLine> tooltips)
-        { 
-            if (randomStats != null && randomStats.Count > 0)
+        {
+            if (Affixes != null && Affixes.Any())
             {
-                foreach (var stat in randomStats)
+                foreach (var affix in Affixes)
                 {
-                    var statInfo = RPGClassDefinitions.RandomStats[stat.Key];
-                    string sign = stat.Value > 0 ? "+" : "";
-                    string valueString = stat.Value < 1 ? $"{stat.Value:P1}" : $"{stat.Value:F0}";
-                    
-                    TooltipLine line = new TooltipLine(Mod, "RPGStats", $"{sign}{valueString} {statInfo.Name}");
-                    line.OverrideColor = Color.LightGreen;
+                    TooltipLine line = new TooltipLine(Mod, "RPGAffix", affix.GetDisplayText());
+                    // Definir cor baseada no tipo de afixo
+                    switch (affix.Type)
+                    {
+                        case AffixType.PrimaryAttribute:
+                            line.OverrideColor = Color.Blue;
+                            break;
+                        case AffixType.ClassBonus:
+                            line.OverrideColor = Color.Green;
+                            break;
+                        case AffixType.WeaponProficiency:
+                            line.OverrideColor = Color.Purple;
+                            break;
+                        case AffixType.Utility:
+                            line.OverrideColor = Color.Yellow;
+                            break;
+                    }
                     tooltips.Add(line);
                 }
             }
         }
 
-        private RPGClassDefinitions.ItemRarity GetItemRarity(Item item)
-        {
-            if (item.rare >= Terraria.ID.ItemRarityID.Cyan) return RPGClassDefinitions.ItemRarity.Legendary;
-            if (item.rare >= Terraria.ID.ItemRarityID.Lime) return RPGClassDefinitions.ItemRarity.Epic;
-            if (item.rare >= Terraria.ID.ItemRarityID.Pink) return RPGClassDefinitions.ItemRarity.Rare;
-            if (item.rare >= Terraria.ID.ItemRarityID.Orange) return RPGClassDefinitions.ItemRarity.Uncommon;
-            return RPGClassDefinitions.ItemRarity.Common;
-        }
-
         public override void SaveData(Item item, TagCompound tag)
         {
-            tag["statKeys"] = randomStats.Keys.ToList();
-            tag["statValues"] = randomStats.Values.ToList();
+            if (randomStats.Any())
+                tag["RandomStats"] = randomStats.ToDictionary(kv => kv.Key, kv => kv.Value);
+            
+            if (Affixes.Any())
+                tag["Affixes"] = Affixes.Select(a => a.Save()).ToList();
         }
 
         public override void LoadData(Item item, TagCompound tag)
         {
-            var keys = tag.Get<List<string>>("statKeys") ?? new List<string>();
-            var values = tag.Get<List<float>>("statValues") ?? new List<float>();
-            randomStats = new Dictionary<string, float>();
-            for (int i = 0; i < keys.Count && i < values.Count; i++)
-            {
-                randomStats[keys[i]] = values[i];
-            }
+            if (tag.ContainsKey("RandomStats"))
+                randomStats = tag.Get<Dictionary<string, float>>("RandomStats");
+            
+            if (tag.ContainsKey("Affixes"))
+                Affixes = tag.GetList<TagCompound>("Affixes").Select(t => ItemAffix.Load(t)).ToList();
         }
     }
 }

@@ -7,6 +7,7 @@ using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
 using Terraria.DataStructures;
 using Wolfgodrpg.Common.Systems;
+using Wolfgodrpg.Common.GlobalClasses;
 
 namespace Wolfgodrpg.Common.GlobalItems
 {
@@ -219,8 +220,12 @@ namespace Wolfgodrpg.Common.GlobalItems
             if (hit.Crit) reason = "crit";
             if (target.boss) reason = "boss";
             
-            var balancedNPC = target.GetGlobalNPC<GlobalNPCs.BalancedNPC>();
-            if (balancedNPC.IsElite) reason = "elite";
+            // Bônus de XP para inimigos elite
+            var balancedNPC = target.GetGlobalNPC<BalancedNPC>();
+            if (balancedNPC.IsElite)
+            {
+                reason = "elite";
+            }
             
             DebugLog.Item("OnHitNPC", $"Item '{item.Name}' acertou '{target.FullName}' - Dano: {damageDone}, XP: {expGain:F1}, Reason: {reason}");
             
@@ -412,4 +417,4 @@ namespace Wolfgodrpg.Common.GlobalItems
             }
         }
     }
-} 
+}

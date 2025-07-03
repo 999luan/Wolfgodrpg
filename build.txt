@@ -1,4 +1,27 @@
 displayName = WolfGod RPG
 author = WolfGod
-version = 0.7
-side = Both 
+version = 0.7.1
+side = Both
+
+# Metadata moderna (tModLoader 2024+)
+description = Complete RPG system for Terraria featuring classes, levels, hunger, sanity, and progressive character development
+homepage = https://github.com/[seu-usuario]/Wolfgodrpg
+
+# Performance e compatibilidade
+includeSource = true
+includePDB = false
+noCompile = false
+
+# Build optimization
+buildIgnore = *.csproj.user, *.suo, bin/, obj/, .vs/, .git/, *.md, *.log, *.backup
+hideCode = false
+hideResources = false
+
+# Opcional - versão mínima tModLoader
+# tModLoaderVersion = 2024.1
+
+# Opcional - dependências (se necessário no futuro)
+# weakReferences = 
+# modReferences = 
+# sortAfter = 
+# sortBefore =

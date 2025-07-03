@@ -1,3 +1,4 @@
+using System;
 using Terraria;
 using Terraria.ModLoader;
 using Wolfgodrpg.Common.Players;
@@ -15,6 +16,8 @@ namespace Wolfgodrpg.Common.Systems
         private static int blocksMined = 0;
         private static int blocksPlaced = 0;
         private static float timeSinceLastRegen = 0f;
+        private static int dashesPerformed = 0;
+        private static float dashDistance = 0f;
 
         // Resource Tile IDs for Gathering XP
         // Resource Tile IDs for Gathering XP
@@ -33,7 +36,7 @@ namespace Wolfgodrpg.Common.Systems
 
             var rpgPlayer = player.GetModPlayer<RPGPlayer>();
 
-            // Movimento (Movement XP)
+            // Movimento e Dash (Acrobat XP)
             float currentX = player.position.X;
             float currentY = player.position.Y;
             
@@ -46,10 +49,31 @@ namespace Wolfgodrpg.Common.Systems
                 
                 distanceTraveled += distance;
                 
-                // A cada 1000 unidades de distância, ganha XP de Movement
+                // Se estiver em dash, acumular distância do dash
+                if (player.dash != 0)
+                {
+                    dashDistance += distance;
+                    
+                    // A cada 100 unidades de distância em dash, ganha XP de Acrobata
+                    if (dashDistance >= 100f)
+                    {
+                        rpgPlayer.GainClassExp("acrobat", 5f);
+                        dashDistance = 0f;
+                        dashesPerformed++;
+                        
+                        // Bônus extra a cada 10 dashes
+                        if (dashesPerformed >= 10)
+                        {
+                            rpgPlayer.GainClassExp("acrobat", 25f);
+                            dashesPerformed = 0;
+                        }
+                    }
+                }
+                
+                // A cada 1000 unidades de distância normal, ganha XP de Acrobata
                 if (distanceTraveled >= 1000f)
                 {
-                    rpgPlayer.GainClassExp("movement", 10f);
+                    rpgPlayer.GainClassExp("acrobat", 10f);
                     distanceTraveled = 0f;
                 }
             }
@@ -127,7 +151,7 @@ namespace Wolfgodrpg.Common.Systems
             if (npc == null) return;
 
             // Dar XP para todos os jogadores próximos
-            foreach (var player in Main.player)
+            foreach (Player player in Main.player)
             {
                 if (!player.active || player.dead) continue;
 
@@ -203,4 +227,4 @@ namespace Wolfgodrpg.Common.Systems
             rpgPlayer.GainClassExp("survivor", 5f);
         }
     }
-} 
+}

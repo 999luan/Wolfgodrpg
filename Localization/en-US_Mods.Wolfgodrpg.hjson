@@ -1,232 +1,183 @@
-Keybinds: {
-	ShowRPGStats.DisplayName: Show R P G Stats
-	OpenRPGMenu.DisplayName: Open R P G Menu
-	RPGNextPage.DisplayName: R P G Next Page
-	RPGPreviousPage.DisplayName: R P G Previous Page
-}
-
 Mods: {
 	Wolfgodrpg: {
-		Common: {
-			Classes: {
-				Warrior: Warrior
-				Ranger: Ranger
-				Mage: Mage
-				Summoner: Summoner
-				Explorer: Explorer
-				Builder: Builder
-				Survivor: Survivor
-				Alchemist: Alchemist
+		# CONFIGURAÇÕES
+		Configs: {
+			RPGConfig: {
+				DisplayName: RPG Configuration
 
-				Melee: {
-					Name: Guerreiro
-					Description: Mestre do combate corpo a corpo
+				Headers: {
+					GeneralHeader: General Settings
+					ClassesHeader: Classes Settings
+					VitalsHeader: Vitals Settings
 				}
 
-				Ranged: {
-					Name: Atirador
-					Description: Especialista em armas à distância
+				# Configurações específicas
+				EnableHunger: {
+					Label: Enable Hunger System
+					Tooltip: Controls whether the hunger system is active
 				}
 
-				Magic: {
-					Name: Mago
-					Description: Manipulador das artes arcanas
-				}
-
-				Defense: {
-					Name: Defensor
-					Description: Especialista em sobrevivência
+				EnableSanity: {
+					Label: Enable Sanity System
+					Tooltip: Controls whether the sanity system is active
 				}
 			}
+		}
 
-			Stats: {
+		# CLASSES DO SISTEMA RPG
+		Classes: {
+			Warrior: {
+				DisplayName: Warrior
+				Description: Master of melee combat and physical prowess
+			}
+
+			Archer: {
+				DisplayName: Archer
+				Description: Expert in ranged combat and precision
+			}
+		}
+
+		# INTERFACE DE USUÁRIO
+		UI: {
+			MainMenu: {
+				Title: RPG Character
+				CloseButton: Close
+			}
+
+			StatsPage: {
+				Title: Attributes
 				Level: Level
 				Experience: Experience
-				Hunger: Hunger
-				Sanity: Sanity
-				Health: Health
-				Mana: Mana
-				Defense: Defense
-				Damage: Damage
-				Speed: Speed
-				Regeneration: Regeneration
+				AvailablePoints: Available Points
+
+				Attributes: {
+					Strength: Strength
+					Dexterity: Dexterity
+					Intelligence: Intelligence
+					Constitution: Constitution
+					Wisdom: Wisdom
+				}
 			}
 
-			UI: {
-				MenuTitle: WOLF GOD RPG STATUS
-				BasicStats: === BASIC STATS ===
-				Classes: === CLASSES ===
-				CurrentItem: === CURRENT ITEM ===
-				Controls: "[M] Close | [Q/E] Change Page"
-				OpenMenu: Press 'M' to open RPG menu!
-				QuickStats: Press 'R' for quick stats!
-				HungerSanity: Hunger: {0}% | Sanity: {1}%
+			ClassesPage: {
+				Title: Classes
+				Combat: Combat Classes
+				Utility: Utility Classes
+				Level: Level {0}
+				Experience: XP: {0}/{1}
 			}
 
-			Messages: {
-				LevelUp: "{0} level increased to {1}!"
-				ItemLevelUp: "{0} reached level {1}!"
-				BossRequirement: You need total level {0} to effectively fight this boss!
-				HungerLow: You're too hungry to regenerate health!
-				SanityLow: Your sanity is dangerously low!
+			ProficiencyPage: {
+				Title: Proficiencies
+				Weapons: Weapon Proficiencies
+				Armors: Armor Proficiencies
+				Level: Level {0}
+				Bonus: Bonus: +{0}%
 			}
 		}
 
-		Config: {
-			ExpMultiplier: {
-				Label: Experience Multiplier
-				Tooltip: Global experience multiplier (1.0 = normal, 2.0 = double, etc.)
-			}
+		# KEYBINDS
+		Keybinds: {
+			OpenRPGMenu.DisplayName: Open RPG Menu
+			QuickStats.DisplayName: Toggle Quick Stats
+		}
 
-			KeepXPOnDeath: {
-				Label: Keep XP on Death
-				Tooltip: If true, player doesn't lose XP when dying
-			}
-
-			EnableHunger: {
-				Label: Enable Hunger System
-				Tooltip: Enable the hunger system
-			}
-
-			HungerRate: {
-				Label: Hunger Rate
-				Tooltip: How fast hunger decreases (1.0 = normal)
-			}
-
-			EnableSanity: {
-				Label: Enable Sanity System
-				Tooltip: Enable the sanity system
-			}
-
-			SanityRate: {
-				Label: Sanity Rate
-				Tooltip: How fast sanity decreases (1.0 = normal)
-			}
-
-			RandomStats: {
-				Label: Random Item Stats
-				Tooltip: Enable random stats on items based on rarity
-			}
-
-			ItemStatMultiplier: {
-				Label: Item Stats Multiplier
-				Tooltip: Multiplier for random item stats values (1.0 = normal)
-			}
-
-			UIScale: {
-				Label: UI Scale
-				Tooltip: Scale of the mod's UI elements (1.0 = normal)
-			}
-
-			ShowNotifications: {
-				Label: Show Notifications
-				Tooltip: Show level up and ability unlock notifications
-			}
-
-			MonsterHealthMultiplier: {
-				Label: Monster Health Multiplier
-				Tooltip: Multiplier for monster health (1.0 = normal)
-			}
-
-			MonsterDamageMultiplier: {
-				Label: Monster Damage Multiplier
-				Tooltip: Multiplier for monster damage (1.0 = normal)
-			}
-
-			MaxLevel: {
-				Label: Maximum Level
-				Tooltip: Maximum level for each class
-			}
-
-			StartingLevel: {
-				Label: Starting Level
-				Tooltip: Starting level for new characters
+		# ITENS (se necessário)
+		Items: {
+			RPGTestItem: {
+				DisplayName: RPG Test Item
+				Tooltip: A test item for the RPG system
 			}
 		}
+
+		NPCs.RPGTestNPC.DisplayName: RPG Test NPC
 	}
 }
 
-// Mensagens
-DeathMessage: "{0} falhou em sua jornada..."
-Configs.RPGConfig.DisplayName: R P G Config
-
 Config: {
-	ExpMultiplier: {
-		Label: Exp Multiplier
+	StartingLevel: {
 		Tooltip: ""
-	}
-
-	KeepXPOnDeath: {
-		Label: Keep X P On Death
-		Tooltip: ""
-	}
-
-	EnableHunger: {
-		Label: Enable Hunger
-		Tooltip: ""
-	}
-
-	HungerRate: {
-		Label: Hunger Rate
-		Tooltip: ""
-	}
-
-	EnableSanity: {
-		Label: Enable Sanity
-		Tooltip: ""
-	}
-
-	SanityRate: {
-		Label: Sanity Rate
-		Tooltip: ""
-	}
-
-	RandomStats: {
-		Label: Random Stats
-		Tooltip: ""
-	}
-
-	ItemStatMultiplier: {
-		Label: Item Stat Multiplier
-		Tooltip: ""
-	}
-
-	UIScale: {
-		Label: U I Scale
-		Tooltip: ""
-	}
-
-	ShowNotifications: {
-		Label: Show Notifications
-		Tooltip: ""
-	}
-
-	MonsterHealthMultiplier: {
-		Label: Monster Health Multiplier
-		Tooltip: ""
-	}
-
-	MonsterDamageMultiplier: {
-		Label: Monster Damage Multiplier
-		Tooltip: ""
+		Label: Starting Level
 	}
 
 	MaxLevel: {
-		Label: Max Level
 		Tooltip: ""
+		Label: Max Level
 	}
 
-	StartingLevel: {
-		Label: Starting Level
+	MonsterDamageMultiplier: {
 		Tooltip: ""
+		Label: Monster Damage Multiplier
+	}
+
+	MonsterHealthMultiplier: {
+		Tooltip: ""
+		Label: Monster Health Multiplier
+	}
+
+	ShowNotifications: {
+		Tooltip: ""
+		Label: Show Notifications
+	}
+
+	UIScale: {
+		Tooltip: ""
+		Label: U I Scale
+	}
+
+	ItemStatMultiplier: {
+		Tooltip: ""
+		Label: Item Stat Multiplier
+	}
+
+	RandomStats: {
+		Tooltip: ""
+		Label: Random Stats
+	}
+
+	SanityRate: {
+		Tooltip: ""
+		Label: Sanity Rate
+	}
+
+	EnableSanity: {
+		Tooltip: ""
+		Label: Enable Sanity
+	}
+
+	HungerRate: {
+		Tooltip: ""
+		Label: Hunger Rate
+	}
+
+	EnableHunger: {
+		Tooltip: ""
+		Label: Enable Hunger
+	}
+
+	KeepXPOnDeath: {
+		Tooltip: ""
+		Label: Keep X P On Death
+	}
+
+	ExpMultiplier: {
+		Tooltip: ""
+		Label: Exp Multiplier
 	}
 }
 
-Items: {
-	RPGTestItem: {
-		DisplayName: R P G Test Item
-		Tooltip: ""
-	}
+Configs: {
+	RPGConfig.DisplayName: R P G Config
+	ConfigSystem.DisplayName: Config System
 }
 
 NPCs.RPGTestNPC.DisplayName: R P G Test N P C
+
+Items: {
+	RPGTestItem: {
+		Tooltip: ""
+		DisplayName: R P G Test Item
+	}
+}
+
+Keybinds.OpenRPGMenu.DisplayName: Open R P G Menu

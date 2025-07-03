@@ -37,4 +37,3 @@ namespace Wolfgodrpg.Common.Systems
         }
     }
 }
- 

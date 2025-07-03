@@ -1,331 +1,465 @@
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
+using Terraria;
+using Terraria.ID;
+using Wolfgodrpg.Common.Data;
 
 namespace Wolfgodrpg.Common.Classes
 {
-    public class RPGClassDefinitions
+    public enum ClassAbility
     {
-        // Raridades de Item
-        public enum ItemRarity
+        // Habilidades do Acrobata
+        BasicDash = 1,
+        DoubleJump = 25,
+        EnhancedDash = 50,
+        EvasiveDash = 75,
+        AirDash = 100,
+
+        // Habilidades do Guerreiro
+        BasicCombat = 1,
+        ImprovedDefense = 25,
+        WeaponMastery = 50,
+        BattleCry = 75,
+        BerserkerRage = 100,
+
+        // Habilidades do Arqueiro
+        BasicArchery = 1,
+        PreciseShot = 25,
+        RapidFire = 50,
+        PowerShot = 75,
+        MultiShot = 100,
+
+        // Habilidades do Mago
+        BasicMagic = 1,
+        SpellMastery = 25,
+        ElementalPower = 50,
+        ArcaneShield = 75,
+        SpellCascade = 100,
+
+        // Habilidades do Invocador
+        BasicSummon = 1,
+        ImprovedMinions = 25,
+        MinionMastery = 50,
+        SoulBond = 75,
+        LegionCommand = 100,
+
+        // Habilidades do Explorador
+        BasicExploration = 1,
+        ImprovedMovement = 25,
+        TreasureHunter = 50,
+        PathFinder = 75,
+        MasterExplorer = 100,
+
+        // Habilidades do Engenheiro
+        BasicEngineering = 1,
+        ImprovedCrafting = 25,
+        AdvancedMechanics = 50,
+        TechMastery = 75,
+        MasterInventor = 100,
+
+        // Habilidades do Sobrevivente
+        BasicSurvival = 1,
+        ImprovedVitality = 25,
+        NaturalHealing = 50,
+        AdaptiveBody = 75,
+        UltimateEndurance = 100,
+
+        // Habilidades do Ferreiro
+        BasicSmithing = 1,
+        ImprovedForging = 25,
+        MasterBlacksmith = 50,
+        LegendaryWeapons = 75,
+        DivineCrafting = 100,
+
+        // Habilidades do Alquimista
+        BasicAlchemy = 1,
+        ImprovedPotions = 25,
+        MasterBrewer = 50,
+        ElementalMixing = 75,
+        UltimatePotions = 100,
+
+        // Habilidades do Místico
+        BasicMysticism = 1,
+        ImprovedRegeneration = 25,
+        VitalityMastery = 50,
+        SpiritualHarmony = 75,
+        TranscendentBeing = 100
+    }
+
+    public class ClassInfo
+    {
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public Dictionary<ClassAbility, string> Milestones { get; set; }
+        public Dictionary<string, float> BaseStats { get; set; }
+        public Dictionary<string, float> StatsPerLevel { get; set; }
+
+        public Dictionary<string, float> StatBonuses
         {
-            Common = 0,     // Branco
-            Uncommon = 1,   // Verde
-            Rare = 2,       // Azul
-            Epic = 3,       // Roxo
-            Legendary = 4   // Laranja
+            get
+            {
+                var bonuses = new Dictionary<string, float>();
+                foreach (var stat in StatsPerLevel)
+                {
+                    bonuses[stat.Key] = stat.Value;
+                }
+                return bonuses;
+            }
         }
 
-        // Classes baseadas em ações
+        public ClassInfo(string name, string description)
+        {
+            Name = name;
+            Description = description;
+            Milestones = new Dictionary<ClassAbility, string>();
+            BaseStats = new Dictionary<string, float>();
+            StatsPerLevel = new Dictionary<string, float>();
+        }
+    }
+
+    public static class RPGClassDefinitions
+    {
         public static readonly Dictionary<string, ClassInfo> ActionClasses = new Dictionary<string, ClassInfo>
         {
-            // Movimento
-            {"movement", new ClassInfo(
-                "Movimento",
-                "Mestre da mobilidade",
-                new Dictionary<string, float> {
-                    {"moveSpeed", 0.002f},      // +0.2% velocidade por nível
-                    {"acceleration", 0.002f},    // +0.2% aceleração por nível
-                    {"jumpHeight", 0.002f},      // +0.2% altura do pulo por nível
-                    {"fallDamageReduction", 0.002f}, // +0.2% redução de dano de queda por nível
-                    {"staminaRegen", 0.002f},    // +0.2% regeneração de stamina por nível
+            // === CLASSES DE COMBATE ===
+            
+            // Guerreiro
+            {"warrior", new ClassInfo(
+                "Guerreiro",
+                "Mestre do combate corpo a corpo")
+            {
+                Milestones = new Dictionary<ClassAbility, string>
+                {
+                    {ClassAbility.BasicCombat, "Técnicas básicas de combate"},
+                    {ClassAbility.ImprovedDefense, "Defesa aprimorada"},
+                    {ClassAbility.WeaponMastery, "Maestria com armas"},
+                    {ClassAbility.BattleCry, "Grito de guerra"},
+                    {ClassAbility.BerserkerRage, "Fúria do berserker"}
                 },
-                new Dictionary<int, string> {
-                    {1, "1 Dash disponível"},
-                    {10, "2 Dashes disponíveis"},
-                    {20, "3 Dashes disponíveis"},
-                    {30, "4 Dashes disponíveis"},
-                    {40, "5 Dashes disponíveis"},
-                    {50, "6 Dashes disponíveis"},
-                    {60, "7 Dashes disponíveis"},
-                    {70, "8 Dashes disponíveis"},
-                    {80, "9 Dashes disponíveis"},
-                    {90, "10 Dashes disponíveis"},
-                    {100, "Dash infinito"}
+                BaseStats = new Dictionary<string, float>
+                {
+                    {"health", 100},
+                    {"defense", 5},
+                    {"meleeDamage", 1.1f},
+                    {"staminaRegen", 0.2f}
+                },
+                StatsPerLevel = new Dictionary<string, float>
+                {
+                    {"health", 10},
+                    {"defense", 0.5f},
+                    {"meleeDamage", 0.02f},
+                    {"staminaRegen", 0.01f}
                 }
-            )},
+            }},
 
-            // Pulo
-            {"jumping", new ClassInfo(
-                "Pulo",
-                "Mestre dos saltos",
-                new Dictionary<string, float> {
-                    {"jumpHeight", 0.003f},      // +0.3% altura do pulo por nível
-                    {"jumpControl", 0.002f},     // +0.2% controle no ar por nível
-                    {"fallSpeed", -0.001f},      // -0.1% velocidade de queda por nível
-                    {"wingTime", 0.002f},        // +0.2% tempo de voo por nível
+            // Arqueiro
+            {"archer", new ClassInfo(
+                "Arqueiro",
+                "Especialista em combate à distância")
+            {
+                Milestones = new Dictionary<ClassAbility, string>
+                {
+                    {ClassAbility.BasicArchery, "Técnicas básicas de arco"},
+                    {ClassAbility.PreciseShot, "Tiro preciso"},
+                    {ClassAbility.RapidFire, "Tiro rápido"},
+                    {ClassAbility.PowerShot, "Tiro poderoso"},
+                    {ClassAbility.MultiShot, "Tiro múltiplo"}
                 },
-                new Dictionary<int, string> {
-                    {25, "Pulo mais alto"},
-                    {50, "Pulo duplo"},
-                    {75, "Pulo triplo"},
-                    {100, "Pulo infinito"}
+                BaseStats = new Dictionary<string, float>
+                {
+                    {"health", 80},
+                    {"defense", 3},
+                    {"rangedDamage", 1.1f},
+                    {"movementSpeed", 1.1f}
+                },
+                StatsPerLevel = new Dictionary<string, float>
+                {
+                    {"health", 8},
+                    {"defense", 0.3f},
+                    {"rangedDamage", 0.02f},
+                    {"movementSpeed", 0.01f}
                 }
-            )},
+            }},
 
-            // Combate Corpo a Corpo
-            {"melee", new ClassInfo(
-                "Combate Corpo a Corpo",
-                "Mestre do combate próximo",
-                new Dictionary<string, float> {
-                    {"meleeDamage", 0.002f},     // +0.2% dano corpo a corpo por nível
-                    {"meleeSpeed", 0.002f},      // +0.2% velocidade de ataque por nível
-                    {"meleeKnockback", 0.002f},  // +0.2% knockback por nível
-                    {"meleeCrit", 0.001f},       // +0.1% chance crítica por nível
-                    {"lifeSteal", 0.0005f},      // +0.05% roubo de vida por nível
+            // Mago
+            {"mage", new ClassInfo(
+                "Mago",
+                "Mestre das artes arcanas")
+            {
+                Milestones = new Dictionary<ClassAbility, string>
+                {
+                    {ClassAbility.BasicMagic, "Magias básicas"},
+                    {ClassAbility.SpellMastery, "Maestria em feitiços"},
+                    {ClassAbility.ElementalPower, "Poder elemental"},
+                    {ClassAbility.ArcaneShield, "Escudo arcano"},
+                    {ClassAbility.SpellCascade, "Cascata de feitiços"}
                 },
-                new Dictionary<int, string> {
-                    {25, "Combo básico"},
-                    {50, "Combo avançado"},
-                    {75, "Combo mestre"},
-                    {100, "Combo supremo"}
+                BaseStats = new Dictionary<string, float>
+                {
+                    {"health", 70},
+                    {"mana", 120},
+                    {"magicDamage", 1.15f},
+                    {"manaRegen", 0.3f}
+                },
+                StatsPerLevel = new Dictionary<string, float>
+                {
+                    {"health", 7},
+                    {"mana", 12},
+                    {"magicDamage", 0.025f},
+                    {"manaRegen", 0.02f}
                 }
-            )},
+            }},
 
-            // Combate à Distância
-            {"ranged", new ClassInfo(
-                "Combate à Distância",
-                "Mestre do combate ranged",
-                new Dictionary<string, float> {
-                    {"rangedDamage", 0.002f},    // +0.2% dano à distância por nível
-                    {"rangedSpeed", 0.002f},     // +0.2% velocidade de projétil por nível
-                    {"rangedCrit", 0.001f},      // +0.1% chance crítica por nível
-                    {"ammoSave", 0.001f},        // +0.1% chance de não gastar munição por nível
+            // Invocador
+            {"summoner", new ClassInfo(
+                "Invocador",
+                "Comandante de criaturas místicas")
+            {
+                Milestones = new Dictionary<ClassAbility, string>
+                {
+                    {ClassAbility.BasicSummon, "Invocação básica"},
+                    {ClassAbility.ImprovedMinions, "Servos aprimorados"},
+                    {ClassAbility.MinionMastery, "Maestria em invocação"},
+                    {ClassAbility.SoulBond, "Vínculo espiritual"},
+                    {ClassAbility.LegionCommand, "Comando da legião"}
                 },
-                new Dictionary<int, string> {
-                    {25, "Tiro preciso"},
-                    {50, "Tiro duplo"},
-                    {75, "Tiro penetrante"},
-                    {100, "Tiro supremo"}
+                BaseStats = new Dictionary<string, float>
+                {
+                    {"health", 75},
+                    {"mana", 100},
+                    {"summonDamage", 1.15f},
+                    {"maxMinions", 1}
+                },
+                StatsPerLevel = new Dictionary<string, float>
+                {
+                    {"health", 7.5f},
+                    {"mana", 10},
+                    {"summonDamage", 0.025f},
+                    {"maxMinions", 0.1f}
                 }
-            )},
+            }},
 
-            // Magia
-            {"magic", new ClassInfo(
-                "Magia",
-                "Mestre das artes arcanas",
-                new Dictionary<string, float> {
-                    {"magicDamage", 0.002f},     // +0.2% dano mágico por nível
-                    {"manaCost", -0.001f},       // -0.1% custo de mana por nível
-                    {"manaRegen", 0.002f},       // +0.2% regeneração de mana por nível
-                    {"magicCrit", 0.001f},       // +0.1% chance crítica por nível
-                },
-                new Dictionary<int, string> {
-                    {25, "Magia aprimorada"},
-                    {50, "Magia dupla"},
-                    {75, "Magia contínua"},
-                    {100, "Magia suprema"}
-                }
-            )},
+            // === CLASSES DE UTILIDADE ===
 
-            // Invocação
-            {"summon", new ClassInfo(
-                "Invocação",
-                "Mestre dos minions",
-                new Dictionary<string, float> {
-                    {"minionDamage", 0.002f},    // +0.2% dano de minion por nível
-                    {"minionSlots", 0.02f},      // +0.02 slots de minion por nível
-                    {"minionKnockback", 0.002f}, // +0.2% knockback de minion por nível
-                    {"minionRange", 0.002f},     // +0.2% alcance de minion por nível
+            // Acrobata
+            {"acrobat", new ClassInfo(
+                "Acrobata",
+                "Mestre da mobilidade e agilidade")
+            {
+                Milestones = new Dictionary<ClassAbility, string>
+                {
+                    {ClassAbility.BasicDash, "Dash básico"},
+                    {ClassAbility.DoubleJump, "Pulo duplo"},
+                    {ClassAbility.EnhancedDash, "Dash aprimorado"},
+                    {ClassAbility.EvasiveDash, "Dash evasivo"},
+                    {ClassAbility.AirDash, "Dash aéreo"}
                 },
-                new Dictionary<int, string> {
-                    {25, "Minion melhorado"},
-                    {50, "Minion duplo"},
-                    {75, "Minion supremo"},
-                    {100, "Minion divino"}
+                BaseStats = new Dictionary<string, float>
+                {
+                    {"movementSpeed", 1.2f},
+                    {"jumpSpeed", 1.1f},
+                    {"staminaRegen", 0.3f},
+                    {"maxStamina", 100}
+                },
+                StatsPerLevel = new Dictionary<string, float>
+                {
+                    {"movementSpeed", 0.01f},
+                    {"jumpSpeed", 0.01f},
+                    {"staminaRegen", 0.02f},
+                    {"maxStamina", 5}
                 }
-            )},
+            }},
 
-            // Mineração
-            {"mining", new ClassInfo(
-                "Mineração",
-                "Mestre da mineração",
-                new Dictionary<string, float> {
-                    {"miningSpeed", 0.002f},     // +0.2% velocidade de mineração por nível
-                    {"miningRange", 0.002f},     // +0.2% alcance de mineração por nível
-                    {"gemFind", 0.001f},         // +0.1% chance de gemas por nível
-                    {"oreQuality", 0.001f},      // +0.1% qualidade de minério por nível
+            // Explorador
+            {"explorer", new ClassInfo(
+                "Explorador",
+                "Especialista em exploração e descoberta")
+            {
+                Milestones = new Dictionary<ClassAbility, string>
+                {
+                    {ClassAbility.BasicExploration, "Exploração básica"},
+                    {ClassAbility.ImprovedMovement, "Movimento aprimorado"},
+                    {ClassAbility.TreasureHunter, "Caçador de tesouros"},
+                    {ClassAbility.PathFinder, "Desbravador"},
+                    {ClassAbility.MasterExplorer, "Mestre explorador"}
                 },
-                new Dictionary<int, string> {
-                    {25, "Mineração eficiente"},
-                    {50, "Mineração em área"},
-                    {75, "Mineração automática"},
-                    {100, "Mineração suprema"}
+                BaseStats = new Dictionary<string, float>
+                {
+                    {"movementSpeed", 1.15f},
+                    {"lightRadius", 1.2f},
+                    {"staminaRegen", 0.25f},
+                    {"treasureFindChance", 1.1f}
+                },
+                StatsPerLevel = new Dictionary<string, float>
+                {
+                    {"movementSpeed", 0.01f},
+                    {"lightRadius", 0.02f},
+                    {"staminaRegen", 0.015f},
+                    {"treasureFindChance", 0.02f}
                 }
-            )},
+            }},
 
-            // Construção
-            {"building", new ClassInfo(
-                "Construção",
-                "Mestre da construção",
-                new Dictionary<string, float> {
-                    {"buildSpeed", 0.002f},      // +0.2% velocidade de construção por nível
-                    {"buildRange", 0.002f},      // +0.2% alcance de construção por nível
-                    {"materialSave", 0.001f},    // +0.1% chance de não gastar material por nível
-                    {"buildQuality", 0.002f},    // +0.2% qualidade de construção por nível
+            // Engenheiro
+            {"engineer", new ClassInfo(
+                "Engenheiro",
+                "Mestre da tecnologia e construção")
+            {
+                Milestones = new Dictionary<ClassAbility, string>
+                {
+                    {ClassAbility.BasicEngineering, "Engenharia básica"},
+                    {ClassAbility.ImprovedCrafting, "Criação aprimorada"},
+                    {ClassAbility.AdvancedMechanics, "Mecânica avançada"},
+                    {ClassAbility.TechMastery, "Maestria tecnológica"},
+                    {ClassAbility.MasterInventor, "Inventor supremo"}
                 },
-                new Dictionary<int, string> {
-                    {25, "Construção rápida"},
-                    {50, "Construção em área"},
-                    {75, "Construção automática"},
-                    {100, "Construção suprema"}
-                }
-            )},
-
-            // Pesca
-            {"fishing", new ClassInfo(
-                "Pesca",
-                "Mestre da pesca",
-                new Dictionary<string, float> {
-                    {"fishingPower", 0.002f},    // +0.2% poder de pesca por nível
-                    {"catchRate", 0.002f},       // +0.2% taxa de captura por nível
-                    {"rareFish", 0.001f},        // +0.1% chance de peixe raro por nível
-                    {"crateLuck", 0.001f},       // +0.1% chance de baú por nível
+                BaseStats = new Dictionary<string, float>
+                {
+                    {"craftingSpeed", 1.2f},
+                    {"craftingQuality", 1.1f},
+                    {"toolDurability", 1.2f},
+                    {"inventionChance", 1.1f}
                 },
-                new Dictionary<int, string> {
-                    {25, "Pesca eficiente"},
-                    {50, "Pesca dupla"},
-                    {75, "Pesca rara"},
-                    {100, "Pesca suprema"}
+                StatsPerLevel = new Dictionary<string, float>
+                {
+                    {"craftingSpeed", 0.02f},
+                    {"craftingQuality", 0.01f},
+                    {"toolDurability", 0.02f},
+                    {"inventionChance", 0.01f}
                 }
-            )},
-
-            // Coleta
-            {"gathering", new ClassInfo(
-                "Coleta",
-                "Mestre da coleta",
-                new Dictionary<string, float> {
-                    {"gatherSpeed", 0.002f},     // +0.2% velocidade de coleta por nível
-                    {"gatherRange", 0.002f},     // +0.2% alcance de coleta por nível
-                    {"doubleHarvest", 0.001f},   // +0.1% chance de coleta dupla por nível
-                    {"rareFind", 0.001f},        // +0.1% chance de item raro por nível
-                },
-                new Dictionary<int, string> {
-                    {25, "Coleta eficiente"},
-                    {50, "Coleta em área"},
-                    {75, "Coleta automática"},
-                    {100, "Coleta suprema"}
-                }
-            )},
-
-            // Bestiário
-            {"bestiary", new ClassInfo(
-                "Bestiário",
-                "Mestre do conhecimento",
-                new Dictionary<string, float> {
-                    {"monsterDamage", 0.001f},   // +0.1% dano contra monstros por nível
-                    {"monsterInfo", 0.002f},     // +0.2% informação no bestiário por nível
-                    {"rareDrop", 0.001f},        // +0.1% chance de drop raro por nível
-                    {"expGain", 0.001f},         // +0.1% ganho de experiência por nível
-                },
-                new Dictionary<int, string> {
-                    {25, "Conhecimento básico"},
-                    {50, "Conhecimento avançado"},
-                    {75, "Conhecimento mestre"},
-                    {100, "Conhecimento supremo"}
-                }
-            )},
-
-            // Comerciante
-            {"merchant", new ClassInfo(
-                "Comerciante",
-                "Mestre do comércio",
-                new Dictionary<string, float> {
-                    {"shopDiscount", 0.001f},    // +0.1% desconto em lojas por nível
-                    {"sellPrice", 0.001f},       // +0.1% preço de venda por nível
-                    {"rareStock", 0.001f},       // +0.1% chance de item raro em lojas por nível
-                    {"haggle", 0.001f},          // +0.1% chance de barganha por nível
-                },
-                new Dictionary<int, string> {
-                    {25, "Comerciante básico"},
-                    {50, "Comerciante avançado"},
-                    {75, "Comerciante mestre"},
-                    {100, "Comerciante supremo"}
-                }
-            )},
-
-            // Defesa
-            {"defense", new ClassInfo(
-                "Defesa",
-                "Mestre da sobrevivência",
-                new Dictionary<string, float> {
-                    {"defense", 0.5f},           // +0.5 defesa por nível
-                    {"maxLife", 2f},             // +2 vida máxima por nível
-                    {"lifeRegen", 0.1f},         // +0.1 regeneração de vida por nível
-                    {"damageReduction", 0.001f}, // +0.1% redução de dano por nível
-                },
-                new Dictionary<int, string> {
-                    {25, "Defesa básica"},
-                    {50, "Defesa avançada"},
-                    {75, "Defesa mestre"},
-                    {100, "Defesa suprema"}
-                }
-            )},
+            }},
 
             // Sobrevivente
-            {"survivor", new ClassInfo(
+            {"survivalist", new ClassInfo(
                 "Sobrevivente",
-                "Mestre da sobrevivência",
-                new Dictionary<string, float> {
-                    {"maxLife", 1f},             // +1 vida máxima por nível
-                    {"lifeRegen", 0.05f},        // +0.05 regeneração de vida por nível
-                    {"hungerResistance", 0.002f}, // +0.2% resistência à fome por nível
-                    {"sanityResistance", 0.002f}, // +0.2% resistência à sanidade por nível
+                "Especialista em sobrevivência e adaptação")
+            {
+                Milestones = new Dictionary<ClassAbility, string>
+                {
+                    {ClassAbility.BasicSurvival, "Sobrevivência básica"},
+                    {ClassAbility.ImprovedVitality, "Vitalidade aprimorada"},
+                    {ClassAbility.NaturalHealing, "Cura natural"},
+                    {ClassAbility.AdaptiveBody, "Corpo adaptativo"},
+                    {ClassAbility.UltimateEndurance, "Resistência suprema"}
                 },
-                new Dictionary<int, string> {
-                    {25, "Sobrevivência básica"},
-                    {50, "Sobrevivência avançada"},
-                    {75, "Sobrevivência mestre"},
-                    {100, "Sobrevivência suprema"}
+                BaseStats = new Dictionary<string, float>
+                {
+                    {"health", 90},
+                    {"healthRegen", 0.2f},
+                    {"hungerRate", 0.8f},
+                    {"environmentalResistance", 1.2f}
+                },
+                StatsPerLevel = new Dictionary<string, float>
+                {
+                    {"health", 9},
+                    {"healthRegen", 0.02f},
+                    {"hungerRate", -0.01f},
+                    {"environmentalResistance", 0.02f}
                 }
-            )},
+            }},
 
-            // Regeneração
-            {"regeneration", new ClassInfo(
-                "Regeneração",
-                "Mestre da regeneração",
-                new Dictionary<string, float> {
-                    {"lifeRegen", 0.1f},         // +0.1 regeneração de vida por nível
-                    {"manaRegen", 0.05f},        // +0.05 regeneração de mana por nível
-                    {"healingBonus", 0.002f},    // +0.2% bônus de cura por nível
-                    {"regenEfficiency", 0.001f}, // +0.1% eficiência de regeneração por nível
+            // Ferreiro
+            {"blacksmith", new ClassInfo(
+                "Ferreiro",
+                "Mestre da forja e metalurgia")
+            {
+                Milestones = new Dictionary<ClassAbility, string>
+                {
+                    {ClassAbility.BasicSmithing, "Forja básica"},
+                    {ClassAbility.ImprovedForging, "Forja aprimorada"},
+                    {ClassAbility.MasterBlacksmith, "Mestre ferreiro"},
+                    {ClassAbility.LegendaryWeapons, "Armas lendárias"},
+                    {ClassAbility.DivineCrafting, "Forja divina"}
                 },
-                new Dictionary<int, string> {
-                    {25, "Regeneração básica"},
-                    {50, "Regeneração avançada"},
-                    {75, "Regeneração mestre"},
-                    {100, "Regeneração suprema"}
+                BaseStats = new Dictionary<string, float>
+                {
+                    {"forgingSpeed", 1.2f},
+                    {"forgingQuality", 1.1f},
+                    {"weaponDurability", 1.2f},
+                    {"masterworkChance", 1.1f}
+                },
+                StatsPerLevel = new Dictionary<string, float>
+                {
+                    {"forgingSpeed", 0.02f},
+                    {"forgingQuality", 0.01f},
+                    {"weaponDurability", 0.02f},
+                    {"masterworkChance", 0.01f}
                 }
-            )}
+            }},
+
+            // Alquimista
+            {"alchemist", new ClassInfo(
+                "Alquimista",
+                "Mestre das poções e elixires")
+            {
+                Milestones = new Dictionary<ClassAbility, string>
+                {
+                    {ClassAbility.BasicAlchemy, "Alquimia básica"},
+                    {ClassAbility.ImprovedPotions, "Poções aprimoradas"},
+                    {ClassAbility.MasterBrewer, "Mestre alquimista"},
+                    {ClassAbility.ElementalMixing, "Misturas elementais"},
+                    {ClassAbility.UltimatePotions, "Poções supremas"}
+                },
+                BaseStats = new Dictionary<string, float>
+                {
+                    {"brewingSpeed", 1.2f},
+                    {"potionDuration", 1.1f},
+                    {"potionEffectiveness", 1.2f},
+                    {"discoveryChance", 1.1f}
+                },
+                StatsPerLevel = new Dictionary<string, float>
+                {
+                    {"brewingSpeed", 0.02f},
+                    {"potionDuration", 0.01f},
+                    {"potionEffectiveness", 0.02f},
+                    {"discoveryChance", 0.01f}
+                }
+            }},
+
+            // Místico
+            {"mystic", new ClassInfo(
+                "Místico",
+                "Mestre do equilíbrio vital e harmonia")
+            {
+                Milestones = new Dictionary<ClassAbility, string>
+                {
+                    {ClassAbility.BasicMysticism, "Misticismo básico"},
+                    {ClassAbility.ImprovedRegeneration, "Regeneração aprimorada"},
+                    {ClassAbility.VitalityMastery, "Maestria vital"},
+                    {ClassAbility.SpiritualHarmony, "Harmonia espiritual"},
+                    {ClassAbility.TranscendentBeing, "Ser transcendente"}
+                },
+                BaseStats = new Dictionary<string, float>
+                {
+                    {"healthRegen", 0.3f},
+                    {"manaRegen", 0.3f},
+                    {"staminaRegen", 0.3f},
+                    {"sanityRegen", 0.3f},
+                    {"hungerRegen", 0.3f}
+                },
+                StatsPerLevel = new Dictionary<string, float>
+                {
+                    {"healthRegen", 0.02f},
+                    {"manaRegen", 0.02f},
+                    {"staminaRegen", 0.02f},
+                    {"sanityRegen", 0.02f},
+                    {"hungerRegen", 0.02f}
+                }
+            }}
         };
 
-        // Stats aleatórios que podem aparecer em itens
+        // Informações de stats aleatórios para itens
         public static readonly Dictionary<string, StatInfo> RandomStats = new Dictionary<string, StatInfo>
         {
-            // Ofensivo
-            {"meleeDamage", new StatInfo("Dano Corpo a Corpo", 0.05f, 0.15f)},
-            {"rangedDamage", new StatInfo("Dano à Distância", 0.05f, 0.15f)},
-            {"magicDamage", new StatInfo("Dano Mágico", 0.05f, 0.15f)},
-            {"minionDamage", new StatInfo("Dano de Minion", 0.05f, 0.15f)},
-            {"critChance", new StatInfo("Chance Crítica", 1f, 5f)},
-            
-            // Defensivo
-            {"defense", new StatInfo("Defesa", 1f, 3f)},
-            {"maxLife", new StatInfo("Vida Máxima", 5f, 15f)},
-            {"lifeRegen", new StatInfo("Regeneração de Vida", 0.5f, 2f)},
-            {"damageReduction", new StatInfo("Redução de Dano", 0.01f, 0.05f)},
-            
-            // Utilidade
-            {"moveSpeed", new StatInfo("Velocidade", 0.05f, 0.15f)},
-            {"jumpHeight", new StatInfo("Altura do Pulo", 0.05f, 0.15f)},
-            {"maxMana", new StatInfo("Mana Máxima", 10f, 30f)},
-            {"manaRegen", new StatInfo("Regeneração de Mana", 0.5f, 2f)},
-            {"manaCost", new StatInfo("Redução de Custo de Mana", 0.05f, 0.15f)},
-            {"minionSlots", new StatInfo("Slots de Minion", 0.5f, 1.5f)},
-            {"miningSpeed", new StatInfo("Velocidade de Mineração", 0.05f, 0.15f)},
-            
-            // Especiais
-            {"luck", new StatInfo("Sorte", 0.1f, 0.3f)},
-            {"expGain", new StatInfo("Ganho de Experiência", 0.05f, 0.15f)}
+            {"damage", new StatInfo("Dano", 1f, 5f)},
+            {"critChance", new StatInfo("Chance Crítica", 1f, 3f)},
+            {"attackSpeed", new StatInfo("Velocidade de Ataque", 1f, 3f)},
+            {"defense", new StatInfo("Defesa", 1f, 4f)},
+            {"moveSpeed", new StatInfo("Velocidade de Movimento", 1f, 3f)},
+            {"lifeRegen", new StatInfo("Regeneração de Vida", 1f, 2f)},
+            {"manaRegen", new StatInfo("Regeneração de Mana", 1f, 2f)},
+            {"staminaRegen", new StatInfo("Regeneração de Stamina", 1f, 2f)},
+            {"sanityRegen", new StatInfo("Regeneração de Sanidade", 1f, 2f)},
+            {"hungerRegen", new StatInfo("Regeneração de Fome", 1f, 2f)}
         };
 
         // Quantidade de stats por raridade
@@ -345,24 +479,8 @@ namespace Wolfgodrpg.Common.Classes
             {ItemRarity.Uncommon, 1.2f},
             {ItemRarity.Rare, 1.5f},
             {ItemRarity.Epic, 2.0f},
-            {ItemRarity.Legendary, 3.0f}
+            {ItemRarity.Legendary, 2.5f}
         };
-    }
-
-    public class ClassInfo
-    {
-        public string Name { get; private set; }
-        public string Description { get; private set; }
-        public Dictionary<string, float> StatBonuses { get; private set; }
-        public Dictionary<int, string> Milestones { get; private set; }
-
-        public ClassInfo(string name, string description, Dictionary<string, float> statBonuses, Dictionary<int, string> milestones)
-        {
-            Name = name;
-            Description = description;
-            StatBonuses = statBonuses;
-            Milestones = milestones;
-        }
     }
 
     public class StatInfo

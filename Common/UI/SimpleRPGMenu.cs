@@ -12,6 +12,9 @@ using Wolfgodrpg.Common.Classes;
 using Wolfgodrpg.Common.GlobalItems;
 using Wolfgodrpg.Common.Players;
 using Wolfgodrpg.Common.Systems;
+using Wolfgodrpg.Common.Utils;
+using Wolfgodrpg.Common.UI.Base;
+using Wolfgodrpg.Common.UI.Menus;
 
 namespace Wolfgodrpg.Common.UI
 {
@@ -130,16 +133,10 @@ namespace Wolfgodrpg.Common.UI
             UpdateTabButtonStates();
 
             // Verificar se o jogador está disponível antes de tentar acessar
-            if (Main.LocalPlayer == null || !Main.LocalPlayer.active) 
+            var modPlayer = RPGUtils.GetLocalRPGPlayer();
+            if (modPlayer == null) 
             {
                 DebugLog.UI("SetPage", "Jogador não disponível, pulando atualização");
-                return;
-            }
-
-            var modPlayer = Main.LocalPlayer.GetModPlayer<RPGPlayer>();
-            if (modPlayer == null || modPlayer.Player == null) 
-            {
-                DebugLog.UI("SetPage", "ModPlayer não disponível, pulando atualização");
                 return;
             }
 

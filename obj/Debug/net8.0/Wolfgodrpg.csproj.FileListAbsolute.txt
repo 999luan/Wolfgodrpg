@@ -1,3 +1,9 @@
+C:\Users\tatal\Documents\My games\Terraria\tModLoader\ModSources\Wolfgodrpg\obj\Debug\net8.0\Wolfgodrpg.csproj.AssemblyReference.cache
+C:\Users\tatal\Documents\My games\Terraria\tModLoader\ModSources\Wolfgodrpg\obj\Debug\net8.0\Wolfgodrpg.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\tatal\Documents\My games\Terraria\tModLoader\ModSources\Wolfgodrpg\obj\Debug\net8.0\Wolfgodrpg.AssemblyInfoInputs.cache
+C:\Users\tatal\Documents\My games\Terraria\tModLoader\ModSources\Wolfgodrpg\obj\Debug\net8.0\Wolfgodrpg.AssemblyInfo.cs
+C:\Users\tatal\Documents\My games\Terraria\tModLoader\ModSources\Wolfgodrpg\obj\Debug\net8.0\Wolfgodrpg.csproj.CoreCompileInputs.cache
+C:\Users\tatal\Documents\My games\Terraria\tModLoader\ModSources\Wolfgodrpg\obj\Debug\net8.0\Wolfgodrpg.sourcelink.json
 C:\Users\tatal\Documents\My Games\Terraria\tModLoader\ModSources\Wolfgodrpg\bin\Debug\net8.0\Wolfgodrpg.deps.json
 C:\Users\tatal\Documents\My Games\Terraria\tModLoader\ModSources\Wolfgodrpg\bin\Debug\net8.0\Wolfgodrpg.dll
 C:\Users\tatal\Documents\My Games\Terraria\tModLoader\ModSources\Wolfgodrpg\bin\Debug\net8.0\Wolfgodrpg.pdb
@@ -219,12 +225,6 @@ C:\Users\tatal\Documents\My Games\Terraria\tModLoader\ModSources\Wolfgodrpg\bin\
 C:\Users\tatal\Documents\My Games\Terraria\tModLoader\ModSources\Wolfgodrpg\bin\Debug\net8.0\tr\Microsoft.CodeAnalysis.Workspaces.MSBuild.resources.dll
 C:\Users\tatal\Documents\My Games\Terraria\tModLoader\ModSources\Wolfgodrpg\bin\Debug\net8.0\zh-Hans\Microsoft.CodeAnalysis.Workspaces.MSBuild.resources.dll
 C:\Users\tatal\Documents\My Games\Terraria\tModLoader\ModSources\Wolfgodrpg\bin\Debug\net8.0\zh-Hant\Microsoft.CodeAnalysis.Workspaces.MSBuild.resources.dll
-C:\Users\tatal\Documents\My Games\Terraria\tModLoader\ModSources\Wolfgodrpg\obj\Debug\net8.0\Wolfgodrpg.csproj.AssemblyReference.cache
-C:\Users\tatal\Documents\My Games\Terraria\tModLoader\ModSources\Wolfgodrpg\obj\Debug\net8.0\Wolfgodrpg.GeneratedMSBuildEditorConfig.editorconfig
-C:\Users\tatal\Documents\My Games\Terraria\tModLoader\ModSources\Wolfgodrpg\obj\Debug\net8.0\Wolfgodrpg.AssemblyInfoInputs.cache
-C:\Users\tatal\Documents\My Games\Terraria\tModLoader\ModSources\Wolfgodrpg\obj\Debug\net8.0\Wolfgodrpg.AssemblyInfo.cs
-C:\Users\tatal\Documents\My Games\Terraria\tModLoader\ModSources\Wolfgodrpg\obj\Debug\net8.0\Wolfgodrpg.csproj.CoreCompileInputs.cache
-C:\Users\tatal\Documents\My Games\Terraria\tModLoader\ModSources\Wolfgodrpg\obj\Debug\net8.0\Wolfgodrpg.sourcelink.json
 C:\Users\tatal\Documents\My Games\Terraria\tModLoader\ModSources\Wolfgodrpg\obj\Debug\net8.0\Wolfgodrpg.csproj.Up2Date
 C:\Users\tatal\Documents\My Games\Terraria\tModLoader\ModSources\Wolfgodrpg\obj\Debug\net8.0\Wolfgodrpg.dll
 C:\Users\tatal\Documents\My Games\Terraria\tModLoader\ModSources\Wolfgodrpg\obj\Debug\net8.0\refint\Wolfgodrpg.dll

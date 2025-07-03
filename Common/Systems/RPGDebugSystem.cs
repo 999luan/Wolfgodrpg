@@ -1,7 +1,9 @@
 using Terraria;
 using Terraria.ModLoader;
 using Microsoft.Xna.Framework;
+using System.Collections.Generic;
 using Wolfgodrpg.Common.Players;
+using Wolfgodrpg.Common.GlobalItems;
 using System;
 
 namespace Wolfgodrpg.Common.Systems
@@ -60,7 +62,7 @@ namespace Wolfgodrpg.Common.Systems
                 if (item != null && !item.IsAir)
                 {
                     totalItems++;
-                    var progressiveItem = item.GetGlobalItem<GlobalItems.ProgressiveItem>();
+                    var progressiveItem = item.GetGlobalItem<ProgressiveItem>();
                     if (progressiveItem != null && progressiveItem.Experience > 0)
                     {
                         itemsWithXP++;
@@ -89,4 +91,4 @@ namespace Wolfgodrpg.Common.Systems
             }
         }
     }
-} 
+}
