@@ -5,6 +5,7 @@ using Wolfgodrpg.Common.Players;
 using Microsoft.Xna.Framework;
 using Terraria.ID; // Added for TileID
 using System.Collections.Generic; // Added for HashSet
+using Wolfgodrpg.Common.Systems; // Added for RPGClassActionMapper
 
 namespace Wolfgodrpg.Common.Systems
 {
@@ -57,14 +58,14 @@ namespace Wolfgodrpg.Common.Systems
                     // A cada 100 unidades de distância em dash, ganha XP de Acrobata
                     if (dashDistance >= 100f)
                     {
-                        rpgPlayer.AddClassExperience("acrobat", 5f);
+                        RPGClassActionMapper.MapMovementAction(MovementAction.Dash, dashDistance);
                         dashDistance = 0f;
                         dashesPerformed++;
                         
                         // Bônus extra a cada 10 dashes
                         if (dashesPerformed >= 10)
                         {
-                            rpgPlayer.AddClassExperience("acrobat", 25f);
+                            RPGClassActionMapper.MapMovementAction(MovementAction.Dash, 250f); // Bônus extra
                             dashesPerformed = 0;
                         }
                     }
@@ -73,7 +74,7 @@ namespace Wolfgodrpg.Common.Systems
                 // A cada 1000 unidades de distância normal, ganha XP de Acrobata
                 if (distanceTraveled >= 1000f)
                 {
-                    rpgPlayer.AddClassExperience("acrobat", 10f);
+                    RPGClassActionMapper.MapMovementAction(MovementAction.Walk, distanceTraveled);
                     distanceTraveled = 0f;
                 }
             }
@@ -81,11 +82,11 @@ namespace Wolfgodrpg.Common.Systems
             lastPositionX = currentX;
             lastPositionY = currentY;
 
-            // Regeneração (Regeneration XP)
+            // Regeneração (Survival XP)
             timeSinceLastRegen += 1f / 60f; // 1/60 = um segundo em ticks
             if (timeSinceLastRegen >= 1f && player.lifeRegen > 0)
             {
-                rpgPlayer.AddClassExperience("regeneration", 2f); // Ganha 2 XP por segundo de regeneração
+                RPGClassActionMapper.MapSurvivalAction(SurvivalAction.RegenerateHealth, player.lifeRegen);
                 timeSinceLastRegen = 0f;
             }
         }
@@ -95,13 +96,12 @@ namespace Wolfgodrpg.Common.Systems
             var player = Main.LocalPlayer;
             if (player?.active != true) return;
 
-            var rpgPlayer = player.GetModPlayer<RPGPlayer>();
             blocksMined++;
 
             // A cada 10 blocos minerados
             if (blocksMined >= 10)
             {
-                rpgPlayer.AddClassExperience("mining", 15f);
+                RPGClassActionMapper.MapExplorationAction(ExplorationAction.MineResource, blocksMined);
                 blocksMined = 0;
             }
         }
@@ -111,13 +111,15 @@ namespace Wolfgodrpg.Common.Systems
             var player = Main.LocalPlayer;
             if (player?.active != true) return;
 
-            var rpgPlayer = player.GetModPlayer<RPGPlayer>();
             blocksPlaced++;
 
             // A cada 10 blocos colocados
             if (blocksPlaced >= 10)
             {
-                rpgPlayer.AddClassExperience("building", 20f);
+                // Criar um item temporário para representar o bloco
+                var tempItem = new Item();
+                tempItem.SetDefaults(ItemID.DirtBlock); // Item genérico
+                RPGClassActionMapper.MapCraftingAction(CraftingAction.CraftBuilding, tempItem);
                 blocksPlaced = 0;
             }
         }
@@ -126,24 +128,58 @@ namespace Wolfgodrpg.Common.Systems
         {
             if (item == null || item.IsAir) return;
 
-            var player = Main.LocalPlayer;
-            var modPlayer = player.GetModPlayer<RPGPlayer>();
+            // Determinar o tipo de crafting baseado no item
+            CraftingAction action = DetermineCraftingAction(item);
+            RPGClassActionMapper.MapCraftingAction(action, item);
+        }
 
-            // XP base baseado no valor do item
-            float baseXP = item.value * 0.01f;
-
-            // Give XP to building class
-            modPlayer.AddClassExperience("building", baseXP);
+        /// <summary>
+        /// Determina o tipo de ação de crafting baseado no item.
+        /// </summary>
+        /// <param name="item">Item craftado</param>
+        /// <returns>Tipo de ação de crafting</returns>
+        private static CraftingAction DetermineCraftingAction(Item item)
+        {
+            // Verificar se é arma
+            if (item.damage > 0 && item.DamageType != DamageClass.Summon)
+            {
+                return CraftingAction.CraftWeapon;
+            }
+            
+            // Verificar se é armadura
+            if (item.defense > 0)
+            {
+                return CraftingAction.CraftArmor;
+            }
+            
+            // Verificar se é poção
+            if (item.buffType > 0 || item.healLife > 0 || item.healMana > 0)
+            {
+                return CraftingAction.CraftPotion;
+            }
+            
+            // Verificar se é ferramenta
+            if (item.pick > 0 || item.axe > 0 || item.hammer > 0)
+            {
+                return CraftingAction.CraftTool;
+            }
+            
+            // Verificar se é bloco/construção
+            if (item.createTile >= 0 || item.createWall >= 0)
+            {
+                return CraftingAction.CraftBuilding;
+            }
+            
+            // Fallback para construção
+            return CraftingAction.CraftBuilding;
         }
 
         public static void OnHurt(Player player, int damage)
         {
             if (player?.active != true) return;
 
-            var rpgPlayer = player.GetModPlayer<RPGPlayer>();
-            float expAmount = damage * 0.5f; // Metade do dano como XP
-
-            rpgPlayer.AddClassExperience("defense", expAmount);
+            // Guerreiro ganha XP por tankar dano
+            RPGClassActionMapper.MapCombatAction(CombatAction.TakeDamage, damage, DamageClass.Melee);
         }
 
         public static void OnKillNPC(NPC npc)
@@ -159,8 +195,6 @@ namespace Wolfgodrpg.Common.Systems
                 float distance = Vector2.Distance(player.Center, npc.Center);
                 if (distance > 1000f) continue; // 1000 pixels = ~62.5 blocos
 
-                var modPlayer = player.GetModPlayer<RPGPlayer>();
-
                 // XP base baseado na vida do NPC
                 float baseXP = npc.lifeMax * 0.1f;
 
@@ -170,13 +204,15 @@ namespace Wolfgodrpg.Common.Systems
                     baseXP *= 10f;
                 }
 
-                // Dar XP para todas as classes
-                modPlayer.AddClassExperience("melee", baseXP);
-                modPlayer.AddClassExperience("ranged", baseXP);
-                modPlayer.AddClassExperience("magic", baseXP);
-                modPlayer.AddClassExperience("summon", baseXP);
-                modPlayer.AddClassExperience("defense", baseXP * 0.5f);
-                modPlayer.AddClassExperience("bestiary", baseXP * 0.2f); // Add XP for bestiary
+                // Determinar o tipo de dano baseado no último item usado
+                DamageClass damageType = DamageClass.Melee; // Fallback
+                if (player.HeldItem != null && !player.HeldItem.IsAir)
+                {
+                    damageType = player.HeldItem.DamageType;
+                }
+
+                // Dar XP para a classe correspondente ao tipo de dano
+                RPGClassActionMapper.MapCombatAction(CombatAction.KillNPC, (int)baseXP, damageType);
             }
         }
 
@@ -184,28 +220,10 @@ namespace Wolfgodrpg.Common.Systems
         {
             if (item == null || item.IsAir) return;
 
-            var player = Main.LocalPlayer;
-            var modPlayer = player.GetModPlayer<RPGPlayer>();
-
-            // XP base baseado no dano do item
-            float baseXP = item.damage * 0.1f;
-
-            // Dar XP baseado no tipo de dano
-            if (item.DamageType == DamageClass.Melee)
+            // Se é uma arma, dar XP baseado no tipo de dano
+            if (item.damage > 0)
             {
-                modPlayer.AddClassExperience("melee", baseXP);
-            }
-            else if (item.DamageType == DamageClass.Ranged)
-            {
-                modPlayer.AddClassExperience("ranged", baseXP);
-            }
-            else if (item.DamageType == DamageClass.Magic)
-            {
-                modPlayer.AddClassExperience("magic", baseXP);
-            }
-            else if (item.DamageType == DamageClass.Summon)
-            {
-                modPlayer.AddClassExperience("summon", baseXP);
+                RPGClassActionMapper.MapCombatAction(CombatAction.HitNPC, item.damage, item.DamageType);
             }
         }
 

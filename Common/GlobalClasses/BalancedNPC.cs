@@ -8,6 +8,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using Wolfgodrpg.Common.Players;
 using Wolfgodrpg.Common.Systems;
+using Wolfgodrpg.Common.Systems; // Added for RPGClassActionMapper
 
 namespace Wolfgodrpg.Common.GlobalClasses
 {
@@ -204,18 +205,18 @@ namespace Wolfgodrpg.Common.GlobalClasses
         public override void ModifyHitByItem(NPC npc, Player player, Item item, ref NPC.HitModifiers modifiers)
         {
             var modPlayer = player.GetModPlayer<RPGPlayer>();
-            string damageClass = item.DamageType.ToString().ToLower();
+            string className = RPGClassActionMapper.MapDamageTypeToClass(item.DamageType);
 
             // Apply damage bonus based on class level
-            modifiers.SourceDamage *= 1f + (modPlayer.ClassLevels.TryGetValue(damageClass, out var dmgLevel) ? dmgLevel : 0f) * 0.01f;
-            modPlayer.AddClassExperience(damageClass, item.damage * 0.1f);
+            modifiers.SourceDamage *= 1f + (modPlayer.ClassLevels.TryGetValue(className, out var dmgLevel) ? dmgLevel : 0f) * 0.01f;
+            RPGClassActionMapper.MapCombatAction(CombatAction.HitNPC, item.damage, item.DamageType);
 
             if (IsElite)
             {
                 modifiers.FinalDamage *= 0.5f;
             }
             
-            float levelDifference = GetNPCLevel(npc) - (modPlayer.ClassLevels.TryGetValue(damageClass, out var diffLevel) ? diffLevel : 0f);
+            float levelDifference = GetNPCLevel(npc) - (modPlayer.ClassLevels.TryGetValue(className, out var diffLevel) ? diffLevel : 0f);
             float levelModifier = 1.0f + (levelDifference * 0.02f);
             levelModifier = Math.Max(0.5f, Math.Min(levelModifier, 1.5f));
             
@@ -229,11 +230,11 @@ namespace Wolfgodrpg.Common.GlobalClasses
             {
                 var player = Main.player[projectile.owner];
                 var modPlayer = player.GetModPlayer<RPGPlayer>();
-                string damageClass = projectile.DamageType.ToString().ToLower();
+                string className = RPGClassActionMapper.MapDamageTypeToClass(projectile.DamageType);
 
                 // Apply damage bonus based on class level
-                modifiers.SourceDamage *= 1f + (modPlayer.ClassLevels.TryGetValue(damageClass, out var projLevel) ? projLevel : 0f) * 0.01f;
-                modPlayer.AddClassExperience(damageClass, projectile.damage * 0.1f);
+                modifiers.SourceDamage *= 1f + (modPlayer.ClassLevels.TryGetValue(className, out var projLevel) ? projLevel : 0f) * 0.01f;
+                RPGClassActionMapper.MapCombatAction(CombatAction.HitNPC, projectile.damage, projectile.DamageType);
             }
         }
 

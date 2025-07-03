@@ -5,6 +5,7 @@ using Terraria.ID;
 using Terraria.DataStructures; // Adicionado para FishingAttempt e AdvancedPopupRequest
 using Wolfgodrpg.Common.Players;
 using System.Collections.Generic;
+using Wolfgodrpg.Common.Systems; // Added for RPGClassActionMapper
 
 namespace Wolfgodrpg.Common.Systems
 {
@@ -36,14 +37,14 @@ namespace Wolfgodrpg.Common.Systems
             }
             lastHealth = Player.statLife;
 
-            // Verificar pulos para XP de Jumping
+            // Verificar pulos para XP de Acrobata
             if (Player.justJumped && Player.velocity.Y < 0)
             {
                 jumpCount++;
                 DebugLog.Gameplay("Player", "Jumping", $"Pulo detectado. Contador: {jumpCount}/50");
                 if (jumpCount >= 50) // XP a cada 50 pulos
                 {
-                    rpgPlayer.AddClassExperience("jumping", 10f);
+                    RPGClassActionMapper.MapMovementAction(MovementAction.Jump, 50f);
                     DebugLog.Gameplay("Player", "Jumping", "XP de pulo concedido!");
                     jumpCount = 0;
                 }
@@ -58,16 +59,12 @@ namespace Wolfgodrpg.Common.Systems
 
         public override void PostBuyItem(NPC vendor, Item[] shopInventory, Item item)
         {
-            var rpgPlayer = Player.GetModPlayer<RPGPlayer>();
-            float xpAmount = item.value * 0.0001f;
-            rpgPlayer.AddClassExperience("merchant", System.Math.Max(0.1f, xpAmount));
+            RPGClassActionMapper.MapTradeAction(TradeAction.BuyItem, item.value);
         }
 
         public override void PostSellItem(NPC vendor, Item[] shopInventory, Item item)
         {
-            var rpgPlayer = Player.GetModPlayer<RPGPlayer>();
-            float xpAmount = item.value * 0.0001f;
-            rpgPlayer.AddClassExperience("merchant", System.Math.Max(0.1f, xpAmount));
+            RPGClassActionMapper.MapTradeAction(TradeAction.SellItem, item.value);
         }
 
         public override void OnEnterWorld()
@@ -78,10 +75,17 @@ namespace Wolfgodrpg.Common.Systems
 
         public override void CatchFish(FishingAttempt attempt, ref int itemDrop, ref int npcSpawn, ref AdvancedPopupRequest sonar, ref Vector2 sonarPosition)
         {
-            var rpgPlayer = Player.GetModPlayer<RPGPlayer>();
             float xpAmount = (attempt.rare ? 1f : 0f) * 10f; 
             xpAmount = System.Math.Max(1f, xpAmount); 
-            rpgPlayer.AddClassExperience("fishing", xpAmount);
+            
+            if (attempt.rare)
+            {
+                RPGClassActionMapper.MapFishingAction(FishingAction.CatchRareFish, xpAmount);
+            }
+            else
+            {
+                RPGClassActionMapper.MapFishingAction(FishingAction.CatchFish, xpAmount);
+            }
         }
     }
 
