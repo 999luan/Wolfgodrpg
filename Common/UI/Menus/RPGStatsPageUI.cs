@@ -13,7 +13,7 @@ using Wolfgodrpg.Common.Classes;
 
 namespace Wolfgodrpg.Common.UI.Menus
 {
-    // Aba de Status do menu RPG (Padrão ExampleMod)
+    // Aba de Status simplificada e organizada
     public class RPGStatsPageUI : UIElement
     {
         private UIList _statsList;
@@ -24,7 +24,7 @@ namespace Wolfgodrpg.Common.UI.Menus
             Width.Set(0, 1f);
             Height.Set(0, 1f);
 
-            // Lista de stats com scrollbar (padrão ExampleMod)
+            // Lista de stats com scrollbar
             _statsList = new UIList();
             _statsList.Width.Set(-25f, 1f);
             _statsList.Height.Set(0, 1f);
@@ -45,34 +45,18 @@ namespace Wolfgodrpg.Common.UI.Menus
         {
             _statsList.Clear();
             
-            // Verificações robustas de null (padrão ExampleMod)
             if (modPlayer == null || modPlayer.Player == null || !modPlayer.Player.active)
             {
                 _statsList.Add(new UIText("Jogador não disponível."));
-                DebugLog.UI("UpdateStats", "Jogador não disponível para exibir stats");
                 return;
             }
 
             var player = modPlayer.Player;
             var stats = RPGCalculations.CalculateTotalStats(modPlayer);
+
+            // === SEÇÃO PRINCIPAL: CLASSES E PROGRESSO ===
+            _statsList.Add(new StatsSectionHeader("🎯 CLASSES E PROGRESSO", Color.Gold));
             
-            DebugLog.UI("UpdateStats", $"Stats calculados: {stats.Count} entradas");
-
-            // Seção: Informações Básicas
-            _statsList.Add(new StatsSectionHeader("INFORMAÇÕES BÁSICAS"));
-            _statsList.Add(new StatsEntry($"Vida: {player.statLife} / {player.statLifeMax2}"));
-            _statsList.Add(new StatsEntry($"Mana: {player.statMana} / {player.statManaMax2}"));
-            _statsList.Add(new StatsEntry($"Defesa: {player.statDefense}"));
-            _statsList.Add(new StatsEntry($"Velocidade: {player.moveSpeed:F2}"));
-
-            // Seção: Vitals RPG
-            _statsList.Add(new StatsSectionHeader("VITALS RPG"));
-            _statsList.Add(new StatsEntry($"Fome: {modPlayer.CurrentHunger:F1}%"));
-            _statsList.Add(new StatsEntry($"Sanidade: {modPlayer.CurrentSanity:F1}%"));
-            _statsList.Add(new StatsEntry($"Stamina: {modPlayer.CurrentStamina:F1}%"));
-
-            // Seção: Classes e Habilidades
-            _statsList.Add(new StatsSectionHeader("CLASSES E HABILIDADES"));
             if (RPGClassDefinitions.ActionClasses != null)
             {
                 foreach (var classEntry in RPGClassDefinitions.ActionClasses)
@@ -85,58 +69,45 @@ namespace Wolfgodrpg.Common.UI.Menus
                     float currentExp = 0;
                     modPlayer.ClassExperience.TryGetValue(classKey, out currentExp);
                     float nextLevelExp = 100 * (level + 1);
+                    float progressPercent = nextLevelExp > 0 ? (currentExp / nextLevelExp * 100f) : 0f;
                     
-                    _statsList.Add(new StatsEntry($"{classInfo.Name}: Nv.{level:F0} XP:{currentExp:F0}/{nextLevelExp:F0}"));
-                    
-                    // Mostrar habilidades desbloqueadas
-                    if (classInfo.Milestones != null)
-                    {
-                        foreach (var milestone in classInfo.Milestones)
-                        {
-                            if (level >= (int)milestone.Key)
-                            {
-                                string abilityText = milestone.Value;
-                                // Dash aparece como "—" no nível 1 conforme checklist
-                                if ((int)milestone.Key == 1 && abilityText.ToLower().Contains("dash"))
-                                {
-                                    abilityText = "—";
-                                }
-                                _statsList.Add(new StatsEntry($"  ✓ {abilityText}", Color.LightGreen));
-                            }
-                        }
-                    }
+                    // Entrada principal da classe
+                    _statsList.Add(new ClassEntry(classInfo.Name, level, currentExp, nextLevelExp, progressPercent, classInfo.Milestones, level));
                 }
             }
 
-            // Seção: Bônus de Equipamentos
-            if (stats != null && stats.Count > 0)
-            {
-                _statsList.Add(new StatsSectionHeader("BÔNUS DE EQUIPAMENTOS"));
-                foreach (var stat in stats)
-                {
-                    string statName = GetStatDisplayName(stat.Key);
-                    _statsList.Add(new StatsEntry($"{statName}: +{stat.Value:F1}"));
-                }
-                DebugLog.UI("UpdateStats", $"Exibindo {stats.Count} bônus de equipamentos");
-            }
-            else
-            {
-                _statsList.Add(new StatsSectionHeader("BÔNUS DE EQUIPAMENTOS"));
-                _statsList.Add(new StatsEntry("Nenhum bônus ativo"));
-                DebugLog.UI("UpdateStats", "Nenhum bônus de equipamento encontrado");
-            }
+            // === SEÇÃO SECUNDÁRIA: VITALS ===
+            _statsList.Add(new StatsSectionHeader("💓 VITALS", Color.LightCoral));
+            _statsList.Add(new StatsEntry($"❤️ Vida: {player.statLife} / {player.statLifeMax2}", GetVitalColor(modPlayer.CurrentHunger)));
+            _statsList.Add(new StatsEntry($"🍖 Fome: {modPlayer.CurrentHunger:F1}%", GetVitalColor(modPlayer.CurrentHunger)));
+            _statsList.Add(new StatsEntry($"🧠 Sanidade: {modPlayer.CurrentSanity:F1}%", GetVitalColor(modPlayer.CurrentSanity)));
+            _statsList.Add(new StatsEntry($"⚡ Stamina: {modPlayer.CurrentStamina:F1}%", GetVitalColor(modPlayer.CurrentStamina)));
+
+            // === SEÇÃO TERCIÁRIA: STATS BÁSICOS ===
+            _statsList.Add(new StatsSectionHeader("⚔️ STATS BÁSICOS", Color.LightBlue));
+            _statsList.Add(new StatsEntry($"🛡️ Defesa: {player.statDefense}"));
+            _statsList.Add(new StatsEntry($"🏃 Velocidade: {player.moveSpeed:F2}"));
+            _statsList.Add(new StatsEntry($"🔮 Mana: {player.statMana} / {player.statManaMax2}"));
+        }
+
+        // Cor baseada no valor do vital
+        private Color GetVitalColor(float value)
+        {
+            if (value > 70f) return Color.LightGreen;
+            if (value > 30f) return Color.Yellow;
+            return Color.Red;
         }
 
         // Cabeçalho de seção
         private class StatsSectionHeader : UIElement
         {
-            public StatsSectionHeader(string title)
+            public StatsSectionHeader(string title, Color color)
             {
                 Width.Set(0, 1f);
-                Height.Set(25f, 0f);
+                Height.Set(30f, 0f);
                 
-                var text = new UIText($"=== {title} ===", 0.9f);
-                text.TextColor = Color.Gold;
+                var text = new UIText(title, 1.0f, true);
+                text.TextColor = color;
                 Append(text);
             }
         }
@@ -147,43 +118,48 @@ namespace Wolfgodrpg.Common.UI.Menus
             public StatsEntry(string statText, Color? color = null)
             {
                 Width.Set(0, 1f);
-                Height.Set(20f, 0f);
+                Height.Set(22f, 0f);
                 
-                var text = new UIText(statText, 0.8f);
+                var text = new UIText(statText, 0.85f);
                 text.TextColor = color ?? Color.White;
                 Append(text);
             }
         }
 
-        // Nome amigável para cada stat
-        private string GetStatDisplayName(string statKey)
+        // Entrada de classe com progresso visual
+        private class ClassEntry : UIElement
         {
-            return statKey switch
+            public ClassEntry(string className, float level, float currentExp, float nextLevelExp, float progressPercent, Dictionary<ClassAbility, string> milestones, float currentLevel)
             {
-                "meleeDamage" => "Dano Corpo a Corpo",
-                "rangedDamage" => "Dano à Distância",
-                "magicDamage" => "Dano Mágico",
-                "minionDamage" => "Dano de Servos",
-                "critChance" => "Chance Crítica",
-                "meleeCrit" => "Crítico Corpo a Corpo",
-                "rangedCrit" => "Crítico à Distância",
-                "magicCrit" => "Crítico Mágico",
-                "meleeSpeed" => "Velocidade Corpo a Corpo",
-                "defense" => "Defesa",
-                "maxLife" => "Vida Máxima",
-                "lifeRegen" => "Regeneração de Vida",
-                "damageReduction" => "Redução de Dano",
-                "moveSpeed" => "Velocidade de Movimento",
-                "jumpHeight" => "Altura do Pulo",
-                "maxMana" => "Mana Máxima",
-                "manaRegen" => "Regeneração de Mana",
-                "manaCost" => "Redução de Custo de Mana",
-                "minionSlots" => "Slots de Servos",
-                "miningSpeed" => "Velocidade de Mineração",
-                "luck" => "Sorte",
-                "expGain" => "Ganho de Experiência",
-                _ => statKey
-            };
+                Width.Set(0, 1f);
+                Height.Set(60f, 0f);
+                SetPadding(3);
+
+                // Nome da classe e nível
+                var headerText = new UIText($"{className} - Nv.{level:F0}", 0.9f);
+                headerText.TextColor = Color.Gold;
+                Append(headerText);
+
+                // Barra de progresso visual
+                var progressText = new UIText($"XP: {currentExp:F0}/{nextLevelExp:F0} ({progressPercent:F1}%)", 0.75f);
+                progressText.Top.Set(18f, 0f);
+                progressText.TextColor = progressPercent >= 80f ? Color.LightGreen : Color.LightBlue;
+                Append(progressText);
+
+                // Próxima habilidade
+                if (milestones != null)
+                {
+                    var nextMilestone = milestones.FirstOrDefault(m => (int)m.Key > currentLevel);
+                    if (!string.IsNullOrEmpty(nextMilestone.Value))
+                    {
+                        int levelsNeeded = (int)nextMilestone.Key - (int)currentLevel;
+                        var nextText = new UIText($"Próximo: {nextMilestone.Value} (Nv.{(int)nextMilestone.Key})", 0.7f);
+                        nextText.Top.Set(35f, 0f);
+                        nextText.TextColor = Color.Yellow;
+                        Append(nextText);
+                    }
+                }
+            }
         }
     }
 }

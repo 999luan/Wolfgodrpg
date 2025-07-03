@@ -42,6 +42,12 @@ namespace Wolfgodrpg.Common.UI
         private RPGProgressPageUI _progressPageUI;
         private RPGProficienciesPageUI _proficienciesPageUI;
 
+        // Sistema de atualização automática
+        private RPGPlayer _lastPlayerData;
+        private bool _needsUpdate = true;
+        private int _updateTimer = 0;
+        private const int UPDATE_INTERVAL = 30; // Atualizar a cada 30 frames (0.5 segundos)
+
         public override void OnInitialize()
         {
             DebugLog.UI("OnInitialize", "Inicializando SimpleRPGMenu");
@@ -116,6 +122,7 @@ namespace Wolfgodrpg.Common.UI
         public override void OnActivate()
         {
             DebugLog.UI("OnActivate", "Menu RPG ativado");
+            _needsUpdate = true; // Forçar atualização ao abrir
             base.OnActivate();
         }
 
@@ -136,45 +143,9 @@ namespace Wolfgodrpg.Common.UI
             _pageContainer.Append(_pages[(int)page]);
             UpdateTabButtonStates();
 
-            // Verificar se o jogador está disponível antes de tentar acessar
-            var modPlayer = RPGUtils.GetLocalRPGPlayer();
-            if (modPlayer == null) 
-            {
-                DebugLog.UI("SetPage", "Jogador não disponível, pulando atualização");
-                return;
-            }
-
-            // Verificar se as classes foram inicializadas
-            if (modPlayer.ClassLevels == null || modPlayer.ClassLevels.Count == 0)
-            {
-                DebugLog.UI("SetPage", "Classes não inicializadas, pulando atualização");
-                return;
-            }
-
-            // Atualização otimizada: só quando trocar de aba
-            switch (_currentPage)
-            {
-                case MenuPage.Stats:
-                    _statsPageUI.UpdateStats(modPlayer);
-                    DebugLog.UI("SetPage", "Aba Stats atualizada");
-                    break;
-                case MenuPage.Classes:
-                    _classesPageUI.UpdateClasses(modPlayer);
-                    DebugLog.UI("SetPage", "Aba Classes atualizada");
-                    break;
-                case MenuPage.Items:
-                    _itemsPageUI.UpdateItems();
-                    DebugLog.UI("SetPage", "Aba Items atualizada");
-                    break;
-                case MenuPage.Progress:
-                    _progressPageUI.UpdateProgress(modPlayer);
-                    DebugLog.UI("SetPage", "Aba Progress atualizada");
-                    break;
-                case MenuPage.Proficiencies:
-                    _proficienciesPageUI.UpdateProficiencies(modPlayer);
-                    DebugLog.UI("SetPage", "Aba Proficiências atualizada");
-                    break;
-            }
+            // Forçar atualização ao trocar de página
+            _needsUpdate = true;
+            UpdateCurrentPage();
         }
 
         private void UpdateTabButtonStates()
@@ -188,8 +159,138 @@ namespace Wolfgodrpg.Common.UI
         public override void Update(GameTime gameTime)
         {
             base.Update(gameTime);
-            // Não atualize as páginas inteiras aqui para evitar reconstrução excessiva da UI.
-            // Se precisar atualizar apenas valores dinâmicos, crie métodos específicos para isso.
+            
+            // Sistema de atualização automática
+            _updateTimer++;
+            if (_updateTimer >= UPDATE_INTERVAL)
+            {
+                _updateTimer = 0;
+                CheckForUpdates();
+            }
+        }
+
+        /// <summary>
+        /// Verifica se há mudanças nos dados do jogador que requerem atualização da UI.
+        /// </summary>
+        private void CheckForUpdates()
+        {
+            var modPlayer = RPGUtils.GetLocalRPGPlayer();
+            if (modPlayer == null) return;
+
+            // Verificar se houve mudanças significativas
+            if (_lastPlayerData == null || HasSignificantChanges(modPlayer))
+            {
+                _needsUpdate = true;
+                _lastPlayerData = ClonePlayerData(modPlayer);
+            }
+
+            // Atualizar se necessário
+            if (_needsUpdate)
+            {
+                UpdateCurrentPage();
+                _needsUpdate = false;
+            }
+        }
+
+        /// <summary>
+        /// Verifica se houve mudanças significativas nos dados do jogador.
+        /// </summary>
+        private bool HasSignificantChanges(RPGPlayer currentPlayer)
+        {
+            if (_lastPlayerData == null) return true;
+
+            // Verificar mudanças nos níveis das classes
+            foreach (var kvp in currentPlayer.ClassLevels)
+            {
+                if (!_lastPlayerData.ClassLevels.ContainsKey(kvp.Key) || 
+                    Math.Abs(_lastPlayerData.ClassLevels[kvp.Key] - kvp.Value) > 0.01f)
+                {
+                    return true;
+                }
+            }
+
+            // Verificar mudanças no XP das classes
+            foreach (var kvp in currentPlayer.ClassExperience)
+            {
+                if (!_lastPlayerData.ClassExperience.ContainsKey(kvp.Key) || 
+                    Math.Abs(_lastPlayerData.ClassExperience[kvp.Key] - kvp.Value) > 1f)
+                {
+                    return true;
+                }
+            }
+
+            // Verificar mudanças nos vitais
+            if (Math.Abs(_lastPlayerData.CurrentHunger - currentPlayer.CurrentHunger) > 1f ||
+                Math.Abs(_lastPlayerData.CurrentSanity - currentPlayer.CurrentSanity) > 1f ||
+                Math.Abs(_lastPlayerData.CurrentStamina - currentPlayer.CurrentStamina) > 1f)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Clona os dados do jogador para comparação.
+        /// </summary>
+        private RPGPlayer ClonePlayerData(RPGPlayer original)
+        {
+            var clone = new RPGPlayer();
+            
+            // Clonar níveis das classes
+            foreach (var kvp in original.ClassLevels)
+            {
+                clone.ClassLevels[kvp.Key] = kvp.Value;
+            }
+            
+            // Clonar XP das classes
+            foreach (var kvp in original.ClassExperience)
+            {
+                clone.ClassExperience[kvp.Key] = kvp.Value;
+            }
+            
+            // Clonar vitais
+            clone.CurrentHunger = original.CurrentHunger;
+            clone.CurrentSanity = original.CurrentSanity;
+            clone.CurrentStamina = original.CurrentStamina;
+            
+            return clone;
+        }
+
+        /// <summary>
+        /// Atualiza a página atual com os dados mais recentes.
+        /// </summary>
+        private void UpdateCurrentPage()
+        {
+            var modPlayer = RPGUtils.GetLocalRPGPlayer();
+            if (modPlayer == null) return;
+
+            switch (_currentPage)
+            {
+                case MenuPage.Stats:
+                    _statsPageUI.UpdateStats(modPlayer);
+                    break;
+                case MenuPage.Classes:
+                    _classesPageUI.UpdateClasses(modPlayer);
+                    break;
+                case MenuPage.Items:
+                    _itemsPageUI.UpdateItems();
+                    break;
+                case MenuPage.Progress:
+                    _progressPageUI.UpdateProgress(modPlayer);
+                    break;
+                case MenuPage.Proficiencies:
+                    _proficienciesPageUI.UpdateProficiencies(modPlayer);
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// Força uma atualização da UI (chamado externamente).
+        /// </summary>
+        public void ForceUpdate()
+        {
+            _needsUpdate = true;
         }
 
         protected override void DrawSelf(SpriteBatch spriteBatch)

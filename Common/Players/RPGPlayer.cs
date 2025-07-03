@@ -11,6 +11,7 @@ using System.Linq;
 using System;
 using Wolfgodrpg.Common.Network;
 using Terraria.DataStructures;
+using Wolfgodrpg.Common.Systems;
 
 namespace Wolfgodrpg.Common.Players
 {
@@ -645,17 +646,22 @@ namespace Wolfgodrpg.Common.Players
             if (!ClassExperience.ContainsKey(className))
                 ClassExperience[className] = 0f;
             
+            float oldLevel = ClassLevels.ContainsKey(className) ? ClassLevels[className] : 0f;
             ClassExperience[className] += experience;
             
+            // Adicionar notificação de XP
+            RPGNotificationSystem.AddXPNotification(className, experience);
+            
             // Verificar se subiu de nível
-            CheckClassLevelUp(className);
+            CheckClassLevelUp(className, oldLevel);
         }
 
         /// <summary>
         /// Verifica se o jogador subiu de nível em uma classe.
         /// </summary>
         /// <param name="className">Nome da classe</param>
-        private void CheckClassLevelUp(string className)
+        /// <param name="oldLevel">Nível anterior</param>
+        private void CheckClassLevelUp(string className, float oldLevel)
         {
             if (!ClassLevels.ContainsKey(className))
                 ClassLevels[className] = 0f;
@@ -670,12 +676,17 @@ namespace Wolfgodrpg.Common.Players
                 ClassLevels[className]++;
                 ClassExperience[className] -= expForNextLevel;
                 
+                // Adicionar notificação de level up
+                RPGNotificationSystem.AddLevelUpNotification(className, (int)ClassLevels[className]);
+                
                 // Verificar se desbloqueou alguma habilidade
                 CheckAbilityUnlock(className);
                 
                 // Efeitos de level up
                 SoundEngine.PlaySound(SoundID.Item4, Player.position);
-                // TODO: Adicionar partículas e texto de level up
+                
+                // Mostrar texto de level up na tela
+                Main.NewText($"{GetClassNameDisplay(className)} subiu para o nível {ClassLevels[className]}!", Color.Gold);
             }
         }
 
@@ -804,6 +815,28 @@ namespace Wolfgodrpg.Common.Players
             // Efeito visual e som de level up
             Main.NewText($"Proficiência com {armorType} aumentou para nível {ArmorProficiencyLevels[armorType]}!", 
                          Color.Gold);
+        }
+
+        /// <summary>
+        /// Obtém o nome de exibição da classe.
+        /// </summary>
+        private string GetClassNameDisplay(string className)
+        {
+            return className switch
+            {
+                "warrior" => "Guerreiro",
+                "archer" => "Arqueiro",
+                "mage" => "Mago",
+                "summoner" => "Invocador",
+                "acrobat" => "Acrobata",
+                "explorer" => "Explorador",
+                "engineer" => "Engenheiro",
+                "survivalist" => "Sobrevivente",
+                "blacksmith" => "Ferreiro",
+                "alchemist" => "Alquimista",
+                "mystic" => "Místico",
+                _ => className
+            };
         }
 
         public override void ResetEffects()
