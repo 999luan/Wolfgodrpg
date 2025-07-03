@@ -120,30 +120,54 @@ namespace Wolfgodrpg.Common.UI
 
         private void SetPage(MenuPage page)
         {
+            // Não atualize se já estiver na mesma página (otimização ExampleMod)
+            if (_currentPage == page) return;
+
             _currentPage = page;
             _pageTitle.SetText(_tabButtons[(int)page].Text);
             _pageContainer.RemoveAllChildren();
             _pageContainer.Append(_pages[(int)page]);
             UpdateTabButtonStates();
 
-            // Atualiza só a aba ativa
-            if (Main.LocalPlayer == null || !Main.LocalPlayer.active) return;
-            var modPlayer = Main.LocalPlayer.GetModPlayer<RPGPlayer>();
-            if (modPlayer == null || modPlayer.Player == null) return;
+            // Verificar se o jogador está disponível antes de tentar acessar
+            if (Main.LocalPlayer == null || !Main.LocalPlayer.active) 
+            {
+                DebugLog.UI("SetPage", "Jogador não disponível, pulando atualização");
+                return;
+            }
 
+            var modPlayer = Main.LocalPlayer.GetModPlayer<RPGPlayer>();
+            if (modPlayer == null || modPlayer.Player == null) 
+            {
+                DebugLog.UI("SetPage", "ModPlayer não disponível, pulando atualização");
+                return;
+            }
+
+            // Verificar se as classes foram inicializadas
+            if (modPlayer.ClassLevels == null || modPlayer.ClassLevels.Count == 0)
+            {
+                DebugLog.UI("SetPage", "Classes não inicializadas, pulando atualização");
+                return;
+            }
+
+            // Atualização otimizada: só quando trocar de aba
             switch (_currentPage)
             {
                 case MenuPage.Stats:
                     _statsPageUI.UpdateStats(modPlayer);
+                    DebugLog.UI("SetPage", "Aba Stats atualizada");
                     break;
                 case MenuPage.Classes:
                     _classesPageUI.UpdateClasses(modPlayer);
+                    DebugLog.UI("SetPage", "Aba Classes atualizada");
                     break;
                 case MenuPage.Items:
                     _itemsPageUI.UpdateItems();
+                    DebugLog.UI("SetPage", "Aba Items atualizada");
                     break;
                 case MenuPage.Progress:
                     _progressPageUI.UpdateProgress(modPlayer);
+                    DebugLog.UI("SetPage", "Aba Progress atualizada");
                     break;
             }
         }

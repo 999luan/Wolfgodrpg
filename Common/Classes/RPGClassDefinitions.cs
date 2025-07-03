@@ -30,9 +30,16 @@ namespace Wolfgodrpg.Common.Classes
                     {"staminaRegen", 0.002f},    // +0.2% regeneração de stamina por nível
                 },
                 new Dictionary<int, string> {
-                    {25, "Dash mais rápido"},
-                    {50, "Dash duplo"},
-                    {75, "Dash não gasta stamina"},
+                    {1, "1 Dash disponível"},
+                    {10, "2 Dashes disponíveis"},
+                    {20, "3 Dashes disponíveis"},
+                    {30, "4 Dashes disponíveis"},
+                    {40, "5 Dashes disponíveis"},
+                    {50, "6 Dashes disponíveis"},
+                    {60, "7 Dashes disponíveis"},
+                    {70, "8 Dashes disponíveis"},
+                    {80, "9 Dashes disponíveis"},
+                    {90, "10 Dashes disponíveis"},
                     {100, "Dash infinito"}
                 }
             )},

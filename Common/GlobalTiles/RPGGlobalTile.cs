@@ -27,7 +27,7 @@ namespace Wolfgodrpg.Common.GlobalTiles
             // Se for uma planta colhível
             if (HarvestablePlantIDs.Contains(type))
             {
-                rpgPlayer.GainClassExp("farming", 5f); // XP por colher
+                rpgPlayer.GainClassExp("gathering", 5f); // XP por colher
             }
             else // Se for qualquer outro bloco
             {

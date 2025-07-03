@@ -22,40 +22,8 @@ namespace Wolfgodrpg.Common.Systems
         {
             var rpgPlayer = Player.GetModPlayer<RPGPlayer>();
 
-            // --- LÓGICA DE DASH COM STAMINA ---
-            if (Player.dash > 0 && Player.dashDelay == 0)
-            {
-                float staminaCost = 25f; // Custo base de stamina para o dash
-                if (!rpgPlayer.ConsumeStamina(staminaCost))
-                {
-                    Player.dash = 0; // Cancela o dash se não houver stamina
-                    DebugLog.Gameplay("Player", "Dash", $"Dash cancelado por falta de stamina");
-                }
-                else
-                {
-                    DebugLog.Gameplay("Player", "Dash", $"Dash executado, stamina consumida: {staminaCost}");
-                }
-            }
-
-            // Dash vertical manual (duplo-toque para cima/baixo)
-            if (Player.controlUp && Player.releaseUp && Player.doubleTapCardinalTimer[0] > 0 && Player.doubleTapCardinalTimer[0] < 15)
-            {
-                float staminaCost = 25f;
-                if (rpgPlayer.ConsumeStamina(staminaCost))
-                {
-                    Player.velocity.Y = -Player.jumpSpeed * 2f;
-                    DebugLog.Gameplay("Player", "Dash", "Dash vertical para cima executado");
-                }
-            }
-            if (Player.controlDown && Player.releaseDown && Player.doubleTapCardinalTimer[1] > 0 && Player.doubleTapCardinalTimer[1] < 15)
-            {
-                float staminaCost = 25f;
-                if (rpgPlayer.ConsumeStamina(staminaCost))
-                {
-                    Player.velocity.Y = Player.jumpSpeed * 2f;
-                    DebugLog.Gameplay("Player", "Dash", "Dash vertical para baixo executado");
-                }
-            }
+            // Sistema de dash agora está implementado no RPGPlayer.PreUpdate()
+            // para seguir o padrão correto do tModLoader
 
             // Verificar dano tomado para a classe de Regeneração
             if (Player.statLife < lastHealth)

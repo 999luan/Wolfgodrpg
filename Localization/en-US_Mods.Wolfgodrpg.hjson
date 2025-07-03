@@ -221,3 +221,12 @@ Config: {
 		Tooltip: ""
 	}
 }
+
+Items: {
+	RPGTestItem: {
+		DisplayName: R P G Test Item
+		Tooltip: ""
+	}
+}
+
+NPCs.RPGTestNPC.DisplayName: R P G Test N P C

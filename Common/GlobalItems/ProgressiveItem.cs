@@ -5,6 +5,7 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
+using Terraria.DataStructures;
 using Wolfgodrpg.Common.Systems;
 
 namespace Wolfgodrpg.Common.GlobalItems
@@ -14,6 +15,7 @@ namespace Wolfgodrpg.Common.GlobalItems
         // === PROPRIEDADES ===
         public float Experience { get; set; } = 0f;
         public int UsageCount { get; set; } = 0;
+        public bool HasRandomStats { get; set; } = false;
         
         // === CONSTANTES ===
         private const int MAX_LEVEL = 50;
@@ -29,6 +31,7 @@ namespace Wolfgodrpg.Common.GlobalItems
         {
             if (Experience <= 0) return 1;
             
+            // Fórmula mais consistente: nível = raiz quadrada da experiência / 50 + 1
             int level = (int)Math.Floor(Math.Sqrt(Experience / 50.0f)) + 1;
             return Math.Min(level, MAX_LEVEL);
         }
@@ -36,7 +39,23 @@ namespace Wolfgodrpg.Common.GlobalItems
         // === EXPERIÊNCIA PARA PRÓXIMO NÍVEL ===
         private float ExperienceForLevel(int level)
         {
+            // Fórmula inversa: XP = (nível - 1)² * 50
             return (level - 1) * (level - 1) * 50f;
+        }
+
+        // === EXPERIÊNCIA ATUAL NO NÍVEL ===
+        private float ExperienceInCurrentLevel(int level)
+        {
+            float currentLevelExp = ExperienceForLevel(level);
+            return Experience - currentLevelExp;
+        }
+
+        // === EXPERIÊNCIA NECESSÁRIA PARA PRÓXIMO NÍVEL ===
+        private float ExperienceNeededForNextLevel(int level)
+        {
+            float nextLevelExp = ExperienceForLevel(level + 1);
+            float currentLevelExp = ExperienceForLevel(level);
+            return nextLevelExp - currentLevelExp;
         }
 
         // === GANHAR EXPERIÊNCIA ===
@@ -99,14 +118,57 @@ namespace Wolfgodrpg.Common.GlobalItems
         // === VERIFICAR SE DEVE GANHAR EXPERIÊNCIA ===
         private bool ShouldGainExperience(Item item)
         {
-            // Itens que não devem ganhar experiência
-            if (item.damage <= 0) return false;
-            if (item.axe > 0 || item.hammer > 0 || item.pick > 0) return false; // Ferramentas
-            if (item.fishingPole > 0) return false; // Varas de pesca
-            if (item.createTile >= -1 || item.createWall >= -1) return false; // Blocos
-            if (item.consumable) return false; // Consumíveis
+            // Log de debug para entender o que está acontecendo
+            DebugLog.Item("ShouldGainExperience", $"Verificando item '{item.Name}' - damage: {item.damage}, defense: {item.defense}, consumable: {item.consumable}, DamageType: {item.DamageType}");
             
-            return true;
+            // Itens que NÃO devem ganhar experiência
+            if (item.damage <= 0 && item.defense <= 0) 
+            {
+                DebugLog.Item("ShouldGainExperience", $"Item '{item.Name}' rejeitado - sem dano nem defesa");
+                return false; // Sem dano nem defesa
+            }
+            
+            if (item.axe > 0 || item.hammer > 0 || item.pick > 0) 
+            {
+                DebugLog.Item("ShouldGainExperience", $"Item '{item.Name}' rejeitado - é ferramenta");
+                return false; // Ferramentas
+            }
+            
+            if (item.fishingPole > 0) 
+            {
+                DebugLog.Item("ShouldGainExperience", $"Item '{item.Name}' rejeitado - é vara de pesca");
+                return false; // Varas de pesca
+            }
+            
+            // CORREÇÃO: Não excluir itens que criam tiles/blocos se eles têm dano ou defesa
+            // if (item.createTile >= -1 || item.createWall >= -1) return false; // REMOVIDO
+            
+            if (item.consumable) 
+            {
+                DebugLog.Item("ShouldGainExperience", $"Item '{item.Name}' rejeitado - é consumível");
+                return false; // Consumíveis
+            }
+            
+            // Verificar se é uma arma (melee, ranged, magic, summon)
+            bool isWeapon = item.DamageType == DamageClass.Melee || 
+                           item.DamageType == DamageClass.Ranged || 
+                           item.DamageType == DamageClass.Magic || 
+                           item.DamageType == DamageClass.Summon;
+            
+            // Verificar se é armadura (tem defesa)
+            bool isArmor = item.defense > 0;
+            
+            // Se tem dano > 0 (arma) OU defesa > 0 (armadura), deve ganhar XP
+            if ((isWeapon && item.damage > 0) || isArmor)
+            {
+                DebugLog.Item("ShouldGainExperience", $"Item '{item.Name}' APROVADO - é {(isWeapon ? "arma" : "armadura")}");
+                return true;
+            }
+            
+            // Fallback: qualquer item com dano > 0 ou defesa > 0 que não seja ferramenta/consumível
+            bool fallback = (item.damage > 0 || item.defense > 0);
+            DebugLog.Item("ShouldGainExperience", $"Item '{item.Name}' fallback: {fallback}");
+            return fallback;
         }
 
         // === APLICAR BÔNUS DE NÍVEL ===
@@ -142,6 +204,10 @@ namespace Wolfgodrpg.Common.GlobalItems
             }
         }
 
+        // === BÔNUS DE DEFESA PARA ARMADURAS ===
+        // Nota: O bônus de defesa será aplicado via tooltips e cálculos manuais
+        // pois o tModLoader não tem um hook direto para modificar defesa de itens
+
         // === HIT NPC ===
         public override void OnHitNPC(Item item, Player player, NPC target, NPC.HitInfo hit, int damageDone)
         {
@@ -176,59 +242,83 @@ namespace Wolfgodrpg.Common.GlobalItems
             
             int level = GetItemLevel();
             
+            // Linha de nível
             tooltips.Add(new TooltipLine(Mod, "ItemLevel", 
                 $"Nível: {level}") { OverrideColor = Color.Gold });
             
-            if (level > 1)
-            {
-                float damageBonus = (level - 1) * DAMAGE_BONUS_PER_LEVEL;
-                damageBonus = Math.Min(damageBonus, MAX_DAMAGE_BONUS);
-                
-                if (damageBonus > 0)
-                {
-                    tooltips.Add(new TooltipLine(Mod, "DamageBonus", 
-                        $"+{damageBonus:P0} dano") { OverrideColor = Color.LightBlue });
-                }
-                
-                float speedBonus = (level - 1) * ATTACK_SPEED_BONUS_PER_LEVEL;
-                speedBonus = Math.Min(speedBonus, MAX_ATTACK_SPEED_BONUS);
-                
-                if (speedBonus > 0)
-                {
-                    tooltips.Add(new TooltipLine(Mod, "SpeedBonus", 
-                        $"+{speedBonus:P0} velocidade de ataque") { OverrideColor = Color.LightGreen });
-                }
-            }
-            
+            // Linha de XP e progresso (só se não for nível máximo)
             if (level < MAX_LEVEL)
             {
-                float currentExp = Experience;
-                float expForNext = ExperienceForLevel(level + 1);
-                float expForCurrent = ExperienceForLevel(level);
-                float progress = (currentExp - expForCurrent) / (expForNext - expForCurrent);
+                float currentExpInLevel = ExperienceInCurrentLevel(level);
+                float neededExp = ExperienceNeededForNextLevel(level);
+                float progressPercent = neededExp > 0 ? (currentExpInLevel / neededExp) * 100f : 0f;
                 
-                tooltips.Add(new TooltipLine(Mod, "ExpProgress", 
-                    $"Progresso: {progress:P1} para nível {level + 1}") { OverrideColor = Color.Yellow });
+                tooltips.Add(new TooltipLine(Mod, "ItemXP", 
+                    $"XP: {currentExpInLevel:F0}/{neededExp:F0} ({progressPercent:F1}%)") { OverrideColor = Color.LightBlue });
             }
             else
             {
-                tooltips.Add(new TooltipLine(Mod, "MaxLevel", 
-                    "NÍVEL MÁXIMO") { OverrideColor = Color.Red });
+                tooltips.Add(new TooltipLine(Mod, "ItemXP", 
+                    "XP: MÁXIMO") { OverrideColor = Color.Purple });
             }
             
-            tooltips.Add(new TooltipLine(Mod, "UsageStats", 
-                $"Usado {UsageCount} vezes | {Experience:F0} EXP") { OverrideColor = Color.Gray });
+            // Linha de uso
+            if (UsageCount > 0)
+            {
+                tooltips.Add(new TooltipLine(Mod, "ItemUsage", 
+                    $"Usado {UsageCount} vezes") { OverrideColor = Color.Gray });
+            }
+            
+            // Bônus aplicados
+            if (level > 1)
+            {
+                // Bônus de dano para armas
+                if (item.damage > 0)
+                {
+                    float damageBonus = (level - 1) * DAMAGE_BONUS_PER_LEVEL;
+                    damageBonus = Math.Min(damageBonus, MAX_DAMAGE_BONUS);
+                    
+                    if (damageBonus > 0)
+                    {
+                        tooltips.Add(new TooltipLine(Mod, "DamageBonus", 
+                            $"Bônus de Dano: +{damageBonus:P0}") { OverrideColor = Color.LightGreen });
+                    }
+                }
+                
+                // Bônus de defesa para armaduras
+                if (item.defense > 0)
+                {
+                    float defenseBonus = (level - 1) * 0.5f; // +0.5 defesa por nível
+                    tooltips.Add(new TooltipLine(Mod, "DefenseBonus", 
+                        $"Bônus de Defesa: +{defenseBonus:F1}") { OverrideColor = Color.LightBlue });
+                }
+                
+                if (level > 10) // Bônus de crit a partir do nível 10
+                {
+                    float critBonus = (level - 10) * 0.5f;
+                    tooltips.Add(new TooltipLine(Mod, "CritBonus", 
+                        $"Bônus de Crítico: +{critBonus:F1}%") { OverrideColor = Color.Yellow });
+                }
+            }
+            
+            // Dica de como ganhar XP
+            if (level == 1)
+            {
+                tooltips.Add(new TooltipLine(Mod, "XPHint", 
+                    "Use este item para ganhar XP!") { OverrideColor = Color.Cyan });
+            }
         }
 
         // === SAVE/LOAD ===
         public override void SaveData(Item item, TagCompound tag)
         {
-            if (Experience > 0 || UsageCount > 0)
+            if (Experience > 0 || UsageCount > 0 || HasRandomStats)
             {
                 tag["experience"] = Experience;
                 tag["usageCount"] = UsageCount;
+                tag["hasRandomStats"] = HasRandomStats;
                 
-                DebugLog.Item("SaveData", $"Item '{item.Name}' salvo - XP: {Experience:F1}, Usos: {UsageCount}");
+                DebugLog.Item("SaveData", $"Item '{item.Name}' salvo - XP: {Experience:F1}, Usos: {UsageCount}, Inicializado: {HasRandomStats}");
             }
         }
 
@@ -238,14 +328,23 @@ namespace Wolfgodrpg.Common.GlobalItems
             {
                 Experience = tag.GetFloat("experience");
                 UsageCount = tag.GetInt("usageCount");
+                HasRandomStats = tag.GetBool("hasRandomStats");
                 
-                DebugLog.Item("LoadData", $"Item '{item.Name}' carregado - XP: {Experience:F1}, Usos: {UsageCount}, Nível: {GetItemLevel()}");
+                // Se o item não foi inicializado ainda, inicializar agora
+                if (!HasRandomStats)
+                {
+                    InitializeItemIfNeeded(item);
+                }
+                
+                DebugLog.Item("LoadData", $"Item '{item.Name}' carregado - XP: {Experience:F1}, Usos: {UsageCount}, Nível: {GetItemLevel()}, Inicializado: {HasRandomStats}");
             }
             catch (Exception ex)
             {
                 DebugLog.Error("Item", "LoadData", $"Erro ao carregar dados do item '{item.Name}'", ex);
                 Experience = 0f;
                 UsageCount = 0;
+                HasRandomStats = false;
+                InitializeItemIfNeeded(item);
             }
         }
 
@@ -255,10 +354,62 @@ namespace Wolfgodrpg.Common.GlobalItems
             var clone = (ProgressiveItem)base.Clone(item, itemClone);
             clone.Experience = Experience;
             clone.UsageCount = UsageCount;
+            clone.HasRandomStats = HasRandomStats;
             
-            DebugLog.Item("Clone", $"Item '{item.Name}' clonado - XP: {Experience:F1}, Usos: {UsageCount}");
+            DebugLog.Item("Clone", $"Item '{item.Name}' clonado - XP: {Experience:F1}, Usos: {UsageCount}, Inicializado: {HasRandomStats}");
             
             return clone;
+        }
+
+        // === INICIALIZAÇÃO DE ITEM ===
+        public override void PostReforge(Item item)
+        {
+            // Quando um item é reforjado, manter os stats RPG
+            InitializeItemIfNeeded(item);
+        }
+
+        public override void OnCreated(Item item, ItemCreationContext context)
+        {
+            // Inicializar para todos os contextos de criação válidos
+            DebugLog.Item("OnCreated", $"Item '{item.Name}' criado via {context.GetType().Name}");
+            InitializeItemIfNeeded(item);
+        }
+
+        public override void OnSpawn(Item item, IEntitySource source)
+        {
+            // Hook adicional para quando um item spawna (crafting, drop, etc)
+            InitializeItemIfNeeded(item);
+        }
+
+        private void InitializeItemIfNeeded(Item item)
+        {
+            if (!ShouldGainExperience(item)) 
+            {
+                DebugLog.Item("InitializeItemIfNeeded", $"Item '{item.Name}' não deve ganhar XP (damage: {item.damage}, consumable: {item.consumable})");
+                return;
+            }
+            if (HasRandomStats) 
+            {
+                DebugLog.Item("InitializeItemIfNeeded", $"Item '{item.Name}' já foi inicializado");
+                return; // Já foi inicializado
+            }
+            
+            // Inicializar com nível 1 e sem XP
+            Experience = 0f;
+            UsageCount = 0;
+            HasRandomStats = true;
+            
+            // Dar um pouco de XP inicial baseado na raridade (opcional)
+            float initialExp = GetRarityMultiplier(item.rare) * 10f;
+            if (initialExp > 0)
+            {
+                Experience = initialExp;
+                DebugLog.Item("InitializeItemIfNeeded", $"Item '{item.Name}' inicializado com {initialExp:F1} XP inicial (raridade: {item.rare})");
+            }
+            else
+            {
+                DebugLog.Item("InitializeItemIfNeeded", $"Item '{item.Name}' inicializado no nível 1");
+            }
         }
     }
 } 
