@@ -23,7 +23,8 @@ namespace Wolfgodrpg.Common.UI
         Stats = 0,
         Classes = 1,
         Items = 2,
-        Progress = 3
+        Progress = 3,
+        Proficiencies = 4
     }
 
     public class SimpleRPGMenu : UIState
@@ -39,6 +40,7 @@ namespace Wolfgodrpg.Common.UI
         private RPGClassesPageUI _classesPageUI;
         private RPGItemsPageUI _itemsPageUI;
         private RPGProgressPageUI _progressPageUI;
+        private RPGProficienciesPageUI _proficienciesPageUI;
 
         public override void OnInitialize()
         {
@@ -83,11 +85,13 @@ namespace Wolfgodrpg.Common.UI
             _itemsPageUI.Activate();
             _progressPageUI = new RPGProgressPageUI();
             _progressPageUI.Activate();
+            _proficienciesPageUI = new RPGProficienciesPageUI();
+            _proficienciesPageUI.Activate();
             
-            _pages = new List<UIElement> { _statsPageUI, _classesPageUI, _itemsPageUI, _progressPageUI };
+            _pages = new List<UIElement> { _statsPageUI, _classesPageUI, _itemsPageUI, _progressPageUI, _proficienciesPageUI };
             _tabButtons = new List<UITextPanel<string>>();
 
-            string[] tabNames = { "Status", "Classes", "Itens", "Progresso" };
+            string[] tabNames = { "Status", "Classes", "Itens", "Progresso", "Proficiências" };
             float buttonWidth = 120f;
             float spacing = 10f;
             for (int i = 0; i < tabNames.Length; i++)
@@ -165,6 +169,10 @@ namespace Wolfgodrpg.Common.UI
                 case MenuPage.Progress:
                     _progressPageUI.UpdateProgress(modPlayer);
                     DebugLog.UI("SetPage", "Aba Progress atualizada");
+                    break;
+                case MenuPage.Proficiencies:
+                    _proficienciesPageUI.UpdateProficiencies(modPlayer);
+                    DebugLog.UI("SetPage", "Aba Proficiências atualizada");
                     break;
             }
         }

@@ -11,21 +11,46 @@ using Wolfgodrpg.Common.Data;
 
 namespace Wolfgodrpg.Common.GlobalItems
 {
+    /// <summary>
+    /// Classe global que gerencia afixos e estatísticas aleatórias em itens.
+    /// Herda de GlobalItem para integrar com o sistema de itens do tModLoader.
+    /// </summary>
     public class RPGGlobalItem : GlobalItem
     {
-        public Dictionary<string, float> randomStats = new Dictionary<string, float>();
+        /// <summary>
+        /// Estatísticas aleatórias aplicadas ao item.
+        /// </summary>
+        public Dictionary<string, float> RandomStats = new Dictionary<string, float>();
+        
+        /// <summary>
+        /// Lista de afixos aplicados ao item.
+        /// </summary>
         public List<ItemAffix> Affixes = new List<ItemAffix>();
 
+        /// <summary>
+        /// Indica que cada instância do item terá seus próprios dados.
+        /// </summary>
         public override bool InstancePerEntity => true;
 
+        /// <summary>
+        /// Clona os dados do item para uma nova instância.
+        /// </summary>
+        /// <param name="item">Item original</param>
+        /// <param name="newItem">Nova instância do item</param>
+        /// <returns>Clone do GlobalItem</returns>
         public override GlobalItem Clone(Item item, Item newItem)
         {
             var clone = (RPGGlobalItem)base.Clone(item, newItem);
-            clone.randomStats = new Dictionary<string, float>(randomStats);
+            clone.RandomStats = new Dictionary<string, float>(RandomStats);
             clone.Affixes = new List<ItemAffix>(Affixes);
             return clone;
         }
 
+        /// <summary>
+        /// Chamado quando o item é criado (craft, etc.).
+        /// </summary>
+        /// <param name="item">Item criado</param>
+        /// <param name="context">Contexto de criação</param>
         public override void OnCreated(Item item, ItemCreationContext context)
         {
             if (CanHaveAffixes(item))
@@ -34,6 +59,11 @@ namespace Wolfgodrpg.Common.GlobalItems
             }
         }
 
+        /// <summary>
+        /// Chamado quando o item é gerado no mundo (drop, etc.).
+        /// </summary>
+        /// <param name="item">Item gerado</param>
+        /// <param name="source">Fonte da geração</param>
         public override void OnSpawn(Item item, IEntitySource source)
         {
             if (CanHaveAffixes(item))
@@ -42,6 +72,11 @@ namespace Wolfgodrpg.Common.GlobalItems
             }
         }
 
+        /// <summary>
+        /// Verifica se o item pode ter afixos aplicados.
+        /// </summary>
+        /// <param name="item">Item a verificar</param>
+        /// <returns>True se o item pode ter afixos</returns>
         private bool CanHaveAffixes(Item item)
         {
             // Itens que podem ter afixos: armas e armaduras
@@ -50,71 +85,195 @@ namespace Wolfgodrpg.Common.GlobalItems
             return (item.damage > 0 && !item.consumable && !isTool) || (item.defense > 0 && !isAccessory);
         }
 
+        /// <summary>
+        /// Gera afixos aleatórios para o item.
+        /// </summary>
+        /// <param name="item">Item para gerar afixos</param>
         private void GenerateAffixes(Item item)
         {
-            // Lógica de geração de afixos (simplificada por enquanto)
-            // Conforme gemini.md seção 5
-            if (Main.rand.NextFloat() < 0.15f) // 15% de chance de ter afixos
+            // Limpar afixos existentes
+            Affixes.Clear();
+            RandomStats.Clear();
+            
+            // 15% de chance de ter afixos
+            if (Main.rand.NextFloat() < 0.15f)
             {
-                Affixes.Add(ItemAffix.CreateRandom(item));
+                // Gerar 1-3 afixos
+                int affixCount = Main.rand.Next(1, 4);
                 
-                // Adicionar stats aleatórios baseados nos afixos
-                foreach (var affix in Affixes)
+                for (int i = 0; i < affixCount; i++)
                 {
-                    foreach (var stat in affix.Stats)
+                    var affix = GenerateRandomAffix(item);
+                    if (affix != null)
                     {
-                        if (!randomStats.ContainsKey(stat.Key))
-                            randomStats[stat.Key] = 0;
-                        randomStats[stat.Key] += stat.Value;
+                        Affixes.Add(affix);
+                        
+                        // Aplicar estatísticas do afixo
+                        if (!RandomStats.ContainsKey(affix.StatType))
+                            RandomStats[affix.StatType] = 0f;
+                        RandomStats[affix.StatType] += affix.Value;
                     }
                 }
             }
         }
 
+        /// <summary>
+        /// Gera um afixo aleatório baseado no tipo de item.
+        /// </summary>
+        /// <param name="item">Item para gerar o afixo</param>
+        /// <returns>ItemAffix gerado ou null</returns>
+        private ItemAffix GenerateRandomAffix(Item item)
+        {
+            // Determinar tipo de item
+            string itemType = item.damage > 0 ? "weapon" : "armor";
+            
+            // Selecionar afixo aleatório da lista de afixos disponíveis
+            var availableAffixes = RPGClassDefinitions.RandomStats
+                .Where(kvp => CanApplyAffixToItem(kvp.Key, itemType))
+                .ToList();
+            
+            if (!availableAffixes.Any())
+                return null;
+            
+            var selectedStat = availableAffixes[Main.rand.Next(availableAffixes.Count)];
+            var statInfo = selectedStat.Value;
+            
+            // Gerar valor aleatório
+            float value = Main.rand.NextFloat(statInfo.MinValue, statInfo.MaxValue);
+            
+            // Determinar raridade baseada no valor
+            ItemRarity rarity = DetermineRarity(value, statInfo.MaxValue);
+            
+            return new ItemAffix(
+                selectedStat.Key,
+                $"Aumenta {selectedStat.Key}",
+                selectedStat.Key,
+                value,
+                rarity,
+                itemType == "weapon",
+                itemType == "armor",
+                false
+            );
+        }
+
+        /// <summary>
+        /// Verifica se um afixo pode ser aplicado ao tipo de item.
+        /// </summary>
+        /// <param name="statName">Nome da estatística</param>
+        /// <param name="itemType">Tipo do item</param>
+        /// <returns>True se pode ser aplicado</returns>
+        private bool CanApplyAffixToItem(string statName, string itemType)
+        {
+            // Lógica simplificada - pode ser expandida
+            return itemType switch
+            {
+                "weapon" => statName.Contains("damage") || statName.Contains("speed") || statName.Contains("crit"),
+                "armor" => statName.Contains("defense") || statName.Contains("health") || statName.Contains("regen"),
+                _ => false
+            };
+        }
+
+        /// <summary>
+        /// Determina a raridade do afixo baseada no valor.
+        /// </summary>
+        /// <param name="value">Valor do afixo</param>
+        /// <param name="maxValue">Valor máximo possível</param>
+        /// <returns>Raridade determinada</returns>
+        private ItemRarity DetermineRarity(float value, float maxValue)
+        {
+            float percentage = value / maxValue;
+            
+            return percentage switch
+            {
+                >= 0.9f => ItemRarity.Legendary,
+                >= 0.7f => ItemRarity.Epic,
+                >= 0.5f => ItemRarity.Rare,
+                >= 0.3f => ItemRarity.Uncommon,
+                _ => ItemRarity.Common
+            };
+        }
+
+        /// <summary>
+        /// Modifica os tooltips do item para mostrar afixos.
+        /// </summary>
+        /// <param name="item">Item</param>
+        /// <param name="tooltips">Lista de tooltips</param>
         public override void ModifyTooltips(Item item, List<TooltipLine> tooltips)
         {
             if (Affixes != null && Affixes.Any())
             {
+                // Adicionar linha separadora
+                tooltips.Add(new TooltipLine(Mod, "RPGAffixSeparator", ""));
+                
                 foreach (var affix in Affixes)
                 {
-                    TooltipLine line = new TooltipLine(Mod, "RPGAffix", affix.GetDisplayText());
-                    // Definir cor baseada no tipo de afixo
-                    switch (affix.Type)
+                    TooltipLine line = new TooltipLine(Mod, "RPGAffix", affix.ToString());
+                    
+                    // Definir cor baseada na raridade
+                    line.OverrideColor = affix.Rarity switch
                     {
-                        case AffixType.PrimaryAttribute:
-                            line.OverrideColor = Color.Blue;
-                            break;
-                        case AffixType.ClassBonus:
-                            line.OverrideColor = Color.Green;
-                            break;
-                        case AffixType.WeaponProficiency:
-                            line.OverrideColor = Color.Purple;
-                            break;
-                        case AffixType.Utility:
-                            line.OverrideColor = Color.Yellow;
-                            break;
-                    }
+                        ItemRarity.Common => Color.White,
+                        ItemRarity.Uncommon => Color.Lime,
+                        ItemRarity.Rare => Color.Cyan,
+                        ItemRarity.Epic => Color.Magenta,
+                        ItemRarity.Legendary => Color.Orange,
+                        _ => Color.White
+                    };
+                    
                     tooltips.Add(line);
                 }
             }
         }
 
+        /// <summary>
+        /// Salva os dados do item usando TagCompound.
+        /// </summary>
+        /// <param name="item">Item</param>
+        /// <param name="tag">TagCompound para salvar</param>
         public override void SaveData(Item item, TagCompound tag)
         {
-            if (randomStats.Any())
-                tag["RandomStats"] = randomStats.ToDictionary(kv => kv.Key, kv => kv.Value);
+            if (RandomStats.Any())
+            {
+                tag["RandomStats"] = RandomStats;
+            }
             
             if (Affixes.Any())
-                tag["Affixes"] = Affixes.Select(a => a.Save()).ToList();
+            {
+                var affixTags = new List<TagCompound>();
+                foreach (var affix in Affixes)
+                {
+                    var affixTag = new TagCompound();
+                    affix.Save(affixTag);
+                    affixTags.Add(affixTag);
+                }
+                tag["Affixes"] = affixTags;
+            }
         }
 
+        /// <summary>
+        /// Carrega os dados do item usando TagCompound.
+        /// </summary>
+        /// <param name="item">Item</param>
+        /// <param name="tag">TagCompound contendo os dados</param>
         public override void LoadData(Item item, TagCompound tag)
         {
             if (tag.ContainsKey("RandomStats"))
-                randomStats = tag.Get<Dictionary<string, float>>("RandomStats");
+            {
+                RandomStats = tag.Get<Dictionary<string, float>>("RandomStats");
+            }
             
             if (tag.ContainsKey("Affixes"))
-                Affixes = tag.GetList<TagCompound>("Affixes").Select(t => ItemAffix.Load(t)).ToList();
+            {
+                var affixTags = tag.GetList<TagCompound>("Affixes");
+                Affixes.Clear();
+                
+                foreach (var affixTag in affixTags)
+                {
+                    var affix = new ItemAffix();
+                    affix.Load(affixTag);
+                    Affixes.Add(affix);
+                }
+            }
         }
     }
 }

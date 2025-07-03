@@ -68,7 +68,7 @@ namespace Wolfgodrpg.Common.UI.Menus
                 var classInfo = classEntry.Value;
                 if (classInfo == null) continue;
 
-                float level = modPlayer.GetClassLevel(classEntry.Key);
+                float level = modPlayer.ClassLevels.TryGetValue(classEntry.Key, out var lvl) ? lvl : 0f;
                 float currentExp = 0;
                 modPlayer.ClassExperience.TryGetValue(classEntry.Key, out currentExp);
                 float nextLevelExp = 100 * (level + 1);

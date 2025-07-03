@@ -40,7 +40,7 @@ namespace Wolfgodrpg.Content.Items
             if (modPlayer != null)
             {
                 // Concede XP de movimento
-                modPlayer.GainClassExp("movement", 50f);
+                modPlayer.AddClassExperience("movement", 50f);
                 
                 // Mensagem de feedback
                 Main.NewText("XP de Movimento +50!", Color.LightBlue);
@@ -59,6 +59,36 @@ namespace Wolfgodrpg.Content.Items
                 .AddIngredient(ItemID.Wood, 5)
                 .AddTile(TileID.WorkBenches)
                 .Register();
+        }
+    }
+
+    public class AutoDashItem : ModItem
+    {
+        public override void SetStaticDefaults()
+        {
+            // Nome e tooltip definidos via Localization/en-US_Mods.Wolfgodrpg.hjson
+        }
+
+        public override void SetDefaults()
+        {
+            Item.width = 32;
+            Item.height = 32;
+            Item.accessory = true;
+            Item.rare = ItemRarityID.Blue;
+            Item.value = Item.buyPrice(silver: 1);
+        }
+
+        public override void UpdateAccessory(Player player, bool hideVisual)
+        {
+            player.GetModPlayer<RPGPlayer>().AutoDashEnabled = true;
+        }
+
+        public override void AddRecipes()
+        {
+            Recipe recipe = CreateRecipe();
+            recipe.AddIngredient(ItemID.Wood, 2);
+            recipe.AddTile(TileID.WorkBenches);
+            recipe.Register();
         }
     }
 } 

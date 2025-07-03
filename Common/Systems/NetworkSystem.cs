@@ -4,18 +4,10 @@ using Terraria.ID;
 using System.IO;
 using Wolfgodrpg.Common.Players;
 using Wolfgodrpg.Common.Classes;
+using Wolfgodrpg.Common.Network;
 
 namespace Wolfgodrpg.Common.Systems
 {
-    public enum WolfgodrpgMessageType : byte
-    {
-        SyncPlayer,
-        SyncClass,
-        UnlockAbility,
-        UpdateVitals,
-        SyncDash
-    }
-
     public class NetworkSystem : ModSystem
     {
         public void HandlePacket(BinaryReader reader, int whoAmI)
@@ -27,7 +19,7 @@ namespace Wolfgodrpg.Common.Systems
 
             switch (msgType)
             {
-                case WolfgodrpgMessageType.SyncPlayer:
+                case WolfgodrpgMessageType.SyncRPGPlayer:
                     HandlePlayerSync(modPlayer, reader);
                     if (Main.netMode == NetmodeID.Server)
                     {
@@ -100,11 +92,8 @@ namespace Wolfgodrpg.Common.Systems
 
             // Receber vitals
             modPlayer.CurrentHunger = reader.ReadSingle();
-            modPlayer.MaxHunger = reader.ReadSingle();
             modPlayer.CurrentSanity = reader.ReadSingle();
-            modPlayer.MaxSanity = reader.ReadSingle();
             modPlayer.CurrentStamina = reader.ReadSingle();
-            modPlayer.MaxStamina = reader.ReadSingle();
         }
 
         public void SendPlayerSync(RPGPlayer modPlayer, int toClient = -1, int ignoreClient = -1)
@@ -113,7 +102,7 @@ namespace Wolfgodrpg.Common.Systems
                 return;
 
             var packet = Mod.GetPacket();
-            packet.Write((byte)WolfgodrpgMessageType.SyncPlayer);
+            packet.Write((byte)WolfgodrpgMessageType.SyncRPGPlayer);
             packet.Write(modPlayer.Player.whoAmI);
 
             // Enviar classes
@@ -140,11 +129,8 @@ namespace Wolfgodrpg.Common.Systems
 
             // Enviar vitals
             packet.Write(modPlayer.CurrentHunger);
-            packet.Write(modPlayer.MaxHunger);
             packet.Write(modPlayer.CurrentSanity);
-            packet.Write(modPlayer.MaxSanity);
             packet.Write(modPlayer.CurrentStamina);
-            packet.Write(modPlayer.MaxStamina);
 
             packet.Send(toClient, ignoreClient);
         }

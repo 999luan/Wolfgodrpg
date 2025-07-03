@@ -88,6 +88,21 @@ Mods: {
 				DisplayName: RPG Test Item
 				Tooltip: A test item for the RPG system
 			}
+
+			Mods: {
+				Wolfgodrpg: {
+					Items: {
+						AutoDashItem: {
+							DisplayName: AutoDash Totem
+							Tooltip:
+								'''
+								Permite dash ao segurar a direção (autodash).
+								Ótimo para testes!
+								'''
+						}
+					}
+				}
+			}
 		}
 
 		NPCs.RPGTestNPC.DisplayName: RPG Test NPC
@@ -177,6 +192,11 @@ Items: {
 	RPGTestItem: {
 		Tooltip: ""
 		DisplayName: R P G Test Item
+	}
+
+	AutoDashItem: {
+		Tooltip: ""
+		DisplayName: Auto Dash Item
 	}
 }
 

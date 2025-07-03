@@ -6,20 +6,10 @@ using Wolfgodrpg.Common.Systems;
 using System.IO;
 using Terraria.ID;
 using Wolfgodrpg.Common.Classes;
+using Wolfgodrpg.Common.Network;
 
 namespace Wolfgodrpg
 {
-    public enum WolfgodrpgMessageType : byte
-    {
-        SyncRPGPlayer,
-        SyncHunger,
-        SyncSanity,
-        SyncStamina,
-        SyncClass,
-        SyncClassLevel,
-        SyncExperience
-    }
-
 	// Sistema RPG balanceado para Terraria
 	// Focado em progressão equilibrada que mantém o desafio durante todo o jogo
 	public class Wolfgodrpg : Mod

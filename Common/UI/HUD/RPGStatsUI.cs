@@ -64,9 +64,9 @@ namespace Wolfgodrpg.Common.UI.HUD
             if (rpgPlayer == null) return;
 
             // Atualizar os valores das barras
-            hungerBar.SetProgress(rpgPlayer.CurrentHunger / rpgPlayer.MaxHunger);
-            sanityBar.SetProgress(rpgPlayer.CurrentSanity / rpgPlayer.MaxSanity);
-            staminaBar.SetProgress(rpgPlayer.CurrentStamina / rpgPlayer.MaxStamina);
+            hungerBar.SetProgress(rpgPlayer.CurrentHunger / 100f);
+            sanityBar.SetProgress(rpgPlayer.CurrentSanity / 100f);
+            staminaBar.SetProgress(rpgPlayer.CurrentStamina / 100f);
         }
     }
 

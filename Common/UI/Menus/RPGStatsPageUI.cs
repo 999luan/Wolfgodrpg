@@ -67,9 +67,9 @@ namespace Wolfgodrpg.Common.UI.Menus
 
             // Seção: Vitals RPG
             _statsList.Add(new StatsSectionHeader("VITALS RPG"));
-            _statsList.Add(new StatsEntry($"Fome: {modPlayer.CurrentHunger:F1}% / {modPlayer.MaxHunger:F1}%"));
-            _statsList.Add(new StatsEntry($"Sanidade: {modPlayer.CurrentSanity:F1}% / {modPlayer.MaxSanity:F1}%"));
-            _statsList.Add(new StatsEntry($"Stamina: {modPlayer.CurrentStamina:F1}% / {modPlayer.MaxStamina:F1}%"));
+            _statsList.Add(new StatsEntry($"Fome: {modPlayer.CurrentHunger:F1}%"));
+            _statsList.Add(new StatsEntry($"Sanidade: {modPlayer.CurrentSanity:F1}%"));
+            _statsList.Add(new StatsEntry($"Stamina: {modPlayer.CurrentStamina:F1}%"));
 
             // Seção: Classes e Habilidades
             _statsList.Add(new StatsSectionHeader("CLASSES E HABILIDADES"));
@@ -81,7 +81,7 @@ namespace Wolfgodrpg.Common.UI.Menus
                     var classInfo = classEntry.Value;
                     if (classInfo == null) continue;
 
-                    float level = modPlayer.GetClassLevel(classKey);
+                    float level = modPlayer.ClassLevels.TryGetValue(classKey, out var lvl) ? lvl : 0f;
                     float currentExp = 0;
                     modPlayer.ClassExperience.TryGetValue(classKey, out currentExp);
                     float nextLevelExp = 100 * (level + 1);

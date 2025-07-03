@@ -85,7 +85,7 @@ namespace Wolfgodrpg.Common.Systems
                 if (player?.active == true)
                 {
                     var rpgPlayer = player.GetModPlayer<RPGPlayer>();
-                    rpgPlayer.GainClassExp("melee", 50f);
+                    rpgPlayer.AddClassExperience("melee", 50f);
                     DebugLog.Gameplay("Debug", "ManualTest", "XP manual de melee concedido via F1");
                 }
             }

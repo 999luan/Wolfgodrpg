@@ -25,19 +25,20 @@ namespace Wolfgodrpg.Common.Systems
                         var config = ModContent.GetInstance<ConfigSystem>();
 
                         // --- LÓGICA DE STAMINA ---
-                        if (modPlayer.StaminaRegenDelay > 0)
-                        {
-                            modPlayer.StaminaRegenDelay--;
-                        }
-                        else
-                        {
+                        // Remover referências a StaminaRegenDelay e CombatTimer
+                        // if (modPlayer.StaminaRegenDelay > 0)
+                        // {
+                        //     modPlayer.StaminaRegenDelay--;
+                        // }
+                        // else
+                        // {
                             float oldStamina = modPlayer.CurrentStamina;
-                            modPlayer.CurrentStamina = System.Math.Min(modPlayer.MaxStamina, modPlayer.CurrentStamina + (STAMINA_REGEN_RATE / 60f));
+                            modPlayer.CurrentStamina = System.Math.Min(100f, modPlayer.CurrentStamina + (STAMINA_REGEN_RATE / 60f));
                             if (modPlayer.CurrentStamina > oldStamina)
                             {
                                 DebugLog.Player("PostUpdatePlayers", $"Stamina regenerada: {oldStamina:F1} -> {modPlayer.CurrentStamina:F1}");
                             }
-                        }
+                        // }
 
                         // --- LÓGICA DE FOME ---
                         if (config.EnableHunger)
@@ -65,21 +66,21 @@ namespace Wolfgodrpg.Common.Systems
                             float oldSanity = modPlayer.CurrentSanity;
                             
                             // Regenera de dia e fora de combate
-                            if (Main.dayTime && modPlayer.CombatTimer > COMBAT_TIMER_THRESHOLD)
+                            if (Main.dayTime)
                             {
                                 modPlayer.CurrentSanity += (SANITY_REGEN_RATE / 60f);
                                 DebugLog.Player("PostUpdatePlayers", $"Sanidade regenerando: {oldSanity:F1} -> {modPlayer.CurrentSanity:F1} (fora de combate)");
                             }
 
                             // Perde em combate prolongado
-                            if (modPlayer.CombatTimer >= COMBAT_TIMER_THRESHOLD)
-                            {
-                                modPlayer.CurrentSanity -= (SANITY_LOSS_RATE / 60f) * config.SanityRate;
-                                DebugLog.Player("PostUpdatePlayers", $"Sanidade diminuindo: {oldSanity:F1} -> {modPlayer.CurrentSanity:F1} (em combate)");
-                            }
+                            // if (modPlayer.CombatTimer >= COMBAT_TIMER_THRESHOLD)
+                            // {
+                            //     modPlayer.CurrentSanity -= (SANITY_LOSS_RATE / 60f) * config.SanityRate;
+                            //     DebugLog.Player("PostUpdatePlayers", $"Sanidade diminuindo: {oldSanity:F1} -> {modPlayer.CurrentSanity:F1} (em combate)");
+                            // }
 
                             if (modPlayer.CurrentSanity < 0) modPlayer.CurrentSanity = 0;
-                            if (modPlayer.CurrentSanity > modPlayer.MaxSanity) modPlayer.CurrentSanity = modPlayer.MaxSanity;
+                            if (modPlayer.CurrentSanity > 100f) modPlayer.CurrentSanity = 100f;
 
                             // Penalidades da sanidade baixa
                             if (modPlayer.CurrentSanity < 30f)
@@ -94,12 +95,12 @@ namespace Wolfgodrpg.Common.Systems
                         }
 
                         // Atualiza o cronômetro de combate (aumenta fora de combate, reseta em combate)
-                        modPlayer.CombatTimer++;
+                        // modPlayer.CombatTimer++; // Remover referências a StaminaRegenDelay e CombatTimer
                         
                         // Log periódico do estado dos vitals
                         if (Main.GameUpdateCount % 3600 == 0) // A cada 60 segundos
                         {
-                            DebugLog.Player("PostUpdatePlayers", $"Estado dos vitals - Hunger: {modPlayer.CurrentHunger:F1}%, Sanity: {modPlayer.CurrentSanity:F1}%, Stamina: {modPlayer.CurrentStamina:F1}%, CombatTimer: {modPlayer.CombatTimer}");
+                            DebugLog.Gameplay("Vitals", "Update", $"Hunger: {modPlayer.CurrentHunger:F1}%, Sanity: {modPlayer.CurrentSanity:F1}%, Stamina: {modPlayer.CurrentStamina:F1}%");
                         }
                     }
                 }

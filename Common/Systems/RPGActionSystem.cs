@@ -57,14 +57,14 @@ namespace Wolfgodrpg.Common.Systems
                     // A cada 100 unidades de distância em dash, ganha XP de Acrobata
                     if (dashDistance >= 100f)
                     {
-                        rpgPlayer.GainClassExp("acrobat", 5f);
+                        rpgPlayer.AddClassExperience("acrobat", 5f);
                         dashDistance = 0f;
                         dashesPerformed++;
                         
                         // Bônus extra a cada 10 dashes
                         if (dashesPerformed >= 10)
                         {
-                            rpgPlayer.GainClassExp("acrobat", 25f);
+                            rpgPlayer.AddClassExperience("acrobat", 25f);
                             dashesPerformed = 0;
                         }
                     }
@@ -73,7 +73,7 @@ namespace Wolfgodrpg.Common.Systems
                 // A cada 1000 unidades de distância normal, ganha XP de Acrobata
                 if (distanceTraveled >= 1000f)
                 {
-                    rpgPlayer.GainClassExp("acrobat", 10f);
+                    rpgPlayer.AddClassExperience("acrobat", 10f);
                     distanceTraveled = 0f;
                 }
             }
@@ -85,7 +85,7 @@ namespace Wolfgodrpg.Common.Systems
             timeSinceLastRegen += 1f / 60f; // 1/60 = um segundo em ticks
             if (timeSinceLastRegen >= 1f && player.lifeRegen > 0)
             {
-                rpgPlayer.GainClassExp("regeneration", 2f); // Ganha 2 XP por segundo de regeneração
+                rpgPlayer.AddClassExperience("regeneration", 2f); // Ganha 2 XP por segundo de regeneração
                 timeSinceLastRegen = 0f;
             }
         }
@@ -101,7 +101,7 @@ namespace Wolfgodrpg.Common.Systems
             // A cada 10 blocos minerados
             if (blocksMined >= 10)
             {
-                rpgPlayer.GainClassExp("mining", 15f);
+                rpgPlayer.AddClassExperience("mining", 15f);
                 blocksMined = 0;
             }
         }
@@ -117,7 +117,7 @@ namespace Wolfgodrpg.Common.Systems
             // A cada 10 blocos colocados
             if (blocksPlaced >= 10)
             {
-                rpgPlayer.GainClassExp("building", 20f);
+                rpgPlayer.AddClassExperience("building", 20f);
                 blocksPlaced = 0;
             }
         }
@@ -133,7 +133,7 @@ namespace Wolfgodrpg.Common.Systems
             float baseXP = item.value * 0.01f;
 
             // Give XP to building class
-            modPlayer.GainClassExp("building", baseXP);
+            modPlayer.AddClassExperience("building", baseXP);
         }
 
         public static void OnHurt(Player player, int damage)
@@ -143,7 +143,7 @@ namespace Wolfgodrpg.Common.Systems
             var rpgPlayer = player.GetModPlayer<RPGPlayer>();
             float expAmount = damage * 0.5f; // Metade do dano como XP
 
-            rpgPlayer.GainClassExp("defense", expAmount);
+            rpgPlayer.AddClassExperience("defense", expAmount);
         }
 
         public static void OnKillNPC(NPC npc)
@@ -171,12 +171,12 @@ namespace Wolfgodrpg.Common.Systems
                 }
 
                 // Dar XP para todas as classes
-                modPlayer.GainClassExp("melee", baseXP);
-                modPlayer.GainClassExp("ranged", baseXP);
-                modPlayer.GainClassExp("magic", baseXP);
-                modPlayer.GainClassExp("summon", baseXP);
-                modPlayer.GainClassExp("defense", baseXP * 0.5f);
-                modPlayer.GainClassExp("bestiary", baseXP * 0.2f); // Add XP for bestiary
+                modPlayer.AddClassExperience("melee", baseXP);
+                modPlayer.AddClassExperience("ranged", baseXP);
+                modPlayer.AddClassExperience("magic", baseXP);
+                modPlayer.AddClassExperience("summon", baseXP);
+                modPlayer.AddClassExperience("defense", baseXP * 0.5f);
+                modPlayer.AddClassExperience("bestiary", baseXP * 0.2f); // Add XP for bestiary
             }
         }
 
@@ -193,19 +193,19 @@ namespace Wolfgodrpg.Common.Systems
             // Dar XP baseado no tipo de dano
             if (item.DamageType == DamageClass.Melee)
             {
-                modPlayer.GainClassExp("melee", baseXP);
+                modPlayer.AddClassExperience("melee", baseXP);
             }
             else if (item.DamageType == DamageClass.Ranged)
             {
-                modPlayer.GainClassExp("ranged", baseXP);
+                modPlayer.AddClassExperience("ranged", baseXP);
             }
             else if (item.DamageType == DamageClass.Magic)
             {
-                modPlayer.GainClassExp("magic", baseXP);
+                modPlayer.AddClassExperience("magic", baseXP);
             }
             else if (item.DamageType == DamageClass.Summon)
             {
-                modPlayer.GainClassExp("summon", baseXP);
+                modPlayer.AddClassExperience("summon", baseXP);
             }
         }
 
@@ -221,10 +221,10 @@ namespace Wolfgodrpg.Common.Systems
             rpgPlayer.CurrentHunger = MathHelper.Clamp(
                 rpgPlayer.CurrentHunger + hungerRecovery,
                 0f,
-                rpgPlayer.MaxHunger
+                100f
             );
 
-            rpgPlayer.GainClassExp("survivor", 5f);
+            rpgPlayer.AddClassExperience("survivor", 5f);
         }
     }
 }

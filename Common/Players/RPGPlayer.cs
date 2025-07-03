@@ -6,299 +6,821 @@ using System.Collections.Generic;
 using Wolfgodrpg.Common.Classes;
 using Terraria.Audio;
 using Terraria.GameInput;
+using Terraria.ModLoader.IO;
+using System.Linq;
+using System;
+using Wolfgodrpg.Common.Network;
+using Terraria.DataStructures;
 
 namespace Wolfgodrpg.Common.Players
 {
+    /// <summary>
+    /// Classe principal do jogador que gerencia todos os sistemas RPG do mod.
+    /// Herda de ModPlayer para integrar com o sistema de jogadores do tModLoader.
+    /// </summary>
     public class RPGPlayer : ModPlayer
     {
         // === SISTEMA DE DASH ===
+        /// <summary>
+        /// Cooldown restante do dash em frames.
+        /// </summary>
         public int DashCooldown { get; set; }
+        
+        /// <summary>
+        /// Número de dashes usados na sessão atual.
+        /// </summary>
         public int DashesUsed { get; set; }
+        
+        /// <summary>
+        /// Timer para resetar os dashes usados.
+        /// </summary>
         public int DashResetTimer { get; set; }
+        
+        /// <summary>
+        /// Velocidade do dash em pixels por frame.
+        /// </summary>
         public float DashSpeed { get; set; } = 12f;
+        
+        /// <summary>
+        /// Duração do dash em frames.
+        /// </summary>
         public int DashDuration { get; set; } = 15;
+        
+        /// <summary>
+        /// Frames de invencibilidade durante o dash.
+        /// </summary>
         public int DashInvincibilityFrames { get; set; } = 15;
+        
+        /// <summary>
+        /// Número máximo de dashes disponíveis.
+        /// </summary>
         public int MaxDashes { get; set; } = 1;
 
         // === SISTEMA DE CLASSES ===
+        /// <summary>
+        /// Dicionário com os níveis de cada classe do jogador.
+        /// </summary>
         public Dictionary<string, float> ClassLevels = new Dictionary<string, float>();
+        
+        /// <summary>
+        /// Dicionário com a experiência atual de cada classe.
+        /// </summary>
         public Dictionary<string, float> ClassExperience = new Dictionary<string, float>();
-        public HashSet<ClassAbility> UnlockedAbilities = new HashSet<ClassAbility>();
+        
+        /// <summary>
+        /// Lista de habilidades desbloqueadas pelo jogador.
+        /// </summary>
+        public List<ClassAbility> UnlockedAbilities = new List<ClassAbility>();
 
-        // === SISTEMA DE VITALS ===
+        // === SISTEMA DE VITAIS ===
+        /// <summary>
+        /// Fome atual do jogador (0-100).
+        /// </summary>
         public float CurrentHunger { get; set; } = 100f;
-        public float MaxHunger { get; set; } = 100f;
+        
+        /// <summary>
+        /// Sanidade atual do jogador (0-100).
+        /// </summary>
         public float CurrentSanity { get; set; } = 100f;
-        public float MaxSanity { get; set; } = 100f;
+        
+        /// <summary>
+        /// Stamina atual do jogador (0-100).
+        /// </summary>
         public float CurrentStamina { get; set; } = 100f;
-        public float MaxStamina { get; set; } = 100f;
+        
+        /// <summary>
+        /// Taxa de regeneração de fome por segundo.
+        /// </summary>
+        public float HungerRegenRate { get; set; } = 0.5f;
+        
+        /// <summary>
+        /// Taxa de regeneração de sanidade por segundo.
+        /// </summary>
+        public float SanityRegenRate { get; set; } = 0.3f;
+        
+        /// <summary>
+        /// Taxa de regeneração de stamina por segundo.
+        /// </summary>
+        public float StaminaRegenRate { get; set; } = 2.0f;
 
-        // === SISTEMA DE REGENERAÇÃO ===
-        private float healthRegenRate = 0f;
-        private float manaRegenRate = 0f;
-        private float staminaRegenRate = 0f;
-        private float sanityRegenRate = 0f;
-        private float hungerRegenRate = 0f;
+        // === SISTEMA DE PROFICIÊNCIA DE ARMADURAS === ⭐ NOVO
+        /// <summary>
+        /// Níveis de proficiência para cada tipo de armadura.
+        /// </summary>
+        public Dictionary<ArmorType, int> ArmorProficiencyLevels = new Dictionary<ArmorType, int>();
+        
+        /// <summary>
+        /// Experiência atual de proficiência para cada tipo de armadura.
+        /// </summary>
+        public Dictionary<ArmorType, float> ArmorProficiencyExperience = new Dictionary<ArmorType, float>();
 
-        // === TIMERS E DELAYS ===
-        public int CombatTimer { get; set; } = 0;
-        public int StaminaRegenDelay { get; set; } = 0;
+        // Flag para autodash (será ativada pelo item)
+        public bool AutoDashEnabled = false;
+        // Timers para double-tap em 4 direções
+        private int leftTapTimer = 0, rightTapTimer = 0, upTapTimer = 0, downTapTimer = 0;
+        private const int DoubleTapTime = 15;
 
-        // === MÉTODOS DE CLASSE ===
-        public float GetClassLevel(string className)
+        // Variáveis para dash direcional
+        private int dashTimer = 0;
+        private Vector2 dashDirection = Vector2.Zero;
+        private float dashStartRotation = 0f;
+        private float dashTargetRotation = 0f;
+
+        /// <summary>
+        /// Inicializa o jogador com valores padrão.
+        /// </summary>
+        public override void Initialize()
         {
-            if (ClassLevels.TryGetValue(className.ToLower(), out float level))
-                return level;
-            return 1f;
-        }
-
-        public void GainClassExp(string className, float amount)
-        {
-            className = className.ToLower();
-            if (!ClassExperience.ContainsKey(className))
+            // Inicializar classes com nível 0
+            foreach (var className in RPGClassDefinitions.ActionClasses.Keys)
             {
+                ClassLevels[className] = 0f;
                 ClassExperience[className] = 0f;
-                ClassLevels[className] = 1f;
             }
-
-            float oldLevel = ClassLevels[className];
-            ClassExperience[className] += amount;
-
-            // Calcular novo nível (1 nível a cada 100 XP)
-            float newLevel = 1f + (ClassExperience[className] / 100f);
-            ClassLevels[className] = newLevel;
-
-            // Se subiu de nível, verificar habilidades desbloqueadas
-            if ((int)newLevel > (int)oldLevel)
+            
+            // Inicializar proficiências de armadura ⭐ NOVO
+            foreach (ArmorType armorType in System.Enum.GetValues<ArmorType>())
             {
-                CheckClassAbilities(className, (int)newLevel);
+                ArmorProficiencyLevels[armorType] = 1;
+                ArmorProficiencyExperience[armorType] = 0f;
+            }
+            
+            // Resetar vitals
+            CurrentHunger = 100f;
+            CurrentSanity = 100f;
+            CurrentStamina = 100f;
+            
+            // Resetar dash
+            DashCooldown = 0;
+            DashesUsed = 0;
+            DashResetTimer = 0;
+        }
+
+        /// <summary>
+        /// Atualiza o jogador a cada frame.
+        /// </summary>
+        public override void PostUpdate()
+        {
+            UpdateVitals();
+            UpdateDash();
+        }
+
+        /// <summary>
+        /// Processa triggers de input para o sistema de dash.
+        /// </summary>
+        /// <param name="triggersSet">Conjunto de triggers ativos</param>
+        public override void ProcessTriggers(TriggersSet triggersSet)
+        {
+            // Se autodash estiver ativo, dash ao segurar
+            if (AutoDashEnabled)
+            {
+                int dirX = 0, dirY = 0;
+                if (Player.controlLeft) dirX--;
+                if (Player.controlRight) dirX++;
+                if (Player.controlUp) dirY--;
+                if (Player.controlDown) dirY++;
+                if ((dirX != 0 || dirY != 0) && DashCooldown <= 0 && DashesUsed < MaxDashes && CurrentStamina >= 20f && dashTimer == 0)
+                {
+                    PerformDash(new Vector2(dirX, dirY));
+                }
+                return;
+            }
+            // Double-tap para 4 direções
+            // Esquerda
+            if (Player.controlLeft)
+            {
+                if (leftTapTimer > 0 && leftTapTimer < DoubleTapTime && DashCooldown <= 0 && DashesUsed < MaxDashes && CurrentStamina >= 20f && dashTimer == 0)
+                {
+                    PerformDash(new Vector2(-1, 0));
+                    leftTapTimer = 0;
+                }
+                else if (Player.releaseLeft)
+                {
+                    leftTapTimer = 1;
+                }
+                else if (leftTapTimer > 0)
+                {
+                    leftTapTimer++;
+                    if (leftTapTimer > DoubleTapTime) leftTapTimer = 0;
+                }
+            }
+            else if (leftTapTimer > 0)
+            {
+                leftTapTimer++;
+                if (leftTapTimer > DoubleTapTime) leftTapTimer = 0;
+            }
+            // Direita
+            if (Player.controlRight)
+            {
+                if (rightTapTimer > 0 && rightTapTimer < DoubleTapTime && DashCooldown <= 0 && DashesUsed < MaxDashes && CurrentStamina >= 20f && dashTimer == 0)
+                {
+                    PerformDash(new Vector2(1, 0));
+                    rightTapTimer = 0;
+                }
+                else if (Player.releaseRight)
+                {
+                    rightTapTimer = 1;
+                }
+                else if (rightTapTimer > 0)
+                {
+                    rightTapTimer++;
+                    if (rightTapTimer > DoubleTapTime) rightTapTimer = 0;
+                }
+            }
+            else if (rightTapTimer > 0)
+            {
+                rightTapTimer++;
+                if (rightTapTimer > DoubleTapTime) rightTapTimer = 0;
+            }
+            // Cima
+            if (Player.controlUp)
+            {
+                if (upTapTimer > 0 && upTapTimer < DoubleTapTime && DashCooldown <= 0 && DashesUsed < MaxDashes && CurrentStamina >= 20f && dashTimer == 0)
+                {
+                    PerformDash(new Vector2(0, -1));
+                    upTapTimer = 0;
+                }
+                else if (Player.releaseUp)
+                {
+                    upTapTimer = 1;
+                }
+                else if (upTapTimer > 0)
+                {
+                    upTapTimer++;
+                    if (upTapTimer > DoubleTapTime) upTapTimer = 0;
+                }
+            }
+            else if (upTapTimer > 0)
+            {
+                upTapTimer++;
+                if (upTapTimer > DoubleTapTime) upTapTimer = 0;
+            }
+            // Baixo
+            if (Player.controlDown)
+            {
+                if (downTapTimer > 0 && downTapTimer < DoubleTapTime && DashCooldown <= 0 && DashesUsed < MaxDashes && CurrentStamina >= 20f && dashTimer == 0)
+                {
+                    PerformDash(new Vector2(0, 1));
+                    downTapTimer = 0;
+                }
+                else if (Player.releaseDown)
+                {
+                    downTapTimer = 1;
+                }
+                else if (downTapTimer > 0)
+                {
+                    downTapTimer++;
+                    if (downTapTimer > DoubleTapTime) downTapTimer = 0;
+                }
+            }
+            else if (downTapTimer > 0)
+            {
+                downTapTimer++;
+                if (downTapTimer > DoubleTapTime) downTapTimer = 0;
             }
         }
 
-        private void CheckClassAbilities(string className, int level)
+        /// <summary>
+        /// Método público para ganhar XP de proficiência de armadura quando o jogador recebe dano.
+        /// </summary>
+        /// <param name="damage">Quantidade de dano recebido</param>
+        public void OnPlayerDamaged(int damage)
         {
-            // Verificar habilidades baseadas no nível
-            foreach (var ability in RPGClassDefinitions.ActionClasses[className].Milestones.Keys)
+            if (damage > 0)
             {
-                if ((int)ability <= level && !UnlockedAbilities.Contains(ability))
+                ArmorType currentArmorType = GetEquippedArmorType();
+                if (currentArmorType != ArmorType.None)
                 {
-                    UnlockedAbilities.Add(ability);
-                    if (Main.myPlayer == Player.whoAmI)
+                    GainArmorProficiencyXP(currentArmorType, damage * 0.1f);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Salva os dados do jogador usando TagCompound.
+        /// </summary>
+        /// <param name="tag">TagCompound para salvar os dados</param>
+        public override void SaveData(TagCompound tag)
+        {
+            // Serializar ClassLevels
+            var classLevelsList = ClassLevels.Select(kv => new TagCompound {
+                ["key"] = kv.Key,
+                ["value"] = kv.Value
+            }).ToList();
+            tag["ClassLevels"] = classLevelsList;
+
+            // Serializar ClassExperience
+            var classExpList = ClassExperience.Select(kv => new TagCompound {
+                ["key"] = kv.Key,
+                ["value"] = kv.Value
+            }).ToList();
+            tag["ClassExperience"] = classExpList;
+
+            // Salvar habilidades desbloqueadas
+            tag["UnlockedAbilities"] = UnlockedAbilities.Select(a => (int)a).ToList();
+            // Salvar vitals
+            tag["CurrentHunger"] = CurrentHunger;
+            tag["CurrentSanity"] = CurrentSanity;
+            tag["CurrentStamina"] = CurrentStamina;
+            // Salvar dados de dash
+            tag["DashCooldown"] = DashCooldown;
+            tag["DashesUsed"] = DashesUsed;
+            tag["DashResetTimer"] = DashResetTimer;
+            tag["MaxDashes"] = MaxDashes;
+            
+            // Salvar proficiências de armadura ⭐ NOVO
+            var levelsList = new List<TagCompound>();
+            foreach (var kvp in ArmorProficiencyLevels)
+            {
+                levelsList.Add(new TagCompound
+                {
+                    ["Key"] = kvp.Key.ToString(),
+                    ["Value"] = kvp.Value
+                });
+            }
+            tag["ArmorProficiencyLevels"] = levelsList;
+            
+            var experienceList = new List<TagCompound>();
+            foreach (var kvp in ArmorProficiencyExperience)
+            {
+                experienceList.Add(new TagCompound
+                {
+                    ["Key"] = kvp.Key.ToString(),
+                    ["Value"] = kvp.Value
+                });
+            }
+            tag["ArmorProficiencyExperience"] = experienceList;
+        }
+
+        /// <summary>
+        /// Carrega os dados do jogador usando TagCompound.
+        /// </summary>
+        /// <param name="tag">TagCompound contendo os dados salvos</param>
+        public override void LoadData(TagCompound tag)
+        {
+            // Desserializar ClassLevels
+            ClassLevels.Clear();
+            if (tag.ContainsKey("ClassLevels"))
+            {
+                foreach (var entry in tag.GetList<TagCompound>("ClassLevels"))
+                {
+                    string key = entry.GetString("key");
+                    float value = entry.GetFloat("value");
+                    ClassLevels[key] = value;
+                }
+            }
+            // Desserializar ClassExperience
+            ClassExperience.Clear();
+            if (tag.ContainsKey("ClassExperience"))
+            {
+                foreach (var entry in tag.GetList<TagCompound>("ClassExperience"))
+                {
+                    string key = entry.GetString("key");
+                    float value = entry.GetFloat("value");
+                    ClassExperience[key] = value;
+                }
+            }
+            // Carregar habilidades desbloqueadas
+            if (tag.ContainsKey("UnlockedAbilities"))
+            {
+                var abilityInts = tag.GetList<int>("UnlockedAbilities");
+                UnlockedAbilities = abilityInts.Select(i => (ClassAbility)i).ToList();
+            }
+            // Carregar vitals
+            if (tag.ContainsKey("CurrentHunger"))
+                CurrentHunger = tag.GetFloat("CurrentHunger");
+            if (tag.ContainsKey("CurrentSanity"))
+                CurrentSanity = tag.GetFloat("CurrentSanity");
+            if (tag.ContainsKey("CurrentStamina"))
+                CurrentStamina = tag.GetFloat("CurrentStamina");
+            // Carregar dados de dash
+            if (tag.ContainsKey("DashCooldown"))
+                DashCooldown = tag.GetInt("DashCooldown");
+            if (tag.ContainsKey("DashesUsed"))
+                DashesUsed = tag.GetInt("DashesUsed");
+            if (tag.ContainsKey("DashResetTimer"))
+                DashResetTimer = tag.GetInt("DashResetTimer");
+            if (tag.ContainsKey("MaxDashes"))
+                MaxDashes = tag.GetInt("MaxDashes");
+            
+            // Carregar proficiências de armadura ⭐ NOVO
+            if (tag.ContainsKey("ArmorProficiencyLevels"))
+            {
+                var levels = tag.GetList<TagCompound>("ArmorProficiencyLevels");
+                foreach (var levelTag in levels)
+                {
+                    if (levelTag.ContainsKey("Key") && levelTag.ContainsKey("Value"))
                     {
-                        Main.NewText($"Habilidade desbloqueada: {RPGClassDefinitions.ActionClasses[className].Milestones[ability]}!", Color.Yellow);
+                        string key = levelTag.GetString("Key");
+                        int value = levelTag.GetInt("Value");
+                        if (System.Enum.TryParse<ArmorType>(key, out ArmorType type))
+                        {
+                            ArmorProficiencyLevels[type] = value;
+                        }
+                    }
+                }
+            }
+            
+            if (tag.ContainsKey("ArmorProficiencyExperience"))
+            {
+                var experience = tag.GetList<TagCompound>("ArmorProficiencyExperience");
+                foreach (var expTag in experience)
+                {
+                    if (expTag.ContainsKey("Key") && expTag.ContainsKey("Value"))
+                    {
+                        string key = expTag.GetString("Key");
+                        float value = expTag.GetFloat("Value");
+                        if (System.Enum.TryParse<ArmorType>(key, out ArmorType type))
+                        {
+                            ArmorProficiencyExperience[type] = value;
+                        }
                     }
                 }
             }
         }
 
-        public override void Initialize()
+        /// <summary>
+        /// Sincroniza dados do jogador com outros clientes.
+        /// </summary>
+        /// <param name="toWho">ID do jogador que receberá os dados</param>
+        /// <param name="fromWho">ID do jogador que enviou os dados</param>
+        /// <param name="newPlayer">Se é um novo jogador</param>
+        public override void SyncPlayer(int toWho, int fromWho, bool newPlayer)
         {
-            // Inicializar classes
-            ClassLevels["warrior"] = 1f;
-            ClassLevels["archer"] = 1f;
-            ClassLevels["mage"] = 1f;
-            ClassLevels["summoner"] = 1f;
-            ClassLevels["acrobat"] = 1f;
-            ClassLevels["explorer"] = 1f;
-            ClassLevels["engineer"] = 1f;
-            ClassLevels["survivalist"] = 1f;
-            ClassLevels["blacksmith"] = 1f;
-            ClassLevels["alchemist"] = 1f;
-            ClassLevels["mystic"] = 1f;
+            if (Main.netMode == NetmodeID.SinglePlayer)
+                return;
 
-            // Inicializar experiência
-            foreach (var className in ClassLevels.Keys)
+            var packet = Mod.GetPacket();
+            packet.Write((byte)WolfgodrpgMessageType.SyncRPGPlayer);
+            packet.Write((byte)Player.whoAmI);
+            
+            // Enviar vitals
+            packet.Write(CurrentHunger);
+            packet.Write(CurrentSanity);
+            packet.Write(CurrentStamina);
+            
+            // Enviar dados de classe
+            packet.Write(ClassLevels.Count);
+            foreach (var kvp in ClassLevels)
             {
-                ClassExperience[className] = 0f;
+                packet.Write(kvp.Key);
+                packet.Write(kvp.Value);
             }
-
-            // Inicializar dash
-            DashCooldown = 0;
-            DashesUsed = 0;
-            DashResetTimer = 0;
-            DashSpeed = 12f;
-            DashDuration = 15;
-            DashInvincibilityFrames = 15;
-            MaxDashes = 1;
-
-            // Inicializar vitals
-            CurrentHunger = MaxHunger;
-            CurrentSanity = MaxSanity;
-            CurrentStamina = MaxStamina;
-
-            // Inicializar taxas de regeneração
-            UpdateRegenRates();
+            
+            packet.Write(ClassExperience.Count);
+            foreach (var kvp in ClassExperience)
+            {
+                packet.Write(kvp.Key);
+                packet.Write(kvp.Value);
+            }
+            
+            // Enviar habilidades desbloqueadas
+            packet.Write(UnlockedAbilities.Count);
+            foreach (var ability in UnlockedAbilities)
+            {
+                packet.Write((int)ability);
+            }
+            
+            packet.Send(toWho, fromWho);
         }
 
-        public override void PreUpdate()
+        /// <summary>
+        /// Envia mudanças do cliente para o servidor.
+        /// </summary>
+        public override void SendClientChanges(ModPlayer clientPlayer)
         {
-            // Atualizar cooldowns e reset
-            if (DashCooldown > 0) DashCooldown--;
+            if (Main.netMode == NetmodeID.SinglePlayer)
+                return;
+
+            var clientRPGPlayer = clientPlayer as RPGPlayer;
+            if (clientRPGPlayer == null)
+                return;
+
+            // Enviar apenas se houve mudanças significativas
+            if (HasSignificantChanges(clientRPGPlayer))
+            {
+                var packet = Mod.GetPacket();
+                packet.Write((byte)WolfgodrpgMessageType.SyncRPGPlayer);
+                packet.Write((byte)Player.whoAmI);
+                
+                // Enviar dados atualizados
+                packet.Write(CurrentHunger);
+                packet.Write(CurrentSanity);
+                packet.Write(CurrentStamina);
+                
+                packet.Send();
+            }
+        }
+
+        /// <summary>
+        /// Copia o estado do servidor para o cliente.
+        /// </summary>
+        /// <param name="clientPlayer">Jogador do cliente</param>
+        public override void CopyClientState(ModPlayer clientPlayer)
+        {
+            var clientRPGPlayer = clientPlayer as RPGPlayer;
+            if (clientRPGPlayer == null)
+                return;
+
+            // Copiar vitals
+            clientRPGPlayer.CurrentHunger = CurrentHunger;
+            clientRPGPlayer.CurrentSanity = CurrentSanity;
+            clientRPGPlayer.CurrentStamina = CurrentStamina;
+            
+            // Copiar dados de classe
+            clientRPGPlayer.ClassLevels = new Dictionary<string, float>(ClassLevels);
+            clientRPGPlayer.ClassExperience = new Dictionary<string, float>(ClassExperience);
+            clientRPGPlayer.UnlockedAbilities = new List<ClassAbility>(UnlockedAbilities);
+            clientRPGPlayer.ArmorProficiencyLevels = new Dictionary<ArmorType, int>(ArmorProficiencyLevels);
+            clientRPGPlayer.ArmorProficiencyExperience = new Dictionary<ArmorType, float>(ArmorProficiencyExperience);
+        }
+
+        /// <summary>
+        /// Verifica se houve mudanças significativas que precisam ser sincronizadas.
+        /// </summary>
+        /// <param name="clientPlayer">Jogador do cliente para comparação</param>
+        /// <returns>True se houve mudanças significativas</returns>
+        private bool HasSignificantChanges(RPGPlayer clientPlayer)
+        {
+            return Math.Abs(CurrentHunger - clientPlayer.CurrentHunger) > 1f ||
+                   Math.Abs(CurrentSanity - clientPlayer.CurrentSanity) > 1f ||
+                   Math.Abs(CurrentStamina - clientPlayer.CurrentStamina) > 1f;
+        }
+
+        /// <summary>
+        /// Atualiza o sistema de vitais do jogador.
+        /// </summary>
+        private void UpdateVitals()
+        {
+            // Regeneração de vitals
+            CurrentHunger = Math.Min(100f, CurrentHunger + HungerRegenRate * 0.016f); // 60 FPS
+            CurrentSanity = Math.Min(100f, CurrentSanity + SanityRegenRate * 0.016f);
+            CurrentStamina = Math.Min(100f, CurrentStamina + StaminaRegenRate * 0.016f);
+            
+            // Aplicar efeitos baseados nos vitals
+            ApplyVitalEffects();
+        }
+
+        /// <summary>
+        /// Aplica efeitos baseados no estado dos vitals.
+        /// </summary>
+        private void ApplyVitalEffects()
+        {
+            // Efeitos de fome baixa
+            if (CurrentHunger < 20f)
+            {
+                Player.moveSpeed *= 0.8f;
+                Player.jumpSpeedBoost *= 0.8f;
+            }
+            
+            // Efeitos de sanidade baixa
+            if (CurrentSanity < 30f)
+            {
+                Player.statDefense -= 5;
+            }
+            
+            // Efeitos de stamina baixa
+            if (CurrentStamina < 25f)
+            {
+                Player.moveSpeed *= 0.9f;
+            }
+        }
+
+        /// <summary>
+        /// Atualiza o sistema de dash.
+        /// </summary>
+        private void UpdateDash()
+        {
+            if (DashCooldown > 0)
+                DashCooldown--;
             if (DashResetTimer > 0)
             {
                 DashResetTimer--;
-                if (DashResetTimer == 0) DashesUsed = 0;
+                if (DashResetTimer <= 0)
+                    DashesUsed = 0;
             }
-
-            // Atualizar dash baseado no nível do Acrobata
-            float acrobatLevel = ClassLevels["acrobat"];
-            if (acrobatLevel >= 100f)
+            if (dashTimer > 0)
             {
-                MaxDashes = 3;
-                DashSpeed = 16f;
-                DashInvincibilityFrames = 30;
-            }
-            else if (acrobatLevel >= 75f)
-            {
-                MaxDashes = 2;
-                DashSpeed = 14f;
-                DashInvincibilityFrames = 25;
-            }
-            else if (acrobatLevel >= 50f)
-            {
-                MaxDashes = 2;
-                DashSpeed = 14f;
-                DashInvincibilityFrames = 20;
-            }
-            else if (acrobatLevel >= 25f)
-            {
-                MaxDashes = 1;
-                DashSpeed = 12f;
-                DashInvincibilityFrames = 15;
-            }
-            else
-            {
-                MaxDashes = 1;
-                DashSpeed = 12f;
-                DashInvincibilityFrames = 15;
-            }
-
-            // Atualizar taxas de regeneração
-            UpdateRegenRates();
-
-            // Aplicar regeneração
-            if (CurrentHunger >= 20f) // Só regenera vida se não estiver com fome crítica
-            {
-                Player.lifeRegen += (int)(healthRegenRate * 2); // Converter para o sistema do Terraria
-            }
-
-            Player.manaRegen += (int)(manaRegenRate * 2); // Converter para o sistema do Terraria
-
-            if (CurrentStamina < MaxStamina && DashCooldown <= 0)
-            {
-                CurrentStamina = MathHelper.Min(MaxStamina, CurrentStamina + staminaRegenRate);
-            }
-
-            if (CurrentSanity < MaxSanity)
-            {
-                CurrentSanity = MathHelper.Min(MaxSanity, CurrentSanity + sanityRegenRate);
-            }
-
-            if (CurrentHunger < MaxHunger)
-            {
-                CurrentHunger = MathHelper.Min(MaxHunger, CurrentHunger + hungerRegenRate);
+                // Girar o sprite durante o dash
+                float t = 1f - (dashTimer / (float)DashDuration);
+                Player.fullRotation = MathHelper.Lerp(dashStartRotation, dashTargetRotation, t);
+                dashTimer--;
+                if (dashTimer == 0)
+                {
+                    Player.fullRotation = 0f;
+                }
             }
         }
 
-        private void UpdateRegenRates()
+        /// <summary>
+        /// Executa o dash na direção especificada.
+        /// </summary>
+        /// <param name="direction">Direção do dash (-1 para esquerda, 1 para direita)</param>
+        private void PerformDash(Vector2 direction)
         {
-            // Taxas base
-            healthRegenRate = 0.1f;
-            manaRegenRate = 0.2f;
-            staminaRegenRate = 0.3f;
-            sanityRegenRate = 0.1f;
-            hungerRegenRate = -0.05f; // Perde fome naturalmente
-
-            // Bônus do Místico
-            if (ClassLevels.TryGetValue("mystic", out float mysticLevel))
-            {
-                float mysticBonus = mysticLevel * 0.02f; // 2% por nível
-                healthRegenRate += mysticBonus;
-                manaRegenRate += mysticBonus;
-                staminaRegenRate += mysticBonus;
-                sanityRegenRate += mysticBonus;
-                hungerRegenRate += mysticBonus * 0.5f; // Reduz a perda de fome
-            }
-
-            // Bônus do Sobrevivente
-            if (ClassLevels.TryGetValue("survivalist", out float survivalistLevel))
-            {
-                float survivalistBonus = survivalistLevel * 0.01f; // 1% por nível
-                healthRegenRate += survivalistBonus;
-                hungerRegenRate += survivalistBonus * 0.5f;
-            }
-
-            // Bônus do Acrobata
-            if (ClassLevels.TryGetValue("acrobat", out float acrobatLevel))
-            {
-                staminaRegenRate += acrobatLevel * 0.01f; // 1% por nível
-            }
-
-            // Bônus do Mago
-            if (ClassLevels.TryGetValue("mage", out float mageLevel))
-            {
-                manaRegenRate += mageLevel * 0.01f; // 1% por nível
-            }
-
-            // Modificadores baseados nos vitals atuais
-            if (CurrentHunger < 20f)
-            {
-                healthRegenRate = 0f; // Sem regeneração de vida com fome crítica
-                staminaRegenRate *= 0.5f; // Stamina regenera mais devagar
-            }
-
-            if (CurrentSanity < 30f)
-            {
-                manaRegenRate *= 0.5f; // Mana regenera mais devagar
-                sanityRegenRate *= 0.5f; // Sanidade regenera mais devagar
-            }
-        }
-
-        public void PerformDash(int direction)
-        {
-            // Verificar se pode usar dash
-            if (DashCooldown > 0 || DashesUsed >= MaxDashes || CurrentStamina < 20f)
+            if (DashCooldown > 0 || DashesUsed >= MaxDashes || CurrentStamina < 20f || direction == Vector2.Zero)
                 return;
-
-            // Consumir stamina
+            direction.Normalize();
             CurrentStamina -= 20f;
-
-            // Aplicar velocidade do dash
-            Player.velocity.X = direction * DashSpeed;
-
-            // Configurar cooldowns
-            DashCooldown = DashDuration;
+            Player.velocity = direction * DashSpeed;
+            DashCooldown = 30;
             DashesUsed++;
-            DashResetTimer = 60; // 1 segundo para resetar os dashes
-
-            // Som e efeitos visuais
-            SoundEngine.PlaySound(SoundID.Item6 with { Volume = 0.5f, Pitch = 0.0f }, Player.Center);
-            for (int i = 0; i < 10; i++)
-            {
-                Dust.NewDust(Player.position, Player.width, Player.height, DustID.Smoke, 0f, 0f, 100, default, 1.5f);
-            }
-
-            // Dar XP para a classe Acrobata
-            if (Main.netMode != NetmodeID.Server)
-            {
-                float xpGain = 5f;
-                if (DashesUsed > 1) xpGain *= 1.5f;
-                ClassExperience["acrobat"] += xpGain;
-            }
+            DashResetTimer = 180;
+            dashTimer = DashDuration;
+            dashDirection = direction;
+            dashStartRotation = Player.fullRotation;
+            dashTargetRotation = Player.fullRotation + MathHelper.ToRadians(360f) * (direction.X < 0 ? -1 : 1);
+            Player.immune = true;
+            Player.immuneTime = DashInvincibilityFrames;
+            SoundEngine.PlaySound(SoundID.Item24, Player.position);
         }
 
-        public override void ProcessTriggers(TriggersSet triggersSet)
+        /// <summary>
+        /// Adiciona experiência a uma classe específica.
+        /// </summary>
+        /// <param name="className">Nome da classe</param>
+        /// <param name="experience">Quantidade de experiência a adicionar</param>
+        public void AddClassExperience(string className, float experience)
         {
-            // Detectar double-tap usando o sistema vanilla
-            if (Player.controlRight && Player.releaseRight && Player.doubleTapCardinalTimer[2] > 0 && Player.doubleTapCardinalTimer[2] < 15)
+            if (!ClassExperience.ContainsKey(className))
+                ClassExperience[className] = 0f;
+            
+            ClassExperience[className] += experience;
+            
+            // Verificar se subiu de nível
+            CheckClassLevelUp(className);
+        }
+
+        /// <summary>
+        /// Verifica se o jogador subiu de nível em uma classe.
+        /// </summary>
+        /// <param name="className">Nome da classe</param>
+        private void CheckClassLevelUp(string className)
+        {
+            if (!ClassLevels.ContainsKey(className))
+                ClassLevels[className] = 0f;
+            
+            float currentLevel = ClassLevels[className];
+            float currentExp = ClassExperience[className];
+            float expForNextLevel = GetExperienceForLevel(currentLevel + 1);
+            
+            if (currentExp >= expForNextLevel)
             {
-                PerformDash(1);
-            }
-            else if (Player.controlLeft && Player.releaseLeft && Player.doubleTapCardinalTimer[3] > 0 && Player.doubleTapCardinalTimer[3] < 15)
-            {
-                PerformDash(-1);
+                // Subir de nível
+                ClassLevels[className]++;
+                ClassExperience[className] -= expForNextLevel;
+                
+                // Verificar se desbloqueou alguma habilidade
+                CheckAbilityUnlock(className);
+                
+                // Efeitos de level up
+                SoundEngine.PlaySound(SoundID.Item4, Player.position);
+                // TODO: Adicionar partículas e texto de level up
             }
         }
+
+        /// <summary>
+        /// Calcula a experiência necessária para um nível específico.
+        /// </summary>
+        /// <param name="level">Nível desejado</param>
+        /// <returns>Experiência necessária</returns>
+        private float GetExperienceForLevel(float level)
+        {
+            // Fórmula: 100 * level^1.5
+            return 100f * (float)Math.Pow(level, 1.5);
+        }
+
+        /// <summary>
+        /// Verifica se o jogador desbloqueou alguma habilidade ao subir de nível.
+        /// </summary>
+        /// <param name="className">Nome da classe</param>
+        private void CheckAbilityUnlock(string className)
+        {
+            if (!RPGClassDefinitions.ActionClasses.ContainsKey(className))
+                return;
+            
+            var classInfo = RPGClassDefinitions.ActionClasses[className];
+            float currentLevel = ClassLevels[className];
+            
+            foreach (var milestone in classInfo.Milestones)
+            {
+                if (currentLevel >= (int)milestone.Key && !UnlockedAbilities.Contains(milestone.Key))
+                {
+                    UnlockedAbilities.Add(milestone.Key);
+                    // TODO: Notificar o jogador sobre a nova habilidade
+                }
+            }
+        }
+
+        /// <summary>
+        /// Determina o tipo de armadura equipada pelo jogador.
+        /// </summary>
+        /// <returns>Tipo de armadura equipada</returns>
+        private ArmorType GetEquippedArmorType()
+        {
+            // Determinar tipo baseado na armadura equipada
+            Item helmet = Player.armor[0];
+            Item chestplate = Player.armor[1];
+            Item leggings = Player.armor[2];
+            
+            if (!helmet.IsAir || !chestplate.IsAir || !leggings.IsAir)
+            {
+                // Lógica para determinar tipo (simplificada)
+                if (IsMagicArmor(helmet, chestplate, leggings))
+                    return ArmorType.MagicRobes;
+                else if (IsHeavyArmor(helmet, chestplate, leggings))
+                    return ArmorType.Heavy;
+                else
+                    return ArmorType.Light;
+            }
+            
+            return ArmorType.None;
+        }
+
+        /// <summary>
+        /// Adiciona XP à proficiência de um tipo de armadura.
+        /// </summary>
+        /// <param name="armorType">Tipo de armadura</param>
+        /// <param name="xp">Quantidade de XP a adicionar</param>
+        private void GainArmorProficiencyXP(ArmorType armorType, float xp)
+        {
+            ArmorProficiencyExperience[armorType] += xp;
+            
+            // Verificar level up
+            float xpNeeded = GetArmorXPNeeded(ArmorProficiencyLevels[armorType]);
+            if (ArmorProficiencyExperience[armorType] >= xpNeeded)
+            {
+                ArmorProficiencyLevels[armorType]++;
+                ArmorProficiencyExperience[armorType] -= xpNeeded;
+                
+                // Feedback visual de level up
+                ShowArmorLevelUpEffect(armorType);
+            }
+        }
+
+        /// <summary>
+        /// Calcula o XP necessário para o próximo nível de proficiência.
+        /// </summary>
+        /// <param name="level">Nível atual</param>
+        /// <returns>XP necessário para o próximo nível</returns>
+        private float GetArmorXPNeeded(int level)
+        {
+            return 100f + (level * 50f); // XP cresce com o nível
+        }
+
+        /// <summary>
+        /// Verifica se a armadura equipada é do tipo mágico.
+        /// </summary>
+        /// <param name="helmet">Capacete</param>
+        /// <param name="chest">Peitoral</param>
+        /// <param name="legs">Calças</param>
+        /// <returns>True se é armadura mágica</returns>
+        private bool IsMagicArmor(Item helmet, Item chest, Item legs)
+        {
+            // Verificar se é armadura mágica (Mana bonus, etc.)
+            return helmet.manaIncrease > 0 || chest.manaIncrease > 0 || legs.manaIncrease > 0;
+        }
+
+        /// <summary>
+        /// Verifica se a armadura equipada é do tipo pesado.
+        /// </summary>
+        /// <param name="helmet">Capacete</param>
+        /// <param name="chest">Peitoral</param>
+        /// <param name="legs">Calças</param>
+        /// <returns>True se é armadura pesada</returns>
+        private bool IsHeavyArmor(Item helmet, Item chest, Item legs)
+        {
+            // Verificar se é armadura pesada (alta defesa)
+            int totalDefense = helmet.defense + chest.defense + legs.defense;
+            return totalDefense >= 20; // Threshold para armadura pesada
+        }
+
+        /// <summary>
+        /// Mostra efeito visual de level up de proficiência.
+        /// </summary>
+        /// <param name="armorType">Tipo de armadura que subiu de nível</param>
+        private void ShowArmorLevelUpEffect(ArmorType armorType)
+        {
+            // Efeito visual e som de level up
+            Main.NewText($"Proficiência com {armorType} aumentou para nível {ArmorProficiencyLevels[armorType]}!", 
+                         Color.Gold);
+        }
+
+        public override void ResetEffects()
+        {
+            AutoDashEnabled = false;
+        }
+    }
+
+    /// <summary>
+    /// Enum para tipos de armadura.
+    /// </summary>
+    public enum ArmorType
+    {
+        None,
+        Light,      // Armadura Leve - velocidade
+        Heavy,      // Armadura Pesada - defesa
+        MagicRobes  // Vestes Mágicas - mana
     }
 }
  

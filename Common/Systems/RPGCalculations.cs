@@ -4,6 +4,7 @@ using Terraria.ModLoader; // Adicionado para DamageClass
 using Wolfgodrpg.Common.Players;
 using Wolfgodrpg.Common.Classes;
 using Wolfgodrpg.Common.GlobalItems;
+using System.Linq;
 
 namespace Wolfgodrpg.Common.Systems
 {
@@ -22,7 +23,7 @@ namespace Wolfgodrpg.Common.Systems
             foreach (var classEntry in RPGClassDefinitions.ActionClasses)
             {
                 string className = classEntry.Key;
-                float level = modPlayer.GetClassLevel(className);
+                float level = modPlayer.ClassLevels.TryGetValue(className, out var lvl) ? lvl : 0f;
 
                 if (level > 1)
                 {
@@ -38,15 +39,37 @@ namespace Wolfgodrpg.Common.Systems
                 }
             }
 
+            // 3. Adicione os bônus de proficiência de armadura ⭐ NOVO
+            ArmorType currentArmorType = GetCurrentArmorType(player);
+            if (currentArmorType != ArmorType.None)
+            {
+                int armorLevel = modPlayer.ArmorProficiencyLevels.TryGetValue(currentArmorType, out var level) ? level : 1;
+                float armorBonus = (armorLevel - 1) * 0.02f; // +2% por nível de proficiência
+                
+                switch (currentArmorType)
+                {
+                    case ArmorType.Light:
+                        totalStats["moveSpeed"] = (totalStats.TryGetValue("moveSpeed", out var speed) ? speed : 0f) + armorBonus;
+                        break;
+                    case ArmorType.Heavy:
+                        totalStats["defense"] = (totalStats.TryGetValue("defense", out var def) ? def : 0f) + (armorLevel * 0.5f);
+                        break;
+                    case ArmorType.MagicRobes:
+                        totalStats["manaRegen"] = (totalStats.TryGetValue("manaRegen", out var mana) ? mana : 0f) + (armorLevel * 0.5f);
+                        totalStats["maxMana"] = (totalStats.TryGetValue("maxMana", out var maxMana) ? maxMana : 0f) + (armorLevel * 2f);
+                        break;
+                }
+            }
+
             // 3. Adicione os status de todos os itens equipados (armaduras e acessórios)
             for (int i = 0; i < player.armor.Length; i++)
             {
                 Item item = player.armor[i];
                 if (item != null && !item.IsAir && item.TryGetGlobalItem(out RPGGlobalItem globalItem))
                 {
-                    if (globalItem.randomStats != null)
+                    if (globalItem.RandomStats != null)
                     {
-                        foreach (var stat in globalItem.randomStats)
+                        foreach (var stat in globalItem.RandomStats)
                         {
                             if (!totalStats.ContainsKey(stat.Key))
                             {
@@ -62,9 +85,9 @@ namespace Wolfgodrpg.Common.Systems
             Item heldItem = player.HeldItem;
             if (heldItem != null && !heldItem.IsAir && heldItem.TryGetGlobalItem(out RPGGlobalItem heldGlobalItem))
             {
-                if (heldGlobalItem.randomStats != null)
+                if (heldGlobalItem.RandomStats != null)
                 {
-                    foreach (var stat in heldGlobalItem.randomStats)
+                    foreach (var stat in heldGlobalItem.RandomStats)
                     {
                         if (!totalStats.ContainsKey(stat.Key))
                         {
@@ -162,6 +185,59 @@ namespace Wolfgodrpg.Common.Systems
                         break;
                 }
             }
+        }
+
+        /// <summary>
+        /// Determina o tipo de armadura equipada pelo jogador.
+        /// </summary>
+        /// <param name="player">Jogador</param>
+        /// <returns>Tipo de armadura equipada</returns>
+        private static ArmorType GetCurrentArmorType(Player player)
+        {
+            // Determinar tipo baseado na armadura equipada
+            Item helmet = player.armor[0];
+            Item chestplate = player.armor[1];
+            Item leggings = player.armor[2];
+            
+            if (!helmet.IsAir || !chestplate.IsAir || !leggings.IsAir)
+            {
+                // Lógica para determinar tipo (simplificada)
+                if (IsMagicArmor(helmet, chestplate, leggings))
+                    return ArmorType.MagicRobes;
+                else if (IsHeavyArmor(helmet, chestplate, leggings))
+                    return ArmorType.Heavy;
+                else
+                    return ArmorType.Light;
+            }
+            
+            return ArmorType.None;
+        }
+
+        /// <summary>
+        /// Verifica se a armadura equipada é do tipo mágico.
+        /// </summary>
+        /// <param name="helmet">Capacete</param>
+        /// <param name="chest">Peitoral</param>
+        /// <param name="legs">Calças</param>
+        /// <returns>True se é armadura mágica</returns>
+        private static bool IsMagicArmor(Item helmet, Item chest, Item legs)
+        {
+            // Verificar se é armadura mágica (Mana bonus, etc.)
+            return helmet.manaIncrease > 0 || chest.manaIncrease > 0 || legs.manaIncrease > 0;
+        }
+
+        /// <summary>
+        /// Verifica se a armadura equipada é do tipo pesado.
+        /// </summary>
+        /// <param name="helmet">Capacete</param>
+        /// <param name="chest">Peitoral</param>
+        /// <param name="legs">Calças</param>
+        /// <returns>True se é armadura pesada</returns>
+        private static bool IsHeavyArmor(Item helmet, Item chest, Item legs)
+        {
+            // Verificar se é armadura pesada (alta defesa)
+            int totalDefense = helmet.defense + chest.defense + legs.defense;
+            return totalDefense >= 20; // Threshold para armadura pesada
         }
     }
 }

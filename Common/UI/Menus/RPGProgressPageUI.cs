@@ -81,7 +81,7 @@ namespace Wolfgodrpg.Common.UI.Menus
             {
                 foreach (var classExp in modPlayer.ClassExperience)
                 {
-                    totalClassLevels += modPlayer.GetClassLevel(classExp.Key);
+                    totalClassLevels += modPlayer.ClassLevels.TryGetValue(classExp.Key, out var lvl) ? lvl : 0f;
                 }
             }
             AddProgressEntry("Níveis Totais de Classes", (int)totalClassLevels);

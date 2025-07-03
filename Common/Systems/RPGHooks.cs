@@ -32,7 +32,6 @@ namespace Wolfgodrpg.Common.Systems
                 RPGActionSystem.OnHurt(Player, damageTaken);
                 
                 // Resetar timer de combate quando toma dano
-                rpgPlayer.CombatTimer = 0;
                 DebugLog.Gameplay("Player", "PreUpdate", $"Jogador tomou {damageTaken} de dano - timer de combate resetado");
             }
             lastHealth = Player.statLife;
@@ -44,7 +43,7 @@ namespace Wolfgodrpg.Common.Systems
                 DebugLog.Gameplay("Player", "Jumping", $"Pulo detectado. Contador: {jumpCount}/50");
                 if (jumpCount >= 50) // XP a cada 50 pulos
                 {
-                    rpgPlayer.GainClassExp("jumping", 10f);
+                    rpgPlayer.AddClassExperience("jumping", 10f);
                     DebugLog.Gameplay("Player", "Jumping", "XP de pulo concedido!");
                     jumpCount = 0;
                 }
@@ -53,7 +52,7 @@ namespace Wolfgodrpg.Common.Systems
             // Detectar combate baseado em ações do jogador
             if (Player.itemAnimation > 0 || Player.velocity.Length() > 2f)
             {
-                rpgPlayer.CombatTimer = 0; // Resetar timer quando está ativo
+                DebugLog.Gameplay("Player", "PreUpdate", "Player is in combat.");
             }
         }
 
@@ -61,14 +60,14 @@ namespace Wolfgodrpg.Common.Systems
         {
             var rpgPlayer = Player.GetModPlayer<RPGPlayer>();
             float xpAmount = item.value * 0.0001f;
-            rpgPlayer.GainClassExp("merchant", System.Math.Max(0.1f, xpAmount));
+            rpgPlayer.AddClassExperience("merchant", System.Math.Max(0.1f, xpAmount));
         }
 
         public override void PostSellItem(NPC vendor, Item[] shopInventory, Item item)
         {
             var rpgPlayer = Player.GetModPlayer<RPGPlayer>();
             float xpAmount = item.value * 0.0001f;
-            rpgPlayer.GainClassExp("merchant", System.Math.Max(0.1f, xpAmount));
+            rpgPlayer.AddClassExperience("merchant", System.Math.Max(0.1f, xpAmount));
         }
 
         public override void OnEnterWorld()
@@ -82,7 +81,7 @@ namespace Wolfgodrpg.Common.Systems
             var rpgPlayer = Player.GetModPlayer<RPGPlayer>();
             float xpAmount = (attempt.rare ? 1f : 0f) * 10f; 
             xpAmount = System.Math.Max(1f, xpAmount); 
-            rpgPlayer.GainClassExp("fishing", xpAmount);
+            rpgPlayer.AddClassExperience("fishing", xpAmount);
         }
     }
 

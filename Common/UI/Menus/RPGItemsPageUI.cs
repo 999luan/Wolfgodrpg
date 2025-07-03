@@ -64,7 +64,7 @@ namespace Wolfgodrpg.Common.UI.Menus
                     bool hasRPGData = false;
                     
                     // Verificar se tem stats aleatórios ou experiência
-                    if (globalItem.randomStats != null && globalItem.randomStats.Any())
+                    if (globalItem.RandomStats != null && globalItem.RandomStats.Any())
                         hasRPGData = true;
                     
                     // Verificar se é um ProgressiveItem
@@ -123,9 +123,9 @@ namespace Wolfgodrpg.Common.UI.Menus
                 }
 
                 // Mostrar stats aleatórios se houver
-                if (globalItem.randomStats != null && globalItem.randomStats.Any())
+                if (globalItem.RandomStats != null && globalItem.RandomStats.Any())
                 {
-                    var statsText = new UIText($"Bônus: {string.Join(", ", globalItem.randomStats.Select(s => $"{GetStatDisplayName(s.Key)} +{s.Value:F1}"))}", 0.7f);
+                    var statsText = new UIText($"Bônus: {string.Join(", ", globalItem.RandomStats.Select(s => $"{GetStatDisplayName(s.Key)} +{s.Value:F1}"))}", 0.7f);
                     statsText.Top.Set(yOffset, 0f);
                     statsText.TextColor = Color.Yellow;
                     Append(statsText);
