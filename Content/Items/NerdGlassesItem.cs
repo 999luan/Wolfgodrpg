@@ -12,15 +12,15 @@ namespace Wolfgodrpg.Content.Items
 {
     public class NerdGlassesItem : ModItem
     {
+        // Timer para mostrar logs automaticamente
+        private int autoLogTimer = 0;
+        private const int AUTO_LOG_INTERVAL = 600; // 10 segundos (60 FPS * 10)
+
         public override void SetStaticDefaults()
         {
-            // tModLoader 1.4+ usa propriedades
-            // DisplayName.SetDefault("Nerd Glasses");
-            // Tooltip.SetDefault("Use to view all XP logs accumulated so far.");
+            base.SetStaticDefaults();
+            // Nome e tooltip definidos via Localization/en-US_Mods.Wolfgodrpg.hjson
         }
-
-        public override LocalizedText DisplayName => Language.GetText("Mods.Wolfgodrpg.Items.NerdGlassesItem.DisplayName");
-        public override LocalizedText Tooltip => Language.GetText("Mods.Wolfgodrpg.Items.NerdGlassesItem.Tooltip");
 
         public override void SetDefaults()
         {
@@ -47,16 +47,21 @@ namespace Wolfgodrpg.Content.Items
         {
             base.UpdateAccessory(player, hideVisual);
             
-            // Exibir logs automaticamente quando equipado
+            // Mostrar logs automaticamente a cada 10 segundos
             if (player.whoAmI == Main.myPlayer)
             {
-                RPGNotificationSystem.ShowXPLogs();
+                autoLogTimer++;
+                if (autoLogTimer >= AUTO_LOG_INTERVAL)
+                {
+                    autoLogTimer = 0;
+                    RPGNotificationSystem.ShowXPLogs();
+                }
             }
         }
 
         public override bool? UseItem(Player player)
         {
-            // Também exibir logs quando usado manualmente
+            // Exibir logs quando usado manualmente
             if (player.whoAmI == Main.myPlayer)
             {
                 RPGNotificationSystem.ShowXPLogs();

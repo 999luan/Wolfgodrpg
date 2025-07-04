@@ -15,6 +15,8 @@ namespace Wolfgodrpg.Common.Systems
 
         public override void PostUpdateWorld()
         {
+            // TEMPORARIAMENTE DESABILITADO PARA EVITAR SPAM DE LOGS
+            /*
             debugCounter++;
             
             if (debugCounter >= DEBUG_INTERVAL)
@@ -22,6 +24,7 @@ namespace Wolfgodrpg.Common.Systems
                 debugCounter = 0;
                 RunDebugChecks();
             }
+            */
         }
 
         private void RunDebugChecks()
