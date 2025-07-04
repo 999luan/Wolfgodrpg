@@ -33,7 +33,7 @@ namespace Wolfgodrpg.Common.Systems
                 RPGActionSystem.OnHurt(Player, damageTaken);
                 
                 // Resetar timer de combate quando toma dano
-                DebugLog.Gameplay("Player", "PreUpdate", $"Jogador tomou {damageTaken} de dano - timer de combate resetado");
+                DebugLog.Gameplay("Player", "PreUpdate", $"Player took {damageTaken} damage - combat timer reset");
             }
             lastHealth = Player.statLife;
 

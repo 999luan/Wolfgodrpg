@@ -50,7 +50,7 @@ namespace Wolfgodrpg.Common.Classes
                 {
                     StatBonuses = { ["defense"] = 4f }
                 },
-                new ClassMilestone("Força Bruta", "Aumenta o dano corpo a corpo", 10)
+                new ClassMilestone("Brute Force", "Increases melee damage", 10)
                 {
                     StatBonuses = { ["meleeDamage"] = 0.06f }
                 },
@@ -66,7 +66,7 @@ namespace Wolfgodrpg.Common.Classes
                 {
                     SpecialEffect = "defense_on_crit"
                 },
-                new ClassMilestone("Fúria do Guerreiro", "Aumenta a velocidade de ataque", 30)
+                new ClassMilestone("Warrior's Fury", "Increases attack speed", 30)
                 {
                     StatBonuses = { ["meleeSpeed"] = 0.10f }
                 },
@@ -217,68 +217,68 @@ namespace Wolfgodrpg.Common.Classes
                 {
                     SpecialEffect = "fall_immunity"
                 },
-                new ClassMilestone("Velocidade Extrema", "Aumenta a velocidade de movimento", 35)
+                new ClassMilestone("Extreme Speed", "Increases movement speed", 35)
                 {
                     StatBonuses = { ["moveSpeed"] = 0.10f }
                 },
-                new ClassMilestone("Dash Fantasma", "Chance de dash fantasma", 40)
+                new ClassMilestone("Ghost Dash", "Chance of ghost dash", 40)
                 {
                     SpecialEffect = "ghost_dash"
                 },
-                new ClassMilestone("Pulo Triplo", "Adiciona um pulo extra", 45)
+                new ClassMilestone("Triple Jump", "Adds an extra jump", 45)
                 {
                     StatBonuses = { ["extraJumps"] = 1f }
                 },
-                new ClassMilestone("Acrobata Supremo", "Dash e pulo extras", 50)
+                new ClassMilestone("Supreme Acrobat", "Extra dash and jump", 50)
                 {
                     StatBonuses = { ["extraDashes"] = 1f, ["extraJumps"] = 1f }
                 }
             },
 
-            // === INVOCADOR ===
+            // === SUMMONER ===
             ["summoner"] = new List<ClassMilestone>
             {
-                new ClassMilestone("Invocação Básica", "Adiciona um minion", 1)
+                new ClassMilestone("Basic Summoning", "Adds a minion", 1)
                 {
                     StatBonuses = { ["minionSlots"] = 1f }
                 },
-                new ClassMilestone("Dano de Invocação", "Aumenta o dano de invocação", 5)
+                new ClassMilestone("Summon Damage", "Increases summon damage", 5)
                 {
                     StatBonuses = { ["summonDamage"] = 0.08f }
                 },
-                new ClassMilestone("Minion Extra", "Adiciona um minion", 10)
+                new ClassMilestone("Extra Minion", "Adds a minion", 10)
                 {
                     StatBonuses = { ["minionSlots"] = 1f }
                 },
-                new ClassMilestone("Velocidade de Invocação", "Aumenta a velocidade de invocação", 15)
+                new ClassMilestone("Summon Speed", "Increases summon speed", 15)
                 {
                     StatBonuses = { ["summonSpeed"] = 0.08f }
                 },
-                new ClassMilestone("Mestre dos Minions", "Adiciona um minion", 20)
+                new ClassMilestone("Master of Minions", "Adds a minion", 20)
                 {
                     StatBonuses = { ["minionSlots"] = 1f }
                 },
-                new ClassMilestone("Dano Supremo", "Aumenta o dano de invocação", 25)
+                new ClassMilestone("Supreme Damage", "Increases summon damage", 25)
                 {
                     StatBonuses = { ["summonDamage"] = 0.10f }
                 },
-                new ClassMilestone("Minion Extra II", "Adiciona um minion", 30)
+                new ClassMilestone("Extra Minion II", "Adds a minion", 30)
                 {
                     StatBonuses = { ["minionSlots"] = 1f }
                 },
-                new ClassMilestone("Velocidade Suprema", "Aumenta a velocidade de invocação", 35)
+                new ClassMilestone("Supreme Speed", "Increases summon speed", 35)
                 {
                     StatBonuses = { ["summonSpeed"] = 0.10f }
                 },
-                new ClassMilestone("Minion Extra III", "Adiciona um minion", 40)
+                new ClassMilestone("Extra Minion III", "Adds a minion", 40)
                 {
                     StatBonuses = { ["minionSlots"] = 1f }
                 },
-                new ClassMilestone("Dano Lendário", "Aumenta o dano de invocação", 45)
+                new ClassMilestone("Legendary Damage", "Increases summon damage", 45)
                 {
                     StatBonuses = { ["summonDamage"] = 0.12f }
                 },
-                new ClassMilestone("Invocador Supremo", "Adiciona dois minions finais", 50)
+                new ClassMilestone("Supreme Summoner", "Adds two final minions", 50)
                 {
                     StatBonuses = { ["minionSlots"] = 2f }
                 }

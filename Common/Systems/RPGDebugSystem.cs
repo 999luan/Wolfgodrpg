@@ -33,13 +33,13 @@ namespace Wolfgodrpg.Common.Systems
             
             // Debug: Verificar se as classes estão sendo inicializadas
             DebugLog.System("DebugCheck", $"=== DEBUG CHECK ===");
-            DebugLog.System("DebugCheck", $"Jogador: {player.name}");
+            DebugLog.System("DebugCheck", $"Player: {player.name}");
             DebugLog.System("DebugCheck", $"ClassLevels.Count: {rpgPlayer.ClassLevels.Count}");
             DebugLog.System("DebugCheck", $"ClassExperience.Count: {rpgPlayer.ClassExperience.Count}");
             
             if (rpgPlayer.ClassLevels.Count > 0)
             {
-                DebugLog.System("DebugCheck", $"Classes disponíveis: {string.Join(", ", rpgPlayer.ClassLevels.Keys)}");
+                DebugLog.System("DebugCheck", $"Available classes: {string.Join(", ", rpgPlayer.ClassLevels.Keys)}");
                 foreach (var kvp in rpgPlayer.ClassLevels)
                 {
                     float xp = rpgPlayer.ClassExperience.TryGetValue(kvp.Key, out float exp) ? exp : 0f;
@@ -48,7 +48,7 @@ namespace Wolfgodrpg.Common.Systems
             }
             else
             {
-                DebugLog.Warn("System", "DebugCheck", "ClassLevels está vazio!");
+                DebugLog.Warn("System", "DebugCheck", "ClassLevels is empty!");
             }
 
             // Debug: Verificar se os itens estão funcionando
@@ -71,7 +71,7 @@ namespace Wolfgodrpg.Common.Systems
                 }
             }
             
-            DebugLog.System("DebugCheck", $"Itens no inventário: {totalItems}, Itens com XP: {itemsWithXP}");
+            DebugLog.System("DebugCheck", $"Items in inventory: {totalItems}, Items with XP: {itemsWithXP}");
             DebugLog.System("DebugCheck", $"=== FIM DEBUG CHECK ===");
         }
 

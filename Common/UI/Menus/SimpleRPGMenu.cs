@@ -88,7 +88,7 @@ namespace Wolfgodrpg.Common.UI.Menus
             _pages = new List<UIElement> { _statsPageUI, _classesPageUI, _progressPageUI, _skillsPageUI, _proficienciesPageUI };
             _tabButtons = new List<UITextPanel<string>>();
 
-            string[] tabNames = { "Status", "Classes", "Progresso", "Skills", "Proficiências" };
+            string[] tabNames = { "Stats", "Classes", "Progress", "Skills", "Proficiencies" };
             float buttonWidth = 120f;
             float spacing = 10f;
             for (int i = 0; i < tabNames.Length; i++)
@@ -102,7 +102,7 @@ namespace Wolfgodrpg.Common.UI.Menus
                 tabButtonContainer.Append(btn);
                 _tabButtons.Add(btn);
                 
-                DebugLog.UI("OnInitialize", $"Botão de aba '{tabNames[i]}' criado na posição {i * (buttonWidth + spacing):F1}");
+                DebugLog.UI("OnInitialize", $"Tab button '{tabNames[i]}' created at position {i * (buttonWidth + spacing):F1}");
             }
 
             SetPage(MenuPage.Stats);
@@ -137,14 +137,14 @@ namespace Wolfgodrpg.Common.UI.Menus
             var modPlayer = RPGUtils.GetLocalRPGPlayer();
             if (modPlayer == null) 
             {
-                DebugLog.UI("SetPage", "Jogador não disponível, pulando atualização");
+                DebugLog.UI("SetPage", "Player not available, skipping update");
                 return;
             }
 
             // Verificar se as classes foram inicializadas
             if (modPlayer.ClassLevels == null || modPlayer.ClassLevels.Count == 0)
             {
-                DebugLog.UI("SetPage", "Classes não inicializadas, pulando atualização");
+                DebugLog.UI("SetPage", "Classes not initialized, skipping update");
                 return;
             }
 
