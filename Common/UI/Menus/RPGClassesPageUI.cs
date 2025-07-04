@@ -61,8 +61,7 @@ namespace Wolfgodrpg.Common.UI.Menus
                 return;
             }
 
-            // Cabeçalho
-            _classesList.Add(new UIText("🎯 DETALHES DAS CLASSES", 1.1f, true) { TextColor = Color.Gold });
+            // Removido: _classesList.Add(new UIText("🎯 DETALHES DAS CLASSES", 1.1f, true) { TextColor = Color.Gold });
 
             foreach (var classEntry in RPGClassDefinitions.ActionClasses)
             {
@@ -106,8 +105,14 @@ namespace Wolfgodrpg.Common.UI.Menus
                            Dictionary<ClassAbility, string> milestones, Dictionary<string, float> statBonuses, string classKey)
             {
                 _color = RPGDesignSystem.GetClassColor(classKey);
-                Width.Set(0, 1f);
-                Height.Set(280f, 0f);
+                Width.Set(-10f, 1f); // padding horizontal
+                Height.Set(300f, 0f);
+                PaddingTop = 10f;
+                PaddingBottom = 10f;
+                PaddingLeft = 14f;
+                PaddingRight = 14f;
+                MarginTop = 10f;
+                MarginBottom = 10f;
 
                 // Título da classe
                 _titleText = new UIText($"{className} - Nível {level:F0}", 1.2f, true);

@@ -180,6 +180,17 @@ namespace Wolfgodrpg.Common.Systems
 
             // Guerreiro ganha XP por tankar dano
             RPGClassActionMapper.MapCombatAction(CombatAction.TakeDamage, damage, DamageClass.Melee);
+
+            // Armadura ganha XP ao receber dano
+            var rpgPlayer = player.GetModPlayer<RPGPlayer>();
+            if (damage > 0 && rpgPlayer != null)
+            {
+                ArmorType currentArmorType = rpgPlayer.GetEquippedArmorType();
+                if (currentArmorType != ArmorType.None)
+                {
+                    rpgPlayer.GainArmorProficiencyXP(currentArmorType, damage * 0.1f);
+                }
+            }
         }
 
         public static void OnKillNPC(NPC npc)

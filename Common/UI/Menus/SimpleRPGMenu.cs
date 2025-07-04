@@ -19,8 +19,9 @@ namespace Wolfgodrpg.Common.UI.Menus
     {
         Stats = 0,
         Classes = 1,
-        Items = 2,
-        Progress = 3
+        Progress = 2,
+        Skills = 3,
+        Proficiencies = 4
     }
 
     public class SimpleRPGMenu : UIState
@@ -34,8 +35,9 @@ namespace Wolfgodrpg.Common.UI.Menus
 
         private RPGStatsPageUI _statsPageUI;
         private RPGClassesPageUI _classesPageUI;
-        private RPGItemsPageUI _itemsPageUI;
         private RPGProgressPageUI _progressPageUI;
+        private RPGSkillsPageUI _skillsPageUI;
+        private RPGProficienciesPageUI _proficienciesPageUI;
 
         public override void OnInitialize()
         {
@@ -76,15 +78,17 @@ namespace Wolfgodrpg.Common.UI.Menus
             _statsPageUI.Activate();
             _classesPageUI = new RPGClassesPageUI();
             _classesPageUI.Activate();
-            _itemsPageUI = new RPGItemsPageUI();
-            _itemsPageUI.Activate();
             _progressPageUI = new RPGProgressPageUI();
             _progressPageUI.Activate();
+            _skillsPageUI = new RPGSkillsPageUI();
+            _skillsPageUI.Activate();
+            _proficienciesPageUI = new RPGProficienciesPageUI();
+            _proficienciesPageUI.Activate();
             
-            _pages = new List<UIElement> { _statsPageUI, _classesPageUI, _itemsPageUI, _progressPageUI };
+            _pages = new List<UIElement> { _statsPageUI, _classesPageUI, _progressPageUI, _skillsPageUI, _proficienciesPageUI };
             _tabButtons = new List<UITextPanel<string>>();
 
-            string[] tabNames = { "Status", "Classes", "Itens", "Progresso" };
+            string[] tabNames = { "Status", "Classes", "Progresso", "Skills", "Proficiências" };
             float buttonWidth = 120f;
             float spacing = 10f;
             for (int i = 0; i < tabNames.Length; i++)
@@ -155,13 +159,17 @@ namespace Wolfgodrpg.Common.UI.Menus
                     _classesPageUI.UpdateClasses(modPlayer);
                     DebugLog.UI("SetPage", "Aba Classes atualizada");
                     break;
-                case MenuPage.Items:
-                    _itemsPageUI.UpdateItems();
-                    DebugLog.UI("SetPage", "Aba Items atualizada");
-                    break;
                 case MenuPage.Progress:
                     _progressPageUI.UpdateProgress(modPlayer);
                     DebugLog.UI("SetPage", "Aba Progress atualizada");
+                    break;
+                case MenuPage.Skills:
+                    _skillsPageUI.UpdateSkills(modPlayer);
+                    DebugLog.UI("SetPage", "Aba Skills atualizada");
+                    break;
+                case MenuPage.Proficiencies:
+                    _proficienciesPageUI.UpdateProficiencies(modPlayer);
+                    DebugLog.UI("SetPage", "Aba Proficiências atualizada");
                     break;
             }
         }

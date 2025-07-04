@@ -1,13 +1,17 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System;
 using System.Collections.Generic;
 using Terraria;
+using Terraria.GameContent;
 using Terraria.GameContent.UI.Elements;
 using Terraria.ModLoader;
 using Terraria.UI;
 using Wolfgodrpg.Common.Players;
 using Wolfgodrpg.Common.Utils;
 using Wolfgodrpg.Common.Systems;
+using Wolfgodrpg.Common.UI.Design;
+using Wolfgodrpg.Common.GlobalItems;
 
 namespace Wolfgodrpg.Common.UI.Menus
 {
@@ -16,7 +20,6 @@ namespace Wolfgodrpg.Common.UI.Menus
     /// </summary>
     public class RPGProficienciesPageUI : UIElement
     {
-        private List<UIElement> _proficiencyElements = new List<UIElement>();
         private UIScrollbar _scrollbar;
         private UIList _proficiencyList;
 
@@ -27,29 +30,20 @@ namespace Wolfgodrpg.Common.UI.Menus
             Width.Set(0, 1f);
             Height.Set(0, 1f);
 
-            // Título da página
-            var title = new UIText("Proficiências de Armadura", 1.2f, true);
-            title.HAlign = 0.5f;
-            title.Top.Set(10f, 0f);
-            Append(title);
-
-            // Lista de proficiências com scrollbar
+            // Lista de proficiências com scrollbar (padrão oficial tModLoader)
             _proficiencyList = new UIList();
             _proficiencyList.Width.Set(-25f, 1f);
-            _proficiencyList.Height.Set(-60f, 1f);
-            _proficiencyList.Top.Set(50f, 0f);
+            _proficiencyList.Height.Set(0, 1f);
             _proficiencyList.ListPadding = 5f;
             Append(_proficiencyList);
 
+            // Scrollbar acoplado à lista (padrão oficial tModLoader)
             _scrollbar = new UIScrollbar();
-            _scrollbar.Width.Set(20f, 0f);
-            _scrollbar.Height.Set(-60f, 1f);
-            _scrollbar.Top.Set(50f, 0f);
-            _scrollbar.Left.Set(-25f, 1f);
             _scrollbar.SetView(100f, 1000f);
-            Append(_scrollbar);
-
+            _scrollbar.Height.Set(0, 1f);
+            _scrollbar.HAlign = 1f;
             _proficiencyList.SetScrollbar(_scrollbar);
+            Append(_scrollbar);
             
             DebugLog.UI("OnInitialize", "RPGProficienciesPageUI inicializado com sucesso");
         }
@@ -67,108 +61,96 @@ namespace Wolfgodrpg.Common.UI.Menus
             }
 
             _proficiencyList.Clear();
-            _proficiencyElements.Clear();
 
-            // Adicionar proficiências de armadura
+            float topOffset = 10f;
+
+            // Armaduras
             foreach (ArmorType armorType in System.Enum.GetValues<ArmorType>())
             {
                 if (armorType == ArmorType.None) continue;
-
-                var proficiencyPanel = CreateProficiencyPanel(armorType, modPlayer);
-                _proficiencyList.Add(proficiencyPanel);
-                _proficiencyElements.Add(proficiencyPanel);
+                var proficiencyCard = CreateArmorProficiencyCard(armorType, modPlayer, topOffset);
+                _proficiencyList.Add(proficiencyCard);
+                topOffset = 0f;
             }
 
-            DebugLog.UI("UpdateProficiencies", $"Atualizadas {_proficiencyElements.Count} proficiências");
+            // Armas
+            foreach (WeaponType weaponType in System.Enum.GetValues<WeaponType>())
+            {
+                if (weaponType == WeaponType.None) continue;
+                var proficiencyCard = CreateWeaponProficiencyCard(weaponType, modPlayer, topOffset);
+                _proficiencyList.Add(proficiencyCard);
+                topOffset = 0f;
+            }
+
+            // Itens progressivos (do inventário) - Comentado até implementar ProgressiveItemCard
+            /*
+            if (Main.LocalPlayer != null && Main.LocalPlayer.inventory != null)
+            {
+                foreach (var item in Main.LocalPlayer.inventory)
+                {
+                    if (item == null || item.IsAir) continue;
+                    if (item.TryGetGlobalItem<ProgressiveItem>(out var progressiveItem) && progressiveItem.Experience > 0)
+                    {
+                        var itemCard = CreateProgressiveItemCard(item, progressiveItem, topOffset);
+                        _proficiencyList.Add(itemCard);
+                        topOffset = 0f;
+                    }
+                }
+            }
+            */
+
+            DebugLog.UI("UpdateProficiencies", "Proficiências de armadura e itens atualizadas com sucesso");
         }
 
-        /// <summary>
-        /// Cria um painel para uma proficiência específica.
-        /// </summary>
-        /// <param name="armorType">Tipo de armadura</param>
-        /// <param name="modPlayer">Jogador RPG</param>
-        /// <returns>Painel da proficiência</returns>
-        private UIPanel CreateProficiencyPanel(ArmorType armorType, RPGPlayer modPlayer)
+        private ProficiencyCard CreateArmorProficiencyCard(ArmorType armorType, RPGPlayer modPlayer, float topOffset = 0f)
         {
-            var panel = new UIPanel();
-            panel.Width.Set(0, 1f);
-            panel.Height.Set(80f, 0f);
-            panel.SetPadding(8f);
-
-            // Nome do tipo de armadura
             string armorName = GetArmorTypeName(armorType);
-            var nameText = new UIText(armorName, 1.1f, true);
-            nameText.Top.Set(5f, 0f);
-            panel.Append(nameText);
+            string armorIcon = GetArmorTypeIcon(armorType);
+            Color armorColor = GetArmorTypeColor(armorType);
+            
+            float level = modPlayer.ArmorProficiencyLevels.TryGetValue(armorType, out var lvl) ? lvl : 0f;
+            float experience = modPlayer.ArmorProficiencyExperience.TryGetValue(armorType, out var exp) ? exp : 0f;
+            float nextLevelExp = GetProficiencyExperienceForLevel((int)level + 1);
+            float progressPercent = nextLevelExp > 0 ? (experience / nextLevelExp) * 100f : 0f;
 
-            // Nível atual
-            int currentLevel = modPlayer.ArmorProficiencyLevels.TryGetValue(armorType, out var level) ? level : 1;
-            var levelText = new UIText($"Nível: {currentLevel}", 0.9f);
-            levelText.Top.Set(25f, 0f);
-            levelText.Left.Set(10f, 0f);
-            panel.Append(levelText);
-
-            // XP atual
-            float currentXP = modPlayer.ArmorProficiencyExperience.TryGetValue(armorType, out var xp) ? xp : 0f;
-            float xpNeeded = GetXPNeeded(currentLevel);
-            var xpText = new UIText($"XP: {currentXP:F0}/{xpNeeded:F0}", 0.9f);
-            xpText.Top.Set(25f, 0f);
-            xpText.Left.Set(150f, 0f);
-            panel.Append(xpText);
-
-            // Barra de progresso
-            var progressBar = CreateProgressBar(currentXP, xpNeeded);
-            progressBar.Top.Set(45f, 0f);
-            progressBar.Left.Set(10f, 0f);
-            progressBar.Width.Set(-20f, 1f);
-            progressBar.Height.Set(15f, 0f);
-            panel.Append(progressBar);
-
-            // Bônus atual
-            string bonusText = GetBonusText(armorType, currentLevel);
-            var bonusLabel = new UIText(bonusText, 0.8f);
-            bonusLabel.Top.Set(25f, 0f);
-            bonusLabel.Left.Set(300f, 0f);
-            panel.Append(bonusLabel);
-
-            return panel;
+            return new ProficiencyCard(armorName, armorIcon, armorColor, level, experience, nextLevelExp, progressPercent, topOffset);
         }
 
-        /// <summary>
-        /// Cria uma barra de progresso para o XP.
-        /// </summary>
-        /// <param name="currentXP">XP atual</param>
-        /// <param name="xpNeeded">XP necessário</param>
-        /// <returns>Barra de progresso</returns>
-        private UIElement CreateProgressBar(float currentXP, float xpNeeded)
+        private ProficiencyCard CreateWeaponProficiencyCard(WeaponType weaponType, RPGPlayer modPlayer, float topOffset = 0f)
         {
-            var container = new UIPanel();
+            string weaponName = GetWeaponTypeName(weaponType);
+            string weaponIcon = GetWeaponTypeIcon(weaponType);
+            Color weaponColor = GetWeaponTypeColor(weaponType);
             
-            // Fundo da barra
-            var background = new UIPanel();
-            background.Width.Set(0, 1f);
-            background.Height.Set(0, 1f);
-            background.BackgroundColor = new Color(50, 50, 50);
-            container.Append(background);
+            float level = modPlayer.WeaponProficiencyLevels.TryGetValue(weaponType, out var lvl) ? lvl : 0f;
+            float experience = modPlayer.WeaponProficiencyExperience.TryGetValue(weaponType, out var exp) ? exp : 0f;
+            float nextLevelExp = GetProficiencyExperienceForLevel((int)level + 1);
+            float progressPercent = nextLevelExp > 0 ? (experience / nextLevelExp) * 100f : 0f;
 
-            // Barra de progresso
-            float progress = xpNeeded > 0 ? currentXP / xpNeeded : 0f;
-            progress = MathHelper.Clamp(progress, 0f, 1f);
-            
-            var progressBar = new UIPanel();
-            progressBar.Width.Set(progress, 1f);
-            progressBar.Height.Set(0, 1f);
-            progressBar.BackgroundColor = new Color(0, 150, 255);
-            container.Append(progressBar);
+            return new ProficiencyCard(weaponName, weaponIcon, weaponColor, level, experience, nextLevelExp, progressPercent, topOffset);
+        }
 
-            return container;
+        // Comentado até implementar ProgressiveItemCard
+        /*
+        private ProgressiveItemCard CreateProgressiveItemCard(Item item, ProgressiveItem progressiveItem, float topOffset = 0f)
+        {
+            int level = progressiveItem.GetItemLevel();
+            float nextLevelExp = GetProficiencyExperienceForLevel(level + 1);
+            float progressPercent = nextLevelExp > 0 ? (progressiveItem.Experience / nextLevelExp) * 100f : 0f;
+            return new ProgressiveItemCard(item, progressiveItem, level, nextLevelExp, progressPercent, topOffset);
+        }
+        */
+
+        private float GetProficiencyExperienceForLevel(int level)
+        {
+            return 100f * (float)Math.Pow(level, 1.8f);
         }
 
         /// <summary>
-        /// Obtém o nome amigável do tipo de armadura.
+        /// Obtém o nome de um tipo de armadura.
         /// </summary>
         /// <param name="armorType">Tipo de armadura</param>
-        /// <returns>Nome amigável</returns>
+        /// <returns>Nome do tipo de armadura</returns>
         private string GetArmorTypeName(ArmorType armorType)
         {
             return armorType switch
@@ -181,32 +163,206 @@ namespace Wolfgodrpg.Common.UI.Menus
         }
 
         /// <summary>
-        /// Calcula o XP necessário para o próximo nível.
+        /// Obtém o ícone de um tipo de armadura.
         /// </summary>
-        /// <param name="level">Nível atual</param>
-        /// <returns>XP necessário</returns>
-        private float GetXPNeeded(int level)
+        /// <param name="armorType">Tipo de armadura</param>
+        /// <returns>Ícone do tipo de armadura</returns>
+        private string GetArmorTypeIcon(ArmorType armorType)
         {
-            return 100f + (level * 50f);
+            return armorType switch
+            {
+                ArmorType.Light => "🏃",
+                ArmorType.Heavy => "🛡️",
+                ArmorType.MagicRobes => "🔮",
+                _ => "🛡️"
+            };
         }
 
         /// <summary>
-        /// Obtém o texto do bônus atual.
+        /// Obtém a cor de um tipo de armadura.
         /// </summary>
         /// <param name="armorType">Tipo de armadura</param>
-        /// <param name="level">Nível atual</param>
-        /// <returns>Texto do bônus</returns>
-        private string GetBonusText(ArmorType armorType, int level)
+        /// <returns>Cor do tipo de armadura</returns>
+        private Color GetArmorTypeColor(ArmorType armorType)
         {
-            float bonus = (level - 1) * 0.02f; // +2% por nível
-            
             return armorType switch
             {
-                ArmorType.Light => $"Velocidade: +{bonus:P0}",
-                ArmorType.Heavy => $"Defesa: +{level * 0.5f:F1}",
-                ArmorType.MagicRobes => $"Mana: +{level * 2f:F0}",
-                _ => "Sem bônus"
+                ArmorType.Light => Color.LightBlue,             // Azul claro para velocidade
+                ArmorType.Heavy => Color.Gray,                  // Cinza para defesa
+                ArmorType.MagicRobes => Color.Purple,           // Roxo para magia
+                _ => Color.White
             };
         }
+
+        /// <summary>
+        /// Obtém o nome de um tipo de arma.
+        /// </summary>
+        /// <param name="weaponType">Tipo de arma</param>
+        /// <returns>Nome do tipo de arma</returns>
+        private string GetWeaponTypeName(WeaponType weaponType)
+        {
+            return weaponType switch
+            {
+                WeaponType.Melee => "Arma Corpo a Corpo",
+                WeaponType.Ranged => "Arma à Distância",
+                WeaponType.Magic => "Arma Mágica",
+                WeaponType.Summon => "Arma de Invocação",
+                _ => "Desconhecido"
+            };
+        }
+
+        /// <summary>
+        /// Obtém o ícone de um tipo de arma.
+        /// </summary>
+        /// <param name="weaponType">Tipo de arma</param>
+        /// <returns>Ícone do tipo de arma</returns>
+        private string GetWeaponTypeIcon(WeaponType weaponType)
+        {
+            return weaponType switch
+            {
+                WeaponType.Melee => "⚔️",
+                WeaponType.Ranged => "🏹",
+                WeaponType.Magic => "✨",
+                WeaponType.Summon => "🐾",
+                _ => "❓"
+            };
+        }
+
+        /// <summary>
+        /// Obtém a cor de um tipo de arma.
+        /// </summary>
+        /// <param name="weaponType">Tipo de arma</param>
+        /// <returns>Cor do tipo de arma</returns>
+        private Color GetWeaponTypeColor(WeaponType weaponType)
+        {
+            return weaponType switch
+            {
+                WeaponType.Melee => Color.OrangeRed,
+                WeaponType.Ranged => Color.GreenYellow,
+                WeaponType.Magic => Color.DeepSkyBlue,
+                WeaponType.Summon => Color.MediumPurple,
+                _ => Color.White
+            };
+        }
+
+        /// <summary>
+        /// Card de proficiência de armadura.
+        /// </summary>
+        private class ProficiencyCard : UIElement
+        {
+            public ProficiencyCard(string name, string icon, Color color, float level, float experience, float nextLevelExp, float progressPercent, float topOffset = 0f)
+            {
+                Width.Set(0, 1f);
+                Height.Set(110f, 0f);
+                Top.Set(topOffset, 0f);
+
+                // Ícone
+                var iconText = new UIText(icon, 1.5f);
+                iconText.TextColor = color;
+                iconText.Left.Set(20f, 0f);
+                iconText.Top.Set(20f, 0f);
+                Append(iconText);
+
+                // Nome
+                var titleText = new UIText(name, 1.0f, true);
+                titleText.TextColor = color;
+                titleText.Left.Set(80f, 0f);
+                titleText.Top.Set(15f, 0f);
+                Append(titleText);
+
+                // Nível
+                var levelText = new UIText($"Nível {level:F0}", 0.95f);
+                levelText.TextColor = Color.White;
+                levelText.Left.Set(80f, 0f);
+                levelText.Top.Set(45f, 0f);
+                Append(levelText);
+
+                // XP
+                var expText = new UIText($"XP: {experience:F0}/{nextLevelExp:F0}", 0.85f);
+                expText.TextColor = Color.LightGray;
+                expText.Left.Set(80f, 0f);
+                expText.Top.Set(65f, 0f);
+                Append(expText);
+
+                // Progresso
+                var progressText = new UIText($"Progresso: {progressPercent:F1}%", 0.8f);
+                progressText.TextColor = RPGDesignSystem.GetProgressColor(progressPercent);
+                progressText.Left.Set(80f, 0f);
+                progressText.Top.Set(85f, 0f);
+                Append(progressText);
+            }
+
+            protected override void DrawSelf(SpriteBatch spriteBatch)
+            {
+                var dimensions = GetInnerDimensions();
+                var rect = dimensions.ToRectangle();
+                var color = Color.White * 0.08f;
+                spriteBatch.Draw(TextureAssets.MagicPixel.Value, rect, color);
+                spriteBatch.Draw(TextureAssets.MagicPixel.Value, new Rectangle(rect.X, rect.Y, rect.Width, 2), Color.Gray);
+                spriteBatch.Draw(TextureAssets.MagicPixel.Value, new Rectangle(rect.X, rect.Y, 2, rect.Height), Color.Gray);
+                spriteBatch.Draw(TextureAssets.MagicPixel.Value, new Rectangle(rect.X + rect.Width - 2, rect.Y, 2, rect.Height), Color.Gray);
+                spriteBatch.Draw(TextureAssets.MagicPixel.Value, new Rectangle(rect.X, rect.Y + rect.Height - 2, rect.Width, 2), Color.Gray);
+            }
+        }
+
+        /// <summary>
+        /// Card de proficiência de arma.
+        /// </summary>
+        private class WeaponProficiencyCard : UIElement
+        {
+            public WeaponProficiencyCard(string name, string icon, Color color, float level, float experience, float nextLevelExp, float progressPercent, float topOffset = 0f)
+            {
+                Width.Set(0, 1f);
+                Height.Set(110f, 0f);
+                Top.Set(topOffset, 0f);
+
+                // Ícone
+                var iconText = new UIText(icon, 1.5f);
+                iconText.TextColor = color;
+                iconText.Left.Set(20f, 0f);
+                iconText.Top.Set(20f, 0f);
+                Append(iconText);
+
+                // Nome
+                var titleText = new UIText(name, 1.0f, true);
+                titleText.TextColor = color;
+                titleText.Left.Set(80f, 0f);
+                titleText.Top.Set(15f, 0f);
+                Append(titleText);
+
+                // Nível
+                var levelText = new UIText($"Nível {level:F0}", 0.95f);
+                levelText.TextColor = Color.White;
+                levelText.Left.Set(80f, 0f);
+                levelText.Top.Set(45f, 0f);
+                Append(levelText);
+
+                // XP
+                var expText = new UIText($"XP: {experience:F0}/{nextLevelExp:F0}", 0.85f);
+                expText.TextColor = Color.LightGray;
+                expText.Left.Set(80f, 0f);
+                expText.Top.Set(65f, 0f);
+                Append(expText);
+
+                // Progresso
+                var progressText = new UIText($"Progresso: {progressPercent:F1}%", 0.8f);
+                progressText.TextColor = RPGDesignSystem.GetProgressColor(progressPercent);
+                progressText.Left.Set(80f, 0f);
+                progressText.Top.Set(85f, 0f);
+                Append(progressText);
+            }
+
+            protected override void DrawSelf(SpriteBatch spriteBatch)
+            {
+                var dimensions = GetInnerDimensions();
+                var rect = dimensions.ToRectangle();
+                var color = Color.White * 0.08f;
+                spriteBatch.Draw(TextureAssets.MagicPixel.Value, rect, color);
+                spriteBatch.Draw(TextureAssets.MagicPixel.Value, new Rectangle(rect.X, rect.Y, rect.Width, 2), Color.Gray);
+                spriteBatch.Draw(TextureAssets.MagicPixel.Value, new Rectangle(rect.X, rect.Y, 2, rect.Height), Color.Gray);
+                spriteBatch.Draw(TextureAssets.MagicPixel.Value, new Rectangle(rect.X + rect.Width - 2, rect.Y, 2, rect.Height), Color.Gray);
+                spriteBatch.Draw(TextureAssets.MagicPixel.Value, new Rectangle(rect.X, rect.Y + rect.Height - 2, rect.Width, 2), Color.Gray);
+            }
+        }
     }
-} 
+}

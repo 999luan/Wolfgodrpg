@@ -6,14 +6,15 @@ using System.Linq;
 using Terraria;
 using Terraria.GameContent;
 using Terraria.GameContent.UI.Elements;
-using Terraria.GameInput;
-using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.UI;
-using Wolfgodrpg.Common.Players;
 using Wolfgodrpg.Common.Classes;
+using Wolfgodrpg.Common.Players;
+using Wolfgodrpg.Common.Systems;
 using Wolfgodrpg.Common.UI.Design;
 using Wolfgodrpg.Common.Utils;
+using Terraria.Audio;
+using Terraria.ID;
 
 namespace Wolfgodrpg.Common.UI.Menus
 {
@@ -55,28 +56,84 @@ namespace Wolfgodrpg.Common.UI.Menus
             
             var player = modPlayer.Player;
 
-            // Vitals
-            _statsList.Add(new StatCard("Fome", $"{modPlayer.CurrentHunger:F1}%", "🍖", "Coma ou morra de fome!", "Afeta a regeneração de vida e velocidade de movimento.", RPGDesignSystem.GetVitalColor(modPlayer.CurrentHunger)));
-            _statsList.Add(new StatCard("Sanidade", $"{modPlayer.CurrentSanity:F1}%", "🧠", "Não enlouqueça!", "Afeta a chance de eventos aleatórios e buffs mentais.", RPGDesignSystem.GetVitalColor(modPlayer.CurrentSanity)));
-            _statsList.Add(new StatCard("Stamina", $"{modPlayer.CurrentStamina:F1}%", "⚡", "Fôlego de atleta!", "Afeta a velocidade de dash, pulo e ações físicas.", RPGDesignSystem.GetVitalColor(modPlayer.CurrentStamina)));
+            // Player Level and Attribute Points
+            _statsList.Add(new StatCard(
+                "Nível Geral",
+                $"{modPlayer.PlayerLevel}",
+                "👑",
+                "Evolução constante!",
+                $"XP: {modPlayer.PlayerExperience:F0}/{RPGPlayer.GetPlayerExperienceForLevel(modPlayer.PlayerLevel + 1):F0} | Pontos: {modPlayer.AttributePoints}",
+                RPGDesignSystem.Colors.Warning
+            ));
 
-            // Base stats
-            _statsList.Add(new StatCard("Vida", $"{player.statLife} / {player.statLifeMax2}", "❤️", "Cuidado com os chefes!", "Se chegar a zero, você morre.", RPGDesignSystem.Colors.Success));
-            _statsList.Add(new StatCard("Mana", $"{player.statMana} / {player.statManaMax2}", "🔮", "Místicos piram!", "Necessária para magias e habilidades especiais.", RPGDesignSystem.Colors.Info));
-            _statsList.Add(new StatCard("Defesa", $"{player.statDefense}", "🛡️", "Torne-se uma muralha!", "Reduz o dano recebido de inimigos.", RPGDesignSystem.Colors.Primary));
-            _statsList.Add(new StatCard("Velocidade", $"{player.moveSpeed:F2}", "🏃", "Gotta go fast!", "Afeta o quão rápido você se move.", RPGDesignSystem.Colors.PrimaryLight));
+            // Primary Attributes with distribution buttons
+            _statsList.Add(new AttributeStatCard(modPlayer, "Força", modPlayer.Strength, "💪", "Poder bruto!", "Afeta dano corpo a corpo e capacidade de carga.\nClasses relacionadas: Guerreiro, Blacksmith", RPGDesignSystem.Colors.Warning, "Strength"));
+            _statsList.Add(new AttributeStatCard(modPlayer, "Destreza", modPlayer.Dexterity, "🎯", "Precisão de sniper!", "Afeta dano à distância, chance crítica e velocidade de ataque.\nClasses relacionadas: Arqueiro, Acrobata", RPGDesignSystem.Colors.Info, "Dexterity"));
+            _statsList.Add(new AttributeStatCard(modPlayer, "Inteligência", modPlayer.Intelligence, "🧠", "Einstein do pixel!", "Afeta dano mágico, mana máxima e velocidade de conjuração.\nClasses relacionadas: Mago, Alquimista, Místico", RPGDesignSystem.Colors.Primary, "Intelligence"));
+            _statsList.Add(new AttributeStatCard(modPlayer, "Constituição", modPlayer.Constitution, "🛡️", "Tank de verdade!", "Afeta vida máxima, defesa e regeneração de vida.\nClasses relacionadas: Guerreiro, Sobrevivente", RPGDesignSystem.Colors.Success, "Constitution"));
+            _statsList.Add(new AttributeStatCard(modPlayer, "Sabedoria", modPlayer.Wisdom, "🦉", "Conhecimento ancestral!", "Afeta dano de invocação, sorte e resistência a debuffs.\nClasses relacionadas: Místico, Invocador", RPGDesignSystem.Colors.PrimaryLight, "Wisdom"));
 
-            // Atributos primários
-            _statsList.Add(new StatCard("Força", $"{modPlayer.Strength}", "💪", "Hulk smash!", "Afeta dano corpo a corpo e capacidade de carga.", RPGDesignSystem.Colors.Warning));
-            _statsList.Add(new StatCard("Destreza", $"{modPlayer.Dexterity}", "🎯", "Precisão de sniper!", "Afeta dano à distância, chance crítica e velocidade de ataque.", RPGDesignSystem.Colors.Info));
-            _statsList.Add(new StatCard("Inteligência", $"{modPlayer.Intelligence}", "🧠", "Einstein do pixel!", "Afeta dano mágico, mana máxima e velocidade de conjuração.", RPGDesignSystem.Colors.Primary));
-            _statsList.Add(new StatCard("Constituição", $"{modPlayer.Constitution}", "🛡️", "Tank de verdade!", "Afeta vida máxima, defesa e regeneração de vida.", RPGDesignSystem.Colors.Success));
-            _statsList.Add(new StatCard("Sabedoria", $"{modPlayer.Wisdom}", "✨", "Sábio como Gandalf!", "Afeta dano de invocação, sorte e resistência a debuffs.", RPGDesignSystem.Colors.PrimaryLight));
+            // Vital Stats
+            _statsList.Add(new StatCard(
+                "Fome",
+                $"{modPlayer.CurrentHunger:F1}%",
+                "🍖",
+                "Coma ou morra de fome!",
+                "Afeta a regeneração de vida e velocidade de movimento.",
+                RPGDesignSystem.GetVitalColor(modPlayer.CurrentHunger)
+            ));
+            _statsList.Add(new StatCard(
+                "Sanidade",
+                $"{modPlayer.CurrentSanity:F1}%",
+                "🧠",
+                "Não enlouqueça!",
+                "Afeta a chance de eventos aleatórios e buffs mentais.",
+                RPGDesignSystem.GetVitalColor(modPlayer.CurrentSanity)
+            ));
+            _statsList.Add(new StatCard(
+                "Stamina",
+                $"{modPlayer.CurrentStamina:F1}%",
+                "⚡",
+                "Fôlego de atleta!",
+                "Afeta a velocidade de dash, pulo e ações físicas.",
+                RPGDesignSystem.GetVitalColor(modPlayer.CurrentStamina)
+            ));
 
-            // Nível do jogador
-            _statsList.Add(new StatCard("Nível Geral", $"{modPlayer.PlayerLevel}", "👑", "Evolução constante!", $"XP: {modPlayer.PlayerExperience:F0}/{GetPlayerExperienceForLevel(modPlayer.PlayerLevel + 1):F0} | Pontos: {modPlayer.AttributePoints}", RPGDesignSystem.Colors.Warning));
+            // Player Stats (Vida, Mana, Defesa, Velocidade)
+            _statsList.Add(new StatCard(
+                "Vida",
+                $"{player.statLife} / {player.statLifeMax2}",
+                "❤️",
+                "Cuidado com os chefes!",
+                "Se chegar a zero, você morre.",
+                RPGDesignSystem.Colors.Success
+            ));
+            _statsList.Add(new StatCard(
+                "Mana",
+                $"{player.statMana} / {player.statManaMax2}",
+                "🔮",
+                "Místicos piram!",
+                "Necessária para magias e habilidades especiais.",
+                RPGDesignSystem.Colors.Info
+            ));
+            _statsList.Add(new StatCard(
+                "Defesa",
+                $"{player.statDefense}",
+                "🛡️",
+                "Torne-se uma muralha!",
+                "Reduz o dano recebido de inimigos.",
+                RPGDesignSystem.Colors.Primary
+            ));
+            _statsList.Add(new StatCard(
+                "Velocidade",
+                $"{player.moveSpeed:F2}",
+                "🏃",
+                "Gotta go fast!",
+                "Afeta o quão rápido você se move.",
+                RPGDesignSystem.Colors.PrimaryLight
+            ));
 
-            // Classes
+            // Class Levels (existing logic)
             if (RPGClassDefinitions.ActionClasses != null)
             {
                 foreach (var classEntry in RPGClassDefinitions.ActionClasses)
@@ -84,18 +141,15 @@ namespace Wolfgodrpg.Common.UI.Menus
                     string classKey = classEntry.Key;
                     var classInfo = classEntry.Value;
                     if (classInfo == null) continue;
-                    
                     float level = modPlayer.ClassLevels.TryGetValue(classKey, out var lvl) ? lvl : 0f;
                     float currentExp = 0;
                     modPlayer.ClassExperience.TryGetValue(classKey, out currentExp);
                     float nextLevelExp = 100f * (float)Math.Pow(level + 1, 1.5);
                     float progressPercent = nextLevelExp > 0 ? (currentExp / nextLevelExp * 100f) : 0f;
-                    
                     var nextMilestone = classInfo.Milestones?.FirstOrDefault(m => (int)m.Key > level) ?? default;
                     string desc = !nextMilestone.Equals(default(KeyValuePair<ClassAbility, string>)) && !string.IsNullOrEmpty(nextMilestone.Value)
                         ? $"Próxima habilidade: {nextMilestone.Value} (Nv.{(int)nextMilestone.Key})"
                         : "Todas habilidades desbloqueadas!";
-                    
                     string funny = classKey switch {
                         "warrior" => "Só vai na porrada!",
                         "archer" => "Robin Hood wannabe.",
@@ -110,14 +164,14 @@ namespace Wolfgodrpg.Common.UI.Menus
                         "mystic" => "Vidente de plantão.",
                         _ => "Classe misteriosa..."
                     };
-                    
                     _statsList.Add(new StatCard(
                         classInfo.Name + $" (Nv.{level:F0})",
                         $"XP: {currentExp:F0}/{nextLevelExp:F0} ({progressPercent:F1}%)",
-                        GetClassIcon(classKey),
+                        "⭐",
                         funny,
                         desc,
-                        RPGDesignSystem.GetClassColor(classKey)));
+                        RPGDesignSystem.GetClassColor(classKey)
+                    ));
                 }
             }
         }
@@ -125,25 +179,6 @@ namespace Wolfgodrpg.Common.UI.Menus
         private float GetPlayerExperienceForLevel(int level)
         {
             return 100f * (float)Math.Pow(level, 1.8f);
-        }
-
-        private string GetClassIcon(string classKey)
-        {
-            return classKey switch
-            {
-                "warrior" => "⚔️",
-                "archer" => "🏹",
-                "mage" => "🔮",
-                "summoner" => "👾",
-                "acrobat" => "🤸",
-                "explorer" => "🧭",
-                "engineer" => "🔧",
-                "survivalist" => "🌲",
-                "blacksmith" => "🛠️",
-                "alchemist" => "⚗️",
-                "mystic" => "✨",
-                _ => "⭐"
-            };
         }
 
         private class StatCard : UIElement
@@ -159,53 +194,198 @@ namespace Wolfgodrpg.Common.UI.Menus
             {
                 _color = color;
                 Width.Set(0, 1f);
-                Height.Set(220f, 0f);
+                Height.Set(110f, 0f); // Adjusted height for consistency
 
-                // Título
-                _titleText = new UIText(title, 1.2f, true);
-                _titleText.TextColor = color;
-                _titleText.Left.Set(20f, 0f);
-                _titleText.Top.Set(15f, 0f);
-                Append(_titleText);
+                // Background panel
+                UIPanel bg = new UIPanel();
+                bg.Width.Set(0, 1f);
+                bg.Height.Set(0, 1f);
+                bg.BackgroundColor = color * 0.1f;
+                bg.BorderColor = color;
+                Append(bg);
 
-                // Ícone
-                _iconText = new UIText(icon, 2f);
+                // Icon
+                _iconText = new UIText(icon, 1.5f);
                 _iconText.TextColor = color;
-                _iconText.Left.Set(20f, 0f);
-                _iconText.Top.Set(50f, 0f);
-                Append(_iconText);
+                _iconText.Left.Set(10f, 0f);
+                _iconText.Top.Set(10f, 0f);
+                bg.Append(_iconText);
 
-                // Valor
+                // Title
+                _titleText = new UIText(title, 1.0f, true);
+                _titleText.TextColor = color;
+                _titleText.Left.Set(60f, 0f);
+                _titleText.Top.Set(10f, 0f);
+                bg.Append(_titleText);
+
+                // Value
                 _valueText = new UIText(value, 1.1f);
                 _valueText.TextColor = Color.White;
-                _valueText.Left.Set(80f, 0f);
-                _valueText.Top.Set(50f, 0f);
-                Append(_valueText);
+                _valueText.Left.Set(60f, 0f);
+                _valueText.Top.Set(40f, 0f);
+                bg.Append(_valueText);
 
-                // Texto engraçado
+                // Funny text
                 _funnyText = new UIText(funny, 0.9f);
                 _funnyText.TextColor = Color.LightGray;
-                _funnyText.Left.Set(20f, 0f);
-                _funnyText.Top.Set(90f, 0f);
-                Append(_funnyText);
+                _funnyText.Left.Set(10f, 0f);
+                _funnyText.Top.Set(70f, 0f);
+                bg.Append(_funnyText);
 
-                // Descrição
+                // Description
                 _descText = new UIText(description, 0.8f);
                 _descText.TextColor = Color.Gray;
-                _descText.Left.Set(20f, 0f);
-                _descText.Top.Set(120f, 0f);
-                Append(_descText);
+                _descText.Left.Set(10f, 0f);
+                _descText.Top.Set(90f, 0f); // Adjusted position
+                bg.Append(_descText);
             }
 
             protected override void DrawSelf(SpriteBatch spriteBatch)
             {
+                base.DrawSelf(spriteBatch);
                 var dimensions = GetInnerDimensions();
                 var rect = dimensions.ToRectangle();
-
-                // Fundo do card
-                spriteBatch.Draw(TextureAssets.MagicPixel.Value, rect, _color * 0.1f);
+                var color = _color * 0.08f;
+                spriteBatch.Draw(TextureAssets.MagicPixel.Value, rect, color);
                 
-                // Borda
+                // Border
+                spriteBatch.Draw(TextureAssets.MagicPixel.Value, new Rectangle(rect.X, rect.Y, rect.Width, 2), _color);
+                spriteBatch.Draw(TextureAssets.MagicPixel.Value, new Rectangle(rect.X, rect.Y, 2, rect.Height), _color);
+                spriteBatch.Draw(TextureAssets.MagicPixel.Value, new Rectangle(rect.X + rect.Width - 2, rect.Y, 2, rect.Height), _color);
+                spriteBatch.Draw(TextureAssets.MagicPixel.Value, new Rectangle(rect.X, rect.Y + rect.Height - 2, rect.Width, 2), _color);
+            }
+
+            public override void MouseOver(UIMouseEvent evt)
+            {
+                base.MouseOver(evt);
+                Main.instance.MouseText(_descText.Text);
+            }
+        }
+
+        private class AttributeStatCard : UIElement
+        {
+            private RPGPlayer _modPlayer;
+            private string _attributeName;
+            private string _attributeKey; // e.g., "Strength", "Dexterity"
+            private UIText _valueText;
+            private Color _color;
+            private UIText _descText; // Added for tooltip
+
+            public AttributeStatCard(RPGPlayer modPlayer, string title, int value, string icon, string funny, string description, Color color, string attributeKey)
+            {
+                _modPlayer = modPlayer;
+                _attributeName = title;
+                _attributeKey = attributeKey;
+                _color = color;
+
+                Width.Set(0, 1f);
+                Height.Set(110f, 0f); // Adjust height as needed for buttons
+
+                // Background panel
+                UIPanel bg = new UIPanel();
+                bg.Width.Set(0, 1f);
+                bg.Height.Set(0, 1f);
+                bg.BackgroundColor = color * 0.1f;
+                bg.BorderColor = color;
+                Append(bg);
+
+                // Icon
+                UIText iconText = new UIText(icon, 1.5f);
+                iconText.TextColor = color;
+                iconText.Left.Set(10f, 0f);
+                iconText.Top.Set(10f, 0f);
+                bg.Append(iconText);
+
+                // Title
+                UIText titleText = new UIText(title, 1.0f, true);
+                titleText.TextColor = color;
+                titleText.Left.Set(60f, 0f);
+                titleText.Top.Set(10f, 0f);
+                bg.Append(titleText);
+
+                // Value
+                _valueText = new UIText(value.ToString(), 1.1f);
+                _valueText.TextColor = Color.White;
+                _valueText.Left.Set(60f, 0f);
+                _valueText.Top.Set(40f, 0f);
+                bg.Append(_valueText);
+
+                // Funny text
+                UIText funnyText = new UIText(funny, 0.9f);
+                funnyText.TextColor = Color.LightGray;
+                funnyText.Left.Set(10f, 0f);
+                funnyText.Top.Set(70f, 0f);
+                bg.Append(funnyText);
+
+                // Description (tooltip)
+                _descText = new UIText(description, 0.8f);
+                _descText.TextColor = Color.Gray;
+                _descText.Left.Set(10f, 0f);
+                _descText.Top.Set(90f, 0f); // Adjusted position
+                bg.Append(_descText);
+
+                // Plus button
+                UIPanel plusButton = new UIPanel();
+                plusButton.Width.Set(30f, 0f);
+                plusButton.Height.Set(30f, 0f);
+                plusButton.Left.Set(-40f, 1f);
+                plusButton.Top.Set(10f, 0f);
+                plusButton.BackgroundColor = RPGDesignSystem.Colors.Success;
+                plusButton.BorderColor = Color.Green;
+                plusButton.OnLeftClick += PlusButton_OnLeftClick;
+                bg.Append(plusButton);
+
+                UIText plusText = new UIText("+", 1.2f, true);
+                plusText.HAlign = 0.5f;
+                plusText.VAlign = 0.5f;
+                plusButton.Append(plusText);
+            }
+
+            private void PlusButton_OnLeftClick(UIMouseEvent evt, UIElement listeningElement)
+            {
+                if (_modPlayer.AttributePoints > 0)
+                {
+                    _modPlayer.AttributePoints--;
+                    switch (_attributeKey)
+                    {
+                        case "Strength": _modPlayer.Strength++; break;
+                        case "Dexterity": _modPlayer.Dexterity++; break;
+                        case "Intelligence": _modPlayer.Intelligence++; break;
+                        case "Constitution": _modPlayer.Constitution++; break;
+                        case "Wisdom": _modPlayer.Wisdom++; break;
+                    }
+                    _valueText.SetText(GetAttributeValue().ToString());
+                    SoundEngine.PlaySound(SoundID.MenuTick); // Generic sound
+                    // Trigger a full UI update to reflect changes in AttributePoints and other stats
+                    Main.LocalPlayer.GetModPlayer<RPGPlayer>().Player.statLifeMax2 += 1; // Dummy change to trigger UI update
+                }
+                else
+                {
+                    Main.NewText("Você não tem pontos de atributo disponíveis!", Color.Red);
+                }
+            }
+
+            private int GetAttributeValue()
+            {
+                return _attributeKey switch
+                {
+                    "Strength" => _modPlayer.Strength,
+                    "Dexterity" => _modPlayer.Dexterity,
+                    "Intelligence" => _modPlayer.Intelligence,
+                    "Constitution" => _modPlayer.Constitution,
+                    "Wisdom" => _modPlayer.Wisdom,
+                    _ => 0
+                };
+            }
+
+            protected override void DrawSelf(SpriteBatch spriteBatch)
+            {
+                base.DrawSelf(spriteBatch);
+                // Custom drawing for the card background and border
+                var dimensions = GetInnerDimensions();
+                var rect = dimensions.ToRectangle();
+                var color = _color * 0.08f;
+                spriteBatch.Draw(TextureAssets.MagicPixel.Value, rect, color);
                 spriteBatch.Draw(TextureAssets.MagicPixel.Value, new Rectangle(rect.X, rect.Y, rect.Width, 2), _color);
                 spriteBatch.Draw(TextureAssets.MagicPixel.Value, new Rectangle(rect.X, rect.Y, 2, rect.Height), _color);
                 spriteBatch.Draw(TextureAssets.MagicPixel.Value, new Rectangle(rect.X + rect.Width - 2, rect.Y, 2, rect.Height), _color);
@@ -219,4 +399,4 @@ namespace Wolfgodrpg.Common.UI.Menus
             }
         }
     }
-} 
+}

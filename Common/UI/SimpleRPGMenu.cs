@@ -38,7 +38,7 @@ namespace Wolfgodrpg.Common.UI
 
         private RPGStatsPageUI _statsPageUI;
         private RPGClassesPageUI _classesPageUI;
-        private RPGItemsPageUI _itemsPageUI;
+        private RPGSkillsPageUI _skillsPageUI;
         private RPGProgressPageUI _progressPageUI;
         private RPGProficienciesPageUI _proficienciesPageUI;
 
@@ -87,14 +87,14 @@ namespace Wolfgodrpg.Common.UI
             _statsPageUI.Activate();
             _classesPageUI = new RPGClassesPageUI();
             _classesPageUI.Activate();
-            _itemsPageUI = new RPGItemsPageUI();
-            _itemsPageUI.Activate();
+            _skillsPageUI = new RPGSkillsPageUI();
+            _skillsPageUI.Activate();
             _progressPageUI = new RPGProgressPageUI();
             _progressPageUI.Activate();
             _proficienciesPageUI = new RPGProficienciesPageUI();
             _proficienciesPageUI.Activate();
             
-            _pages = new List<UIElement> { _statsPageUI, _classesPageUI, _itemsPageUI, _progressPageUI, _proficienciesPageUI };
+            _pages = new List<UIElement> { _statsPageUI, _classesPageUI, _skillsPageUI, _progressPageUI, _proficienciesPageUI };
             _tabButtons = new List<UITextPanel<string>>();
 
             string[] tabNames = { "Status", "Classes", "Itens", "Progresso", "Proficiências" };
@@ -306,7 +306,7 @@ namespace Wolfgodrpg.Common.UI
                     _classesPageUI.UpdateClasses(modPlayer);
                     break;
                 case MenuPage.Items:
-                    _itemsPageUI.UpdateItems();
+                    _skillsPageUI.UpdateSkills(modPlayer);
                     break;
                 case MenuPage.Progress:
                     _progressPageUI.UpdateProgress(modPlayer);

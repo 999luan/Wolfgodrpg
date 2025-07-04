@@ -37,6 +37,17 @@ namespace Wolfgodrpg.Common.Systems
                         totalStats[statBonus.Key] += statBonus.Value * level;
                     }
                 }
+                
+                // 2.1. Adicione os bônus das milestones desbloqueadas
+                var milestoneBonuses = RPGClassMilestones.CalculateMilestoneBonuses(className, level);
+                foreach (var bonus in milestoneBonuses)
+                {
+                    if (!totalStats.ContainsKey(bonus.Key))
+                    {
+                        totalStats[bonus.Key] = 0;
+                    }
+                    totalStats[bonus.Key] += bonus.Value;
+                }
             }
 
             // 3. Adicione os bônus de proficiência de armadura ⭐ NOVO
@@ -174,6 +185,107 @@ namespace Wolfgodrpg.Common.Systems
                         break;
                     case "miningSpeed":
                         player.pickSpeed -= stat.Value; // Menor é mais rápido
+                        break;
+                    
+                    // Stats das Milestones
+                    case "summonDamage":
+                        player.GetDamage(DamageClass.Summon).Base += stat.Value;
+                        break;
+                    case "summonSpeed":
+                        // Velocidade de invocação (implementar no futuro)
+                        break;
+                    case "extraJumps":
+                        // Pulos extras (implementar no futuro)
+                        break;
+                    case "extraDashes":
+                        // Dash extras (já implementado no RPGPlayer)
+                        break;
+                    case "projectileSpeed":
+                        // Velocidade de projéteis (implementar no futuro)
+                        break;
+                    case "reloadSpeed":
+                        // Velocidade de recarga (implementar no futuro)
+                        break;
+                    case "castSpeed":
+                        // Velocidade de conjuração (implementar no futuro)
+                        break;
+                    case "lightRadius":
+                        // Raio de luz (implementar no futuro)
+                        break;
+                    case "rareLootChance":
+                        // Chance de loot raro (implementar no futuro)
+                        break;
+                    case "trapResistance":
+                        // Resistência a armadilhas (implementar no futuro)
+                        break;
+                    case "inventorySlots":
+                        // Slots de inventário (implementar no futuro)
+                        break;
+                    case "trapDamage":
+                        // Dano de armadilhas (implementar no futuro)
+                        break;
+                    case "turretSlots":
+                        // Slots de torretas (implementar no futuro)
+                        break;
+                    case "repairSpeed":
+                        // Velocidade de reparo (implementar no futuro)
+                        break;
+                    case "machineEfficiency":
+                        // Eficiência de máquinas (implementar no futuro)
+                        break;
+                    case "buildSpeed":
+                        // Velocidade de construção (implementar no futuro)
+                        break;
+                    case "damageResistance":
+                        // Resistência a dano (implementar no futuro)
+                        break;
+                    case "extraLootChance":
+                        // Chance de loot extra (implementar no futuro)
+                        break;
+                    case "rareResourceChance":
+                        // Chance de recursos raros (implementar no futuro)
+                        break;
+                    case "hungerRate":
+                        // Taxa de fome (implementar no futuro)
+                        break;
+                    case "debuffResistance":
+                        // Resistência a debuffs (implementar no futuro)
+                        break;
+                    case "sanityRate":
+                        // Taxa de sanidade (implementar no futuro)
+                        break;
+                    case "forgeQuality":
+                        // Qualidade de forja (implementar no futuro)
+                        break;
+                    case "toolDamage":
+                        // Dano de ferramentas (implementar no futuro)
+                        break;
+                    case "forgedWeaponDamage":
+                        // Dano de armas forjadas (implementar no futuro)
+                        break;
+                    case "rareItemChance":
+                        // Chance de itens raros (implementar no futuro)
+                        break;
+                    case "potionHealing":
+                        // Cura de poções (implementar no futuro)
+                        break;
+                    case "buffDuration":
+                        // Duração de buffs (implementar no futuro)
+                        break;
+                    case "buffSlots":
+                        // Slots de buff (implementar no futuro)
+                        break;
+                    case "potionUseSpeed":
+                        // Velocidade de uso de poções (implementar no futuro)
+                        break;
+                    case "minionHealth":
+                        // Vida de minions (implementar no futuro)
+                        break;
+                    case "sentinelSlots":
+                        // Slots de sentinelas (implementar no futuro)
+                        break;
+                    case "allyLifeRegen":
+                        // Regeneração de aliados (implementar no futuro)
                         break;
                     
                     // Outros

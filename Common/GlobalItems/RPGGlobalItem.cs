@@ -8,6 +8,7 @@ using Wolfgodrpg.Common.Systems;
 using Terraria.DataStructures;
 using Microsoft.Xna.Framework;
 using Wolfgodrpg.Common.Data;
+using Wolfgodrpg.Common.Players;
 
 namespace Wolfgodrpg.Common.GlobalItems
 {
@@ -223,6 +224,154 @@ namespace Wolfgodrpg.Common.GlobalItems
                     tooltips.Add(line);
                 }
             }
+
+            // Apenas para o jogador local
+            if (Main.LocalPlayer.GetModPlayer<RPGPlayer>() is not RPGPlayer modPlayer)
+                return;
+
+            // Determinar tipo de arma/armadura
+            WeaponType weaponType = GetWeaponType(item);
+            ArmorType armorType = GetArmorType(item);
+
+            // Adicionar tooltip de proficiência de arma
+            if (weaponType != WeaponType.None)
+            {
+                int level = modPlayer.WeaponProficiencyLevels.GetValueOrDefault(weaponType, 0);
+                float xp = modPlayer.WeaponProficiencyExperience.GetValueOrDefault(weaponType, 0f);
+                float xpNeeded = GetWeaponXPNeeded(level);
+                
+                string weaponTypeName = GetWeaponTypeDisplayName(weaponType);
+                Color color = level > 0 ? Color.Gold : Color.Gray;
+                
+                tooltips.Add(new TooltipLine(Mod, "WeaponProficiency", 
+                    $"[c/{color.Hex3()}:Proficiência {weaponTypeName}: Nível {level}]"));
+                
+                if (level > 0)
+                {
+                    float progress = (xp / xpNeeded) * 100f;
+                    tooltips.Add(new TooltipLine(Mod, "WeaponProgress", 
+                        $"[c/7F7F7F:Progresso: {progress:F1}% ({xp:F0}/{xpNeeded:F0} XP)]"));
+                }
+            }
+
+            // Adicionar tooltip de proficiência de armadura
+            if (armorType != ArmorType.None)
+            {
+                int level = modPlayer.ArmorProficiencyLevels.GetValueOrDefault(armorType, 0);
+                float xp = modPlayer.ArmorProficiencyExperience.GetValueOrDefault(armorType, 0f);
+                float xpNeeded = GetArmorXPNeeded(level);
+                
+                string armorTypeName = GetArmorTypeDisplayName(armorType);
+                Color color = level > 0 ? Color.Gold : Color.Gray;
+                
+                tooltips.Add(new TooltipLine(Mod, "ArmorProficiency", 
+                    $"[c/{color.Hex3()}:Proficiência {armorTypeName}: Nível {level}]"));
+                
+                if (level > 0)
+                {
+                    float progress = (xp / xpNeeded) * 100f;
+                    tooltips.Add(new TooltipLine(Mod, "ArmorProgress", 
+                        $"[c/7F7F7F:Progresso: {progress:F1}% ({xp:F0}/{xpNeeded:F0} XP)]"));
+                }
+            }
+        }
+
+        private WeaponType GetWeaponType(Item item)
+        {
+            // Verificar por DamageType primeiro
+            if (item.DamageType == DamageClass.Melee)
+                return WeaponType.Melee;
+            if (item.DamageType == DamageClass.Ranged)
+                return WeaponType.Ranged;
+            if (item.DamageType == DamageClass.Magic)
+                return WeaponType.Magic;
+            if (item.DamageType == DamageClass.Summon)
+                return WeaponType.Summon;
+            
+            // Fallback: verificar por nome do item
+            string itemName = item.Name.ToLower();
+            
+            // Melee weapons
+            if (itemName.Contains("sword") || itemName.Contains("axe") || itemName.Contains("hammer") || 
+                itemName.Contains("spear") || itemName.Contains("lance") || itemName.Contains("dagger") ||
+                itemName.Contains("knife") || itemName.Contains("mace") || itemName.Contains("flail"))
+                return WeaponType.Melee;
+            
+            // Ranged weapons
+            if (itemName.Contains("bow") || itemName.Contains("gun") || itemName.Contains("rifle") ||
+                itemName.Contains("pistol") || itemName.Contains("revolver") || itemName.Contains("crossbow") ||
+                itemName.Contains("blowgun") || itemName.Contains("dart") || itemName.Contains("arrow"))
+                return WeaponType.Ranged;
+            
+            // Magic weapons
+            if (itemName.Contains("staff") || itemName.Contains("wand") || itemName.Contains("book") ||
+                itemName.Contains("spell") || itemName.Contains("magic") || itemName.Contains("crystal") ||
+                itemName.Contains("orb") || itemName.Contains("tome"))
+                return WeaponType.Magic;
+            
+            // Summon weapons
+            if (itemName.Contains("whip") || itemName.Contains("summon") || itemName.Contains("staff") ||
+                itemName.Contains("rod") || itemName.Contains("crystal") || itemName.Contains("minion"))
+                return WeaponType.Summon;
+            
+            return WeaponType.None;
+        }
+
+        private ArmorType GetArmorType(Item item)
+        {
+            // Verificar se é armadura mágica
+            if (item.manaIncrease > 0 || 
+                item.Name.ToLower().Contains("robe") || 
+                item.Name.ToLower().Contains("wizard") || 
+                item.Name.ToLower().Contains("mage"))
+                return ArmorType.MagicRobes;
+            
+            // Verificar se é armadura pesada
+            if (item.defense >= 8 || 
+                item.Name.ToLower().Contains("plate") || 
+                item.Name.ToLower().Contains("heavy") ||
+                item.Name.ToLower().Contains("titanium") ||
+                item.Name.ToLower().Contains("adamantite"))
+                return ArmorType.Heavy;
+            
+            // Verificar se é armadura leve
+            if (item.defense > 0)
+                return ArmorType.Light;
+            
+            return ArmorType.None;
+        }
+
+        private string GetWeaponTypeDisplayName(WeaponType type)
+        {
+            return type switch
+            {
+                WeaponType.Melee => "Corpo a Corpo",
+                WeaponType.Ranged => "À Distância",
+                WeaponType.Magic => "Mágica",
+                WeaponType.Summon => "Invocação",
+                _ => "Desconhecido"
+            };
+        }
+
+        private string GetArmorTypeDisplayName(ArmorType type)
+        {
+            return type switch
+            {
+                ArmorType.Light => "Leve",
+                ArmorType.Heavy => "Pesada",
+                ArmorType.MagicRobes => "Mágica",
+                _ => "Desconhecida"
+            };
+        }
+
+        private float GetWeaponXPNeeded(int level)
+        {
+            return 100f + (level * 50f);
+        }
+
+        private float GetArmorXPNeeded(int level)
+        {
+            return 100f + (level * 50f);
         }
 
         /// <summary>

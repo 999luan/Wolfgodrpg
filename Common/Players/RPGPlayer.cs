@@ -157,6 +157,17 @@ namespace Wolfgodrpg.Common.Players
         /// </summary>
         public Dictionary<ArmorType, float> ArmorProficiencyExperience = new Dictionary<ArmorType, float>();
 
+        // === SISTEMA DE PROFICIÊNCIA DE ARMAS === ⭐ NOVO
+        /// <summary>
+        /// Níveis de proficiência para cada tipo de arma.
+        /// </summary>
+        public Dictionary<WeaponType, int> WeaponProficiencyLevels = new Dictionary<WeaponType, int>();
+        
+        /// <summary>
+        /// Experiência atual de proficiência para cada tipo de arma.
+        /// </summary>
+        public Dictionary<WeaponType, float> WeaponProficiencyExperience = new Dictionary<WeaponType, float>();
+
         // Flag para autodash (será ativada pelo item)
         public bool AutoDashEnabled = false;
         // Timers para double-tap em 4 direções
@@ -186,6 +197,13 @@ namespace Wolfgodrpg.Common.Players
             {
                 ArmorProficiencyLevels[armorType] = 1;
                 ArmorProficiencyExperience[armorType] = 0f;
+            }
+
+            // Inicializar proficiências de arma ⭐ NOVO
+            foreach (WeaponType weaponType in System.Enum.GetValues<WeaponType>())
+            {
+                WeaponProficiencyLevels[weaponType] = 1;
+                WeaponProficiencyExperience[weaponType] = 0f;
             }
             
             // Resetar vitals
@@ -218,6 +236,7 @@ namespace Wolfgodrpg.Common.Players
         {
             UpdateVitals();
             UpdateDash();
+            ProcessMilestoneEffects();
         }
 
         /// <summary>
@@ -341,14 +360,95 @@ namespace Wolfgodrpg.Common.Players
         /// <param name="damage">Quantidade de dano recebido</param>
         public void OnPlayerDamaged(int damage)
         {
+            Mod.Logger.Debug($"[WolfgodRPG] OnPlayerDamaged called. Damage: {damage}");
             if (damage > 0)
             {
                 ArmorType currentArmorType = GetEquippedArmorType();
+                Mod.Logger.Debug($"[WolfgodRPG] Detected ArmorType: {currentArmorType}");
                 if (currentArmorType != ArmorType.None)
                 {
-                    GainArmorProficiencyXP(currentArmorType, damage * 0.1f);
+                    float xpGained = damage * 0.1f;
+                    GainArmorProficiencyXP(currentArmorType, xpGained);
+                    Mod.Logger.Debug($"[WolfgodRPG] Gained {xpGained} XP for {currentArmorType} proficiency. Current XP: {ArmorProficiencyExperience[currentArmorType]}");
+                }
+                else
+                {
+                    Mod.Logger.Debug($"[WolfgodRPG] No ArmorType detected for equipped armor.");
                 }
             }
+        }
+
+        /// <summary>
+        /// Chamado quando o jogador atinge um NPC.
+        /// </summary>
+        /// <param name="item">Item usado para atingir o NPC</param>
+        /// <param name="target">NPC atingido</param>
+        /// <param name="hit">Informações do hit</param>
+        /// <param name="damage">Dano causado</param>
+        public void OnHitNPC(Item item, NPC target, NPC.HitInfo hit, int damage)
+        {
+            Mod.Logger.Debug($"[WolfgodRPG] OnHitNPC called. Item: {item.Name}, Damage: {damage}");
+            if (damage > 0)
+            {
+                WeaponType currentWeaponType = GetWeaponType(item);
+                Mod.Logger.Debug($"[WolfgodRPG] Detected WeaponType: {currentWeaponType}");
+                if (currentWeaponType != WeaponType.None)
+                {
+                    float xpGained = damage * 0.05f;
+                    AddWeaponProficiencyXP(currentWeaponType, xpGained); // Ganha XP baseado no dano
+                    Mod.Logger.Debug($"[WolfgodRPG] Gained {xpGained} XP for {currentWeaponType} proficiency. Current XP: {WeaponProficiencyExperience[currentWeaponType]}");
+                }
+                else
+                {
+                    Mod.Logger.Debug($"[WolfgodRPG] No WeaponType detected for item: {item.Name}");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Determina o tipo de arma do item.
+        /// </summary>
+        /// <param name="item">Item a ser verificado</param>
+        /// <returns>Tipo de arma</returns>
+        private WeaponType GetWeaponType(Item item)
+        {
+            // Verificar por DamageType primeiro
+            if (item.DamageType == DamageClass.Melee)
+                return WeaponType.Melee;
+            if (item.DamageType == DamageClass.Ranged)
+                return WeaponType.Ranged;
+            if (item.DamageType == DamageClass.Magic)
+                return WeaponType.Magic;
+            if (item.DamageType == DamageClass.Summon)
+                return WeaponType.Summon;
+            
+            // Fallback: verificar por nome do item
+            string itemName = item.Name.ToLower();
+            
+            // Melee weapons
+            if (itemName.Contains("sword") || itemName.Contains("axe") || itemName.Contains("hammer") || 
+                itemName.Contains("spear") || itemName.Contains("lance") || itemName.Contains("dagger") ||
+                itemName.Contains("knife") || itemName.Contains("mace") || itemName.Contains("flail"))
+                return WeaponType.Melee;
+            
+            // Ranged weapons
+            if (itemName.Contains("bow") || itemName.Contains("gun") || itemName.Contains("rifle") ||
+                itemName.Contains("pistol") || itemName.Contains("revolver") || itemName.Contains("crossbow") ||
+                itemName.Contains("blowgun") || itemName.Contains("dart") || itemName.Contains("arrow"))
+                return WeaponType.Ranged;
+            
+            // Magic weapons
+            if (itemName.Contains("staff") || itemName.Contains("wand") || itemName.Contains("book") ||
+                itemName.Contains("spell") || itemName.Contains("magic") || itemName.Contains("crystal") ||
+                itemName.Contains("orb") || itemName.Contains("tome"))
+                return WeaponType.Magic;
+            
+            // Summon weapons
+            if (itemName.Contains("whip") || itemName.Contains("summon") || itemName.Contains("staff") ||
+                itemName.Contains("rod") || itemName.Contains("crystal") || itemName.Contains("minion"))
+                return WeaponType.Summon;
+            
+            return WeaponType.None;
         }
 
         /// <summary>
@@ -417,6 +517,29 @@ namespace Wolfgodrpg.Common.Players
                 });
             }
             tag["ArmorProficiencyExperience"] = experienceList;
+
+            // Salvar proficiências de arma ⭐ NOVO
+            var weaponLevelsList = new List<TagCompound>();
+            foreach (var kvp in WeaponProficiencyLevels)
+            {
+                weaponLevelsList.Add(new TagCompound
+                {
+                    ["Key"] = kvp.Key.ToString(),
+                    ["Value"] = kvp.Value
+                });
+            }
+            tag["WeaponProficiencyLevels"] = weaponLevelsList;
+
+            var weaponExperienceList = new List<TagCompound>();
+            foreach (var kvp in WeaponProficiencyExperience)
+            {
+                weaponExperienceList.Add(new TagCompound
+                {
+                    ["Key"] = kvp.Key.ToString(),
+                    ["Value"] = kvp.Value
+                });
+            }
+            tag["WeaponProficiencyExperience"] = weaponExperienceList;
         }
 
         /// <summary>
@@ -524,6 +647,41 @@ namespace Wolfgodrpg.Common.Players
                     }
                 }
             }
+
+            // Carregar proficiências de arma ⭐ NOVO
+            if (tag.ContainsKey("WeaponProficiencyLevels"))
+            {
+                var levels = tag.GetList<TagCompound>("WeaponProficiencyLevels");
+                foreach (var levelTag in levels)
+                {
+                    if (levelTag.ContainsKey("Key") && levelTag.ContainsKey("Value"))
+                    {
+                        string key = levelTag.GetString("Key");
+                        int value = levelTag.GetInt("Value");
+                        if (System.Enum.TryParse<WeaponType>(key, out WeaponType type))
+                        {
+                            WeaponProficiencyLevels[type] = value;
+                        }
+                    }
+                }
+            }
+
+            if (tag.ContainsKey("WeaponProficiencyExperience"))
+            {
+                var experience = tag.GetList<TagCompound>("WeaponProficiencyExperience");
+                foreach (var expTag in experience)
+                {
+                    if (expTag.ContainsKey("Key") && expTag.ContainsKey("Value"))
+                    {
+                        string key = expTag.GetString("Key");
+                        float value = expTag.GetFloat("Value");
+                        if (System.Enum.TryParse<WeaponType>(key, out WeaponType type))
+                        {
+                            WeaponProficiencyExperience[type] = value;
+                        }
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -566,6 +724,34 @@ namespace Wolfgodrpg.Common.Players
             foreach (var ability in UnlockedAbilities)
             {
                 packet.Write((int)ability);
+            }
+
+            // Enviar proficiências de armadura
+            packet.Write(ArmorProficiencyLevels.Count);
+            foreach (var kvp in ArmorProficiencyLevels)
+            {
+                packet.Write((byte)kvp.Key);
+                packet.Write(kvp.Value);
+            }
+            packet.Write(ArmorProficiencyExperience.Count);
+            foreach (var kvp in ArmorProficiencyExperience)
+            {
+                packet.Write((byte)kvp.Key);
+                packet.Write(kvp.Value);
+            }
+
+            // Enviar proficiências de arma
+            packet.Write(WeaponProficiencyLevels.Count);
+            foreach (var kvp in WeaponProficiencyLevels)
+            {
+                packet.Write((byte)kvp.Key);
+                packet.Write(kvp.Value);
+            }
+            packet.Write(WeaponProficiencyExperience.Count);
+            foreach (var kvp in WeaponProficiencyExperience)
+            {
+                packet.Write((byte)kvp.Key);
+                packet.Write(kvp.Value);
             }
             
             packet.Send(toWho, fromWho);
@@ -620,6 +806,8 @@ namespace Wolfgodrpg.Common.Players
             clientRPGPlayer.UnlockedAbilities = new List<ClassAbility>(UnlockedAbilities);
             clientRPGPlayer.ArmorProficiencyLevels = new Dictionary<ArmorType, int>(ArmorProficiencyLevels);
             clientRPGPlayer.ArmorProficiencyExperience = new Dictionary<ArmorType, float>(ArmorProficiencyExperience);
+            clientRPGPlayer.WeaponProficiencyLevels = new Dictionary<WeaponType, int>(WeaponProficiencyLevels);
+            clientRPGPlayer.WeaponProficiencyExperience = new Dictionary<WeaponType, float>(WeaponProficiencyExperience);
         }
 
         /// <summary>
@@ -629,9 +817,22 @@ namespace Wolfgodrpg.Common.Players
         /// <returns>True se houve mudanças significativas</returns>
         private bool HasSignificantChanges(RPGPlayer clientPlayer)
         {
-            return Math.Abs(CurrentHunger - clientPlayer.CurrentHunger) > 1f ||
-                   Math.Abs(CurrentSanity - clientPlayer.CurrentSanity) > 1f ||
-                   Math.Abs(CurrentStamina - clientPlayer.CurrentStamina) > 1f;
+            bool vitalsChanged = Math.Abs(CurrentHunger - clientPlayer.CurrentHunger) > 1f ||
+                                 Math.Abs(CurrentSanity - clientPlayer.CurrentSanity) > 1f ||
+                                 Math.Abs(CurrentStamina - clientPlayer.CurrentStamina) > 1f;
+
+            bool classLevelsChanged = ClassLevels.Any(kvp => !clientPlayer.ClassLevels.ContainsKey(kvp.Key) || Math.Abs(kvp.Value - clientPlayer.ClassLevels[kvp.Key]) > 0.01f);
+            bool classExpChanged = ClassExperience.Any(kvp => !clientPlayer.ClassExperience.ContainsKey(kvp.Key) || Math.Abs(kvp.Value - clientPlayer.ClassExperience[kvp.Key]) > 0.01f);
+            bool unlockedAbilitiesChanged = UnlockedAbilities.Count != clientPlayer.UnlockedAbilities.Count || UnlockedAbilities.Except(clientPlayer.UnlockedAbilities).Any();
+
+            bool armorLevelsChanged = ArmorProficiencyLevels.Any(kvp => !clientPlayer.ArmorProficiencyLevels.ContainsKey(kvp.Key) || kvp.Value != clientPlayer.ArmorProficiencyLevels[kvp.Key]);
+            bool armorExpChanged = ArmorProficiencyExperience.Any(kvp => !clientPlayer.ArmorProficiencyExperience.ContainsKey(kvp.Key) || Math.Abs(kvp.Value - clientPlayer.ArmorProficiencyExperience[kvp.Key]) > 0.01f);
+
+            bool weaponLevelsChanged = WeaponProficiencyLevels.Any(kvp => !clientPlayer.WeaponProficiencyLevels.ContainsKey(kvp.Key) || kvp.Value != clientPlayer.WeaponProficiencyLevels[kvp.Key]);
+            bool weaponExpChanged = WeaponProficiencyExperience.Any(kvp => !clientPlayer.WeaponProficiencyExperience.ContainsKey(kvp.Key) || Math.Abs(kvp.Value - clientPlayer.WeaponProficiencyExperience[kvp.Key]) > 0.01f);
+
+            return vitalsChanged || classLevelsChanged || classExpChanged || unlockedAbilitiesChanged ||
+                   armorLevelsChanged || armorExpChanged || weaponLevelsChanged || weaponExpChanged;
         }
 
         /// <summary>
@@ -776,7 +977,7 @@ namespace Wolfgodrpg.Common.Players
         /// </summary>
         /// <param name="level">Nível desejado</param>
         /// <returns>Experiência necessária</returns>
-        private float GetPlayerExperienceForLevel(int level)
+        public static float GetPlayerExperienceForLevel(int level)
         {
             // Fórmula: 1000 * level^2 (exemplo, pode ser ajustado)
             return 1000f * (float)Math.Pow(level, 2);
@@ -839,6 +1040,7 @@ namespace Wolfgodrpg.Common.Players
             var classInfo = RPGClassDefinitions.ActionClasses[className];
             float currentLevel = ClassLevels[className];
             
+            // Verificar milestones antigas (sistema legado)
             foreach (var milestone in classInfo.Milestones)
             {
                 if (currentLevel >= (int)milestone.Key && !UnlockedAbilities.Contains(milestone.Key))
@@ -847,13 +1049,65 @@ namespace Wolfgodrpg.Common.Players
                     // TODO: Notificar o jogador sobre a nova habilidade
                 }
             }
+            
+            // Verificar novas milestones
+            CheckMilestoneUnlock(className, currentLevel);
+        }
+
+        /// <summary>
+        /// Verifica se o jogador desbloqueou alguma milestone ao subir de nível.
+        /// </summary>
+        /// <param name="className">Nome da classe</param>
+        /// <param name="currentLevel">Nível atual da classe</param>
+        private void CheckMilestoneUnlock(string className, float currentLevel)
+        {
+            if (!RPGClassMilestones.ClassMilestones.ContainsKey(className))
+                return;
+
+            var milestones = RPGClassMilestones.ClassMilestones[className];
+            var newlyUnlocked = milestones.Where(m => m.Level <= currentLevel && !m.IsUnlocked).ToList();
+
+            foreach (var milestone in newlyUnlocked)
+            {
+                milestone.IsUnlocked = true;
+                
+                // Notificar o jogador sobre a nova milestone
+                Main.NewText($"🎯 {milestone.Name} desbloqueada! {milestone.Description}", Color.Gold);
+                
+                // Efeito sonoro
+                SoundEngine.PlaySound(SoundID.Item4, Player.position);
+                
+                // Efeito visual (partículas douradas)
+                for (int i = 0; i < 10; i++)
+                {
+                    Dust.NewDust(Player.position, Player.width, Player.height, DustID.GoldCoin, 
+                                Main.rand.NextFloat(-2f, 2f), Main.rand.NextFloat(-2f, 2f), 0, Color.Gold);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Processa os efeitos especiais das milestones ativas.
+        /// </summary>
+        private void ProcessMilestoneEffects()
+        {
+            foreach (var classEntry in ClassLevels)
+            {
+                string className = classEntry.Key;
+                float classLevel = classEntry.Value;
+                
+                if (classLevel > 0)
+                {
+                    RPGMilestoneEffects.ProcessSpecialEffects(this, className, classLevel);
+                }
+            }
         }
 
         /// <summary>
         /// Determina o tipo de armadura equipada pelo jogador.
         /// </summary>
         /// <returns>Tipo de armadura equipada</returns>
-        private ArmorType GetEquippedArmorType()
+        public ArmorType GetEquippedArmorType()
         {
             // Determinar tipo baseado na armadura equipada
             Item helmet = Player.armor[0];
@@ -879,7 +1133,7 @@ namespace Wolfgodrpg.Common.Players
         /// </summary>
         /// <param name="armorType">Tipo de armadura</param>
         /// <param name="xp">Quantidade de XP a adicionar</param>
-        private void GainArmorProficiencyXP(ArmorType armorType, float xp)
+        public void GainArmorProficiencyXP(ArmorType armorType, float xp)
         {
             ArmorProficiencyExperience[armorType] += xp;
             
@@ -896,11 +1150,45 @@ namespace Wolfgodrpg.Common.Players
         }
 
         /// <summary>
+        /// Adiciona XP à proficiência de um tipo de arma.
+        /// </summary>
+        /// <param name="weaponType">Tipo de arma</param>
+        /// <param name="xp">Quantidade de XP a adicionar</param>
+        public void AddWeaponProficiencyXP(WeaponType weaponType, float xp)
+        {
+            if (!WeaponProficiencyExperience.ContainsKey(weaponType))
+                WeaponProficiencyExperience[weaponType] = 0f;
+            
+            WeaponProficiencyExperience[weaponType] += xp;
+            
+            // Verificar level up
+            float xpNeeded = GetWeaponXPNeeded(WeaponProficiencyLevels[weaponType]);
+            if (WeaponProficiencyExperience[weaponType] >= xpNeeded)
+            {
+                WeaponProficiencyLevels[weaponType]++;
+                WeaponProficiencyExperience[weaponType] -= xpNeeded;
+                
+                // Feedback visual de level up
+                ShowWeaponLevelUpEffect(weaponType);
+            }
+        }
+
+        /// <summary>
         /// Calcula o XP necessário para o próximo nível de proficiência.
         /// </summary>
         /// <param name="level">Nível atual</param>
         /// <returns>XP necessário para o próximo nível</returns>
         private float GetArmorXPNeeded(int level)
+        {
+            return 100f + (level * 50f); // XP cresce com o nível
+        }
+
+        /// <summary>
+        /// Calcula o XP necessário para o próximo nível de proficiência de arma.
+        /// </summary>
+        /// <param name="level">Nível atual</param>
+        /// <returns>XP necessário para o próximo nível</returns>
+        private float GetWeaponXPNeeded(int level)
         {
             return 100f + (level * 50f); // XP cresce com o nível
         }
@@ -915,7 +1203,10 @@ namespace Wolfgodrpg.Common.Players
         private bool IsMagicArmor(Item helmet, Item chest, Item legs)
         {
             // Verificar se é armadura mágica (Mana bonus, etc.)
-            return helmet.manaIncrease > 0 || chest.manaIncrease > 0 || legs.manaIncrease > 0;
+            return helmet.manaIncrease > 0 || chest.manaIncrease > 0 || legs.manaIncrease > 0 ||
+                   helmet.Name.ToLower().Contains("robe") || chest.Name.ToLower().Contains("robe") || legs.Name.ToLower().Contains("robe") ||
+                   helmet.Name.ToLower().Contains("wizard") || chest.Name.ToLower().Contains("wizard") || legs.Name.ToLower().Contains("wizard") ||
+                   helmet.Name.ToLower().Contains("mage") || chest.Name.ToLower().Contains("mage") || legs.Name.ToLower().Contains("mage");
         }
 
         /// <summary>
@@ -929,7 +1220,11 @@ namespace Wolfgodrpg.Common.Players
         {
             // Verificar se é armadura pesada (alta defesa)
             int totalDefense = helmet.defense + chest.defense + legs.defense;
-            return totalDefense >= 20; // Threshold para armadura pesada
+            return totalDefense >= 20 || // Threshold para armadura pesada
+                   helmet.Name.ToLower().Contains("plate") || chest.Name.ToLower().Contains("plate") || legs.Name.ToLower().Contains("plate") ||
+                   helmet.Name.ToLower().Contains("heavy") || chest.Name.ToLower().Contains("heavy") || legs.Name.ToLower().Contains("heavy") ||
+                   helmet.Name.ToLower().Contains("titanium") || chest.Name.ToLower().Contains("titanium") || legs.Name.ToLower().Contains("titanium") ||
+                   helmet.Name.ToLower().Contains("adamantite") || chest.Name.ToLower().Contains("adamantite") || legs.Name.ToLower().Contains("adamantite");
         }
 
         /// <summary>
@@ -940,6 +1235,17 @@ namespace Wolfgodrpg.Common.Players
         {
             // Efeito visual e som de level up
             Main.NewText($"Proficiência com {armorType} aumentou para nível {ArmorProficiencyLevels[armorType]}!", 
+                         Color.Gold);
+        }
+
+        /// <summary>
+        /// Mostra efeito visual de level up de proficiência de arma.
+        /// </summary>
+        /// <param name="weaponType">Tipo de arma que subiu de nível</param>
+        private void ShowWeaponLevelUpEffect(WeaponType weaponType)
+        {
+            // Efeito visual e som de level up
+            Main.NewText($"Proficiência com {weaponType} aumentou para nível {WeaponProficiencyLevels[weaponType]}!", 
                          Color.Gold);
         }
 
@@ -984,6 +1290,18 @@ namespace Wolfgodrpg.Common.Players
         Light,      // Armadura Leve - velocidade
         Heavy,      // Armadura Pesada - defesa
         MagicRobes  // Vestes Mágicas - mana
+    }
+
+    /// <summary>
+    /// Enum para tipos de arma.
+    /// </summary>
+    public enum WeaponType
+    {
+        None,
+        Melee,      // Corpo a corpo (espadas, lanças, etc.)
+        Ranged,     // À distância (arcos, armas, etc.)
+        Magic,      // Mágica (cajados, livros, etc.)
+        Summon      // Invocação (chicotes, cajados de invocação)
     }
 }
  
