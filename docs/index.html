@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wolfgod RPG Mod Wiki</title>
+    <style>
+        body { font-family: sans-serif; line-height: 1.6; margin: 20px; max-width: 800px; margin-left: auto; margin-right: auto; }
+        h1, h2, h3, h4, h5, h6 { color: #333; }
+        ul { list-style-type: disc; margin-left: 20px; }
+        strong { font-weight: bold; }
+        em { font-style: italic; }
+        hr { border: 0; height: 1px; background: #ccc; margin: 20px 0; }
+        pre { background: #eee; padding: 10px; border-radius: 5px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>Wolfgod RPG Mod Wiki</h1>
+    <p>Welcome to the Wolfgod RPG Mod Wiki for tModLoader!</p>
+    <p>This mod aims to implement a comprehensive RPG progression system within Terraria, focusing on three interconnected pillars of character development:</p>
+    <ul>
+        <li><strong>Player Level (Overall):</strong> Represents the fundamental growth of your character, providing attribute points for customization.</li>
+        <li><strong>Class Levels (Action-Based):</strong> Rewards players for performing specific actions in the game world, such as combat, exploration, or crafting.</li>
+        <li><strong>Equipment Proficiency (Mastery):</strong> Encourages continuous use of specific weapon and armor types, granting specialized bonuses.</li>
+    </ul>
+    <hr>
+    <h2>Core Systems:</h2>
+    <h3>1. Player Level System</h3>
+    <p>Your overall Player Level increases as you achieve significant milestones in the game. Unlike class or proficiency levels, general Player XP is not gained through direct grinding but by reaching key progression points (e.g., defeating bosses, completing major quests).</p>
+    <p><strong>Rewards:</strong></p>
+    <ul>
+        <li><strong>Attribute Points:</strong> Upon leveling up, you gain points to distribute among your primary attributes, allowing for tailored character builds.</li>
+        <li><strong>Passive Stat Increases:</strong> Automatic increases to core stats like maximum health and mana.</li>
+    </ul>
+    <h3>2. Primary Attributes</h3>
+    <p>These are the foundational statistics that define your character's raw capabilities. You gain Attribute Points from increasing your Player Level, which can then be allocated to enhance these stats:</p>
+    <ul>
+        <li><strong>Strength (💪):</strong> Primarily affects melee damage and carrying capacity. Related classes: Warrior, Blacksmith.</li>
+        <li><strong>Dexterity (🎯):</strong> Influences ranged damage, critical strike chance, and attack speed. Related classes: Archer, Acrobat.</li>
+        <li><strong>Intelligence (🧠):</strong> Boosts magic damage, maximum mana, and spell casting speed. Related classes: Mage, Alchemist, Mystic.</li>
+        <li><strong>Constitution (🛡️):</strong> Increases maximum health, defense, and health regeneration. Related classes: Warrior, Survivalist.</li>
+        <li><strong>Wisdom (🦉):</strong> Affects summon damage, luck, and resistance to debuffs. Related classes: Mystic, Summoner.</li>
+    </ul>
+    <h3>3. Class Level System</h3>
+    <p>Classes in Wolfgod RPG are defined by actions, allowing players to evolve multiple classes simultaneously by engaging in diverse activities.</p>
+    <p><strong>XP Gain:</strong> XP is gained by performing actions relevant to each class (e.g., dealing melee damage for Warrior, exploring for Explorer).</p>
+    <p><strong>Rewards:</strong></p>
+    <ul>
+        <li><strong>Passive Bonuses:</strong> Each class level grants passive bonuses to relevant attributes or stats.</li>
+        <li><strong>Unlocked Abilities:</strong> At key milestones (e.g., Level 25, 50, 75, 100), classes unlock unique active or passive abilities.
+            <ul>
+                <li><strong>Example (Acrobat):</strong> Level 1 (Basic Dash), Level 25 (Double Jump), Level 50 (Enhanced Dash), Level 75 (Evasive Dash), Level 100 (Second Aerial Dash).</li>
+            </ul>
+        </li>
+    </ul>
+    <h3>4. Equipment Proficiency System</h3>
+    <p>This system rewards continuous use of specific weapon and armor types, encouraging mastery over your gear.</p>
+    <h4>Weapon Proficiency</h4>
+    <ul>
+        <li><strong>XP Gain:</strong> You gain XP for a weapon type by dealing damage with that type of weapon (e.g., Swords for Melee, Bows for Ranged, Staves for Magic, Whips for Summon).</li>
+        <li><strong>Rewards:</strong> Passive bonuses specific to that weapon type (e.g., increased damage, attack speed, critical chance).</li>
+        <li><strong>Weapon Types Implemented:</strong>
+            <ul>
+                <li><strong>Melee (⚔️):</strong> Swords, Spears, Yoyos, etc.</li>
+                <li><strong>Ranged (🏹):</strong> Bows, Guns, Repeaters, etc.</li>
+                <li><strong>Magic (✨):</strong> Staves, Spellbooks, etc.</li>
+                <li><strong>Summon (🐾):</strong> Whips, Summoning Staves, etc.</li>
+            </ul>
+        </li>
+    </ul>
+    <h4>Armor Proficiency</h4>
+    <ul>
+        <li><strong>XP Gain:</strong> You gain XP for an armor type by taking damage while wearing armor of that type.</li>
+        <li><strong>Rewards:</strong> Passive bonuses specific to that armor category (e.g., increased defense, damage reduction).</li>
+        <li><strong>Armor Types Implemented:</strong>
+            <ul>
+                <li><strong>Light (🏃):</strong> Focuses on movement speed and evasion.</li>
+                <li><strong>Heavy (🛡️):):</strong> Provides increased defense and damage reduction.</li>
+                <li><strong>Magic Robes (🔮):</strong> Enhances mana capacity and magical abilities.</li>
+            </ul>
+        </li>
+    </ul>
+    <h3>5. Item Affixes</h3>
+    <p>To make loot more exciting, weapons and armor can be generated with random bonuses (affixes) that interact with the mod's progression systems.</p>
+    <ul>
+        <li><strong>Generation:</strong> When an item is dropped or crafted, it has a chance to receive one or more affixes.</li>
+        <li><strong>Affix Examples:</strong>
+            <ul>
+                <li><code>+5 Strength</code> (Primary Attribute bonus)</li>
+                <li><code>+10% Warrior Class XP</code> (Class XP bonus)</li>
+                <li><code>+2 Acrobat Class Levels (while equipped)</code> (Class Level bonus)</li>
+                <li><code>+15% Sword Damage</code> (Weapon Proficiency bonus)</li>
+                <li><code>+5% Mining Speed</code> (Utility bonus)</li>
+            </ul>
+        </li>
+        <li><strong>Display:</strong> Affixes are listed in the item's tooltip, along with their rarity (Common, Uncommon, Rare, Epic, Legendary).</li>
+    </ul>
+    <hr>
+    <h2>Current Project Status:</h2>
+    <p>The core systems for Player Level, Primary Attributes, Class Levels, Weapon Proficiency, Armor Proficiency, and Item Affixes have been implemented. Data management, persistence (<code>SaveData</code>/<code>LoadData</code> in <code>RPGPlayer.cs</code> and <code>RPGGlobalItem.cs</code>), and multiplayer synchronization (<code>SyncPlayer</code>, <code>SendClientChanges</code> in <code>RPGPlayer.cs</code>) are in place.</p>
+    <p><strong>UI Implementation Status:</strong></p>
+    <ul>
+        <li><strong><code>SimpleRPGMenu.cs</code>:</strong> Functions as the main UI container, managing tabs. Updated to correctly reflect armor proficiency changes.</li>
+        <li><strong><code>RPGStatsPageUI.cs</code>:</strong> Displays vital statistics and class summaries. Updated to display Player Level, Player Experience, Attribute Points, and Primary Attributes. The functionality to distribute attribute points via UI buttons has been implemented.</li>
+        <li><strong><code>RPGClassesPageUI.cs</code>:</strong> Displays class details, unlocked abilities, and attribute bonuses. <code>GetStatDisplayName</code> has been centralized to <code>RPGDisplayUtils.cs</code>, and hardcoded dash logic removed.</li>
+        <li><strong><code>RPGItemsPageUI.cs</code>:</strong> Displays items with RPG attributes and progressive items. <code>GetStatDisplayName</code> has been centralized, and duplicate code removed. Progressive item XP calculation corrected.</li>
+        <li><strong><code>RPGProficienciesPageUI.cs</code>:</strong> Displays armor and weapon proficiencies. Updated to correctly display both armor and weapon proficiencies, with <code>CreateProficiencyCard</code> renamed to <code>CreateArmorProficiencyCard</code> for clarity.</li>
+        <li><strong><code>RPGProgressPageUI.cs</code>:</strong> Displays player progress (bosses, events, general stats). No significant inconsistencies found.</li>
+    </ul>
+    <p><strong>Debugging & Best Practices:</strong></p>
+    <ul>
+        <li>Debugging logs have been added to <code>RPGPlayer.cs</code> (<code>OnHitNPC</code>, <code>OnPlayerDamaged</code>) to diagnose XP gain for weapon and armor proficiencies.</li>
+        <li>Review of tModLoader documentation (<code>ModPlayer</code>, <code>GlobalItem</code>) and <code>ExampleMod</code> confirms that current implementations align with general best practices for data management, persistence, synchronization, and item modification.</li>
+    </ul>
+    <h2>Future Plans & Recommendations:</h2>
+    <ol>
+        <li><strong>UI Refinement (Scrolling & Positioning):</strong> A thorough review of UI scrolling and element positioning across all interfaces is recommended to ensure a fluid user experience.</li>
+        <li><strong>Comprehensive Testing:</strong> After the implementation of primary attributes and their interactions, extensive testing of all mod functionalities is crucial to ensure stability and correctness of calculations and UI.</li>
+        <li><strong>Display Proficiency in Item Tooltips:</strong> Implement logic in <code>RPGGlobalItem.cs</code> to display the player's current weapon/armor proficiency levels on relevant item tooltips. This is a missing feature, not a bug in existing display logic.</li>
+        <li><strong><code>ResetEffects()</code> for Stat Application:</strong> Ensure all stat bonuses (attributes, classes, proficiencies, affixes) are correctly aggregated and applied in <code>RPGCalculations.cs</code> for a robust and balanced stat system.</li>
+        <li><strong>Optimized Multiplayer Synchronization:</strong> For large data dictionaries, consider network optimizations to send only changes (deltas) instead of the entire dictionary, although the current approach is functional for the present scope.</li>
+        <li><strong>Robust <code>GetWeaponType</code> and <code>GetEquippedArmorType</code>:</strong> For broader compatibility with modded and vanilla items, these functions can be expanded to verify more item properties and damage types.</li>
+        <li><strong>Error Handling & Edge Cases:</strong> Add more robust error handling, especially for data loading and network synchronization, to manage unexpected scenarios (e.g., corrupted data, missing enums).</li>
+    </ol>
+    <p>For more in-depth technical details and the complete development plan, please refer to the <code>ANALISE_COMPLETA.md</code> file in the project repository.</p>
+</body>
+</html>

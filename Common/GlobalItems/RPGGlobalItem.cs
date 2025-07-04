@@ -229,51 +229,7 @@ namespace Wolfgodrpg.Common.GlobalItems
             if (Main.LocalPlayer.GetModPlayer<RPGPlayer>() is not RPGPlayer modPlayer)
                 return;
 
-            // Determinar tipo de arma/armadura
-            WeaponType weaponType = GetWeaponType(item);
-            ArmorType armorType = GetArmorType(item);
-
-            // Adicionar tooltip de proficiência de arma
-            if (weaponType != WeaponType.None)
-            {
-                int level = modPlayer.WeaponProficiencyLevels.GetValueOrDefault(weaponType, 0);
-                float xp = modPlayer.WeaponProficiencyExperience.GetValueOrDefault(weaponType, 0f);
-                float xpNeeded = GetWeaponXPNeeded(level);
-                
-                string weaponTypeName = GetWeaponTypeDisplayName(weaponType);
-                Color color = level > 0 ? Color.Gold : Color.Gray;
-                
-                tooltips.Add(new TooltipLine(Mod, "WeaponProficiency", 
-                    $"[c/{color.Hex3()}:Proficiency {weaponTypeName}: Level {level}]"));
-                
-                if (level > 0)
-                {
-                    float progress = (xp / xpNeeded) * 100f;
-                    tooltips.Add(new TooltipLine(Mod, "WeaponProgress", 
-                        $"[c/7F7F7F:Progress: {progress:F1}% ({xp:F0}/{xpNeeded:F0} XP)]"));
-                }
-            }
-
-            // Adicionar tooltip de proficiência de armadura
-            if (armorType != ArmorType.None)
-            {
-                int level = modPlayer.ArmorProficiencyLevels.GetValueOrDefault(armorType, 0);
-                float xp = modPlayer.ArmorProficiencyExperience.GetValueOrDefault(armorType, 0f);
-                float xpNeeded = GetArmorXPNeeded(level);
-                
-                string armorTypeName = GetArmorTypeDisplayName(armorType);
-                Color color = level > 0 ? Color.Gold : Color.Gray;
-                
-                tooltips.Add(new TooltipLine(Mod, "ArmorProficiency", 
-                    $"[c/{color.Hex3()}:Proficiency {armorTypeName}: Level {level}]"));
-                
-                if (level > 0)
-                {
-                    float progress = (xp / xpNeeded) * 100f;
-                    tooltips.Add(new TooltipLine(Mod, "ArmorProgress", 
-                        $"[c/7F7F7F:Progress: {progress:F1}% ({xp:F0}/{xpNeeded:F0} XP)]"));
-                }
-            }
+            // Remover/adaptar os tooltips de WeaponProficiency e ArmorProficiency para não exibir duplicidade.
         }
 
         private WeaponType GetWeaponType(Item item)

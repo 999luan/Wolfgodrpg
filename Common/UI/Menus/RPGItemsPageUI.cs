@@ -96,7 +96,6 @@ namespace Wolfgodrpg.Common.UI.Menus
             private UIText _titleText;
             private UIText _iconText;
             private UIText _rarityText;
-            private UIText _statsText;
             private UIText _progressiveText;
             private Color _color;
 

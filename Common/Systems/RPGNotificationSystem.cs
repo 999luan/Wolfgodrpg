@@ -20,16 +20,16 @@ namespace Wolfgodrpg.Common.Systems
         public static void AddXPNotification(string className, float xpGained, int newLevel = 0)
         {
             string message = $"+{xpGained:F0} XP {GetClassNameDisplay(className)}";
-            Color color = GetClassColor(className);
-            
             if (newLevel > 0)
             {
                 message += $" (Level {newLevel}!)";
-                color = Color.Gold;
             }
-
-            // Usar Main.NewText diretamente para simplicidade
-            Main.NewText(message, color);
+            // Acumular log no jogador local
+            if (Main.LocalPlayer != null && Main.LocalPlayer.active)
+            {
+                var modPlayer = Main.LocalPlayer.GetModPlayer<RPGPlayer>();
+                modPlayer?.AddXPLog(message);
+            }
         }
 
         /// <summary>
@@ -40,25 +40,35 @@ namespace Wolfgodrpg.Common.Systems
         public static void AddLevelUpNotification(string className, int newLevel)
         {
             string message = $"🎉 {GetClassNameDisplay(className)} Level {newLevel}!";
-            Color color = Color.Gold;
-            
-            // Usar Main.NewText diretamente para simplicidade
-            Main.NewText(message, color);
+            // Acumular log no jogador local
+            if (Main.LocalPlayer != null && Main.LocalPlayer.active)
+            {
+                var modPlayer = Main.LocalPlayer.GetModPlayer<RPGPlayer>();
+                modPlayer?.AddXPLog(message);
+            }
         }
 
-        public static void ShowAllXPLogs(Player player)
+        public static void ShowXPLogs()
         {
-            var modPlayer = player.GetModPlayer<RPGPlayer>();
-            if (modPlayer == null || modPlayer.XPLogs.Count == 0)
+            var player = Main.LocalPlayer;
+            if (player?.active != true) return;
+
+            var rpgPlayer = player.GetModPlayer<RPGPlayer>();
+            if (rpgPlayer == null) return;
+
+            if (rpgPlayer.XPLogs.Count == 0)
             {
-                Main.NewText("No XP logs to show.", Color.LightGray);
-                return;
+                return; // Não exibir mensagem se não há logs
             }
-            foreach (var log in modPlayer.XPLogs)
+
+            // Exibir todos os logs acumulados automaticamente
+            foreach (string log in rpgPlayer.XPLogs)
             {
                 Main.NewText(log, Color.LightBlue);
             }
-            modPlayer.ClearXPLogs();
+
+            // Limpar os logs após exibição
+            rpgPlayer.ClearXPLogs();
         }
 
         /// <summary>

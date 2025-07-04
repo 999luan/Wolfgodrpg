@@ -99,7 +99,6 @@ namespace Wolfgodrpg.Common.UI
 
             string[] tabNames = { "Stats", "Classes", "Skills", "Progress", "Proficiencies" };
             float buttonWidth = 120f;
-            float spacing = 0f;
             int tabCount = tabNames.Length;
             float totalWidth = tabCount * buttonWidth;
             float containerWidth = 0.95f; // 95% da largura do container

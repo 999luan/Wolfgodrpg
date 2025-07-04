@@ -89,6 +89,7 @@ namespace Wolfgodrpg.Common.GlobalItems
                 if (player.active)
                 {
                     DebugLog.Gameplay("Item", "GainExperience", $"LEVEL UP! Item '{item.Name}' leveled up to level {newLevel}");
+                    // Notificação global para todos
                     Main.NewText($"{item.Name} leveled up to level {newLevel}!", Color.Gold);
                 }
             }
@@ -121,55 +122,42 @@ namespace Wolfgodrpg.Common.GlobalItems
         {
             // Log de debug para entender o que está acontecendo
             DebugLog.Item("ShouldGainExperience", $"Checking item '{item.Name}' - damage: {item.damage}, defense: {item.defense}, consumable: {item.consumable}, DamageType: {item.DamageType}");
-            
+
             // Itens que NÃO devem ganhar experiência
             if (item.damage <= 0 && item.defense <= 0) 
             {
                 DebugLog.Item("ShouldGainExperience", $"Item '{item.Name}' rejected - no damage or defense");
                 return false; // Sem dano nem defesa
             }
-            
             if (item.axe > 0 || item.hammer > 0 || item.pick > 0) 
             {
                 DebugLog.Item("ShouldGainExperience", $"Item '{item.Name}' rejected - is tool");
                 return false; // Ferramentas
             }
-            
             if (item.fishingPole > 0) 
             {
                 DebugLog.Item("ShouldGainExperience", $"Item '{item.Name}' rejected - is fishing rod");
                 return false; // Varas de pesca
             }
-            
-            // CORREÇÃO: Não excluir itens que criam tiles/blocos se eles têm dano ou defesa
-            // if (item.createTile >= -1 || item.createWall >= -1) return false; // REMOVIDO
-            
             if (item.consumable) 
             {
                 DebugLog.Item("ShouldGainExperience", $"Item '{item.Name}' rejected - is consumable");
                 return false; // Consumíveis
             }
-            
-            // Verificar se é uma arma (melee, ranged, magic, summon)
+
+            // Só armas (melee, ranged, magic, summon) e armaduras (defense > 0) ganham XP
             bool isWeapon = item.DamageType == DamageClass.Melee || 
                            item.DamageType == DamageClass.Ranged || 
                            item.DamageType == DamageClass.Magic || 
                            item.DamageType == DamageClass.Summon;
-            
-            // Verificar se é armadura (tem defesa)
             bool isArmor = item.defense > 0;
-            
-            // Se tem dano > 0 (arma) OU defesa > 0 (armadura), deve ganhar XP
             if ((isWeapon && item.damage > 0) || isArmor)
             {
                 DebugLog.Item("ShouldGainExperience", $"Item '{item.Name}' APPROVED - is {(isWeapon ? "weapon" : "armor")}");
                 return true;
             }
-            
-            // Fallback: qualquer item com dano > 0 ou defesa > 0 que não seja ferramenta/consumível
-            bool fallback = (item.damage > 0 || item.defense > 0);
-            DebugLog.Item("ShouldGainExperience", $"Item '{item.Name}' fallback: {fallback}");
-            return fallback;
+            // Nenhum outro tipo de item ganha XP
+            return false;
         }
 
         // === APLICAR BÔNUS DE NÍVEL ===

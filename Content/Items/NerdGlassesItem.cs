@@ -26,6 +26,7 @@ namespace Wolfgodrpg.Content.Items
         {
             Item.width = 32;
             Item.height = 32;
+            Item.accessory = true;
             Item.useTime = 20;
             Item.useAnimation = 20;
             Item.useStyle = ItemUseStyleID.HoldUp;
@@ -42,16 +43,25 @@ namespace Wolfgodrpg.Content.Items
             return true;
         }
 
+        public override void UpdateAccessory(Player player, bool hideVisual)
+        {
+            base.UpdateAccessory(player, hideVisual);
+            
+            // Exibir logs automaticamente quando equipado
+            if (player.whoAmI == Main.myPlayer)
+            {
+                RPGNotificationSystem.ShowXPLogs();
+            }
+        }
+
         public override bool? UseItem(Player player)
         {
-            // Exibir todos os logs de XP acumulados
-            var modPlayer = player.GetModPlayer<RPGPlayer>();
-            if (modPlayer != null)
+            // Também exibir logs quando usado manualmente
+            if (player.whoAmI == Main.myPlayer)
             {
-                RPGNotificationSystem.ShowAllXPLogs(player);
-                return true;
+                RPGNotificationSystem.ShowXPLogs();
             }
-            return false;
+            return true;
         }
 
         public override void AddRecipes()

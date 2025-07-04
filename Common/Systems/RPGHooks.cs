@@ -26,11 +26,17 @@ namespace Wolfgodrpg.Common.Systems
             // Sistema de dash agora está implementado no RPGPlayer.PreUpdate()
             // para seguir o padrão correto do tModLoader
 
-            // Verificar dano tomado para a classe de Regeneração
+            // Verificar dano tomado para proficiência de armadura
             if (Player.statLife < lastHealth)
             {
                 int damageTaken = (int)(lastHealth - Player.statLife);
                 RPGActionSystem.OnHurt(Player, damageTaken);
+                
+                // Chamar método de proficiência de armadura
+                if (rpgPlayer != null)
+                {
+                    rpgPlayer.OnPlayerDamaged(damageTaken);
+                }
                 
                 // Resetar timer de combate quando toma dano
                 DebugLog.Gameplay("Player", "PreUpdate", $"Player took {damageTaken} damage - combat timer reset");
@@ -85,6 +91,56 @@ namespace Wolfgodrpg.Common.Systems
             else
             {
                 RPGClassActionMapper.MapFishingAction(FishingAction.CatchFish, xpAmount);
+            }
+        }
+    }
+
+    // Hook global para proficiência de armas
+    public class RPGWeaponProficiencyHooks : GlobalItem
+    {
+        public override void OnHitNPC(Item item, Player player, NPC target, NPC.HitInfo hit, int damageDone)
+        {
+            base.OnHitNPC(item, player, target, hit, damageDone);
+            
+            // Chamar método de proficiência de arma
+            var rpgPlayer = player.GetModPlayer<RPGPlayer>();
+            if (rpgPlayer != null)
+            {
+                rpgPlayer.OnHitNPC(item, target, hit, damageDone);
+            }
+        }
+    }
+
+    public class RPGProjectileProficiencyHooks : GlobalProjectile
+    {
+        public override void OnHitNPC(Projectile projectile, NPC target, NPC.HitInfo hit, int damageDone)
+        {
+            base.OnHitNPC(projectile, target, hit, damageDone);
+
+            // Só processa se o projétil foi disparado por um player
+            if (projectile.owner < 0 || projectile.owner >= Main.maxPlayers)
+                return;
+            Player player = Main.player[projectile.owner];
+            if (player == null || !player.active)
+                return;
+
+            // Tenta identificar a arma usada para disparar o projétil
+            Item heldItem = player.HeldItem;
+            if (heldItem == null || heldItem.IsAir)
+                return;
+
+            // Só processa se for projétil de arma (não magia, não minion, etc)
+            // Exemplo: Terra Blade é melee, mas dispara projétil
+            var rpgPlayer = player.GetModPlayer<RPGPlayer>();
+            if (rpgPlayer != null)
+            {
+                // Detecta tipo de arma do item que disparou o projétil
+                var weaponType = rpgPlayer.GetWeaponType(heldItem);
+                if (weaponType != WeaponType.None)
+                {
+                    float xpGained = damageDone * 0.05f;
+                    rpgPlayer.AddWeaponProficiencyXP(weaponType, xpGained);
+                }
             }
         }
     }

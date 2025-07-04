@@ -25,7 +25,7 @@ namespace Wolfgodrpg.Common.Players
         /// <summary>
         /// Cooldown restante do dash em frames.
         /// </summary>
-        public int DashCooldown { get; set; }
+        public int DashCooldown { get; set; } = 30; // 0.5 segundos
         
         /// <summary>
         /// Número de dashes usados na sessão atual.
@@ -102,7 +102,7 @@ namespace Wolfgodrpg.Common.Players
         /// <summary>
         /// Taxa de regeneração de stamina por segundo.
         /// </summary>
-        public float StaminaRegenRate { get; set; } = 2.0f;
+        public float StaminaRegenRate { get; set; } = 0.7f;
 
         // === ATRIBUTOS PRIMÁRIOS === ⭐ NOVO
         /// <summary>
@@ -419,9 +419,9 @@ namespace Wolfgodrpg.Common.Players
         /// </summary>
         /// <param name="item">Item a ser verificado</param>
         /// <returns>Tipo de arma</returns>
-        private WeaponType GetWeaponType(Item item)
+        public WeaponType GetWeaponType(Item item)
         {
-            // Verificar por DamageType primeiro
+            // Verificar por DamageType primeiro (mais confiável)
             if (item.DamageType == DamageClass.Melee)
                 return WeaponType.Melee;
             if (item.DamageType == DamageClass.Ranged)
@@ -437,24 +437,33 @@ namespace Wolfgodrpg.Common.Players
             // Melee weapons
             if (itemName.Contains("sword") || itemName.Contains("axe") || itemName.Contains("hammer") || 
                 itemName.Contains("spear") || itemName.Contains("lance") || itemName.Contains("dagger") ||
-                itemName.Contains("knife") || itemName.Contains("mace") || itemName.Contains("flail"))
+                itemName.Contains("knife") || itemName.Contains("mace") || itemName.Contains("flail") ||
+                itemName.Contains("broadsword") || itemName.Contains("shortsword") || itemName.Contains("katana") ||
+                itemName.Contains("rapier") || itemName.Contains("saber") || itemName.Contains("cutlass") ||
+                itemName.Contains("claymore") || itemName.Contains("greatsword") || itemName.Contains("warhammer"))
                 return WeaponType.Melee;
             
             // Ranged weapons
             if (itemName.Contains("bow") || itemName.Contains("gun") || itemName.Contains("rifle") ||
                 itemName.Contains("pistol") || itemName.Contains("revolver") || itemName.Contains("crossbow") ||
-                itemName.Contains("blowgun") || itemName.Contains("dart") || itemName.Contains("arrow"))
+                itemName.Contains("blowgun") || itemName.Contains("dart") || itemName.Contains("arrow") ||
+                itemName.Contains("musket") || itemName.Contains("shotgun") || itemName.Contains("sniper") ||
+                itemName.Contains("repeater") || itemName.Contains("harpoon") || itemName.Contains("javelin"))
                 return WeaponType.Ranged;
             
             // Magic weapons
             if (itemName.Contains("staff") || itemName.Contains("wand") || itemName.Contains("book") ||
                 itemName.Contains("spell") || itemName.Contains("magic") || itemName.Contains("crystal") ||
-                itemName.Contains("orb") || itemName.Contains("tome"))
+                itemName.Contains("orb") || itemName.Contains("tome") || itemName.Contains("grimoire") ||
+                itemName.Contains("scroll") || itemName.Contains("scepter") || itemName.Contains("rod") ||
+                itemName.Contains("charm") || itemName.Contains("amulet") || itemName.Contains("ring"))
                 return WeaponType.Magic;
             
             // Summon weapons
             if (itemName.Contains("whip") || itemName.Contains("summon") || itemName.Contains("staff") ||
-                itemName.Contains("rod") || itemName.Contains("crystal") || itemName.Contains("minion"))
+                itemName.Contains("rod") || itemName.Contains("crystal") || itemName.Contains("minion") ||
+                itemName.Contains("sentinel") || itemName.Contains("familiar") || itemName.Contains("totem") ||
+                itemName.Contains("idol") || itemName.Contains("effigy") || itemName.Contains("doll"))
                 return WeaponType.Summon;
             
             return WeaponType.None;
@@ -920,7 +929,7 @@ namespace Wolfgodrpg.Common.Players
             direction.Normalize();
             CurrentStamina -= 20f;
             Player.velocity = direction * DashSpeed;
-            DashCooldown = 30;
+            DashCooldown = 10;
             DashesUsed++;
             DashResetTimer = 180;
             dashTimer = DashDuration;
@@ -974,7 +983,7 @@ namespace Wolfgodrpg.Common.Players
                 PlayerLevel++;
                 PlayerExperience -= expForNextLevel;
                 AttributePoints += 5; // Ganha 5 pontos de atributo por nível
-                // TODO: Adicionar notificação de level up do jogador
+                // Notificação global para todos
                 Main.NewText($"You leveled up to level {PlayerLevel}! You gained 5 attribute points!", Color.Gold);
                 SoundEngine.PlaySound(SoundID.Item37, Player.position);
                 CheckPlayerLevelUp(); // Recursivamente verifica se subiu múltiplos níveis
@@ -1011,7 +1020,8 @@ namespace Wolfgodrpg.Common.Players
                 // Subir de nível
                 ClassLevels[className]++;
                 ClassExperience[className] -= expForNextLevel;
-                
+                // Notificação global para todos
+                Main.NewText($"{GetClassNameDisplay(className)} leveled up to level {ClassLevels[className]}!", Color.Gold);
                 // Adicionar notificação de level up
                 RPGNotificationSystem.AddLevelUpNotification(className, (int)ClassLevels[className]);
                 
@@ -1020,9 +1030,6 @@ namespace Wolfgodrpg.Common.Players
                 
                 // Efeitos de level up
                 SoundEngine.PlaySound(SoundID.Item4, Player.position);
-                
-                // Mostrar texto de level up na tela
-                Main.NewText($"{GetClassNameDisplay(className)} leveled up to level {ClassLevels[className]}!", Color.Gold);
             }
         }
 
@@ -1080,8 +1087,8 @@ namespace Wolfgodrpg.Common.Players
             {
                 milestone.IsUnlocked = true;
                 
-                // Notificar o jogador sobre a nova milestone
-                Main.NewText($"🎯 {milestone.Name} desbloqueada! {milestone.Description}", Color.Gold);
+                // Notificação global para todos
+                Main.NewText($"🎯 {milestone.Name} unlocked! {milestone.Description}", Color.Gold);
                 
                 // Efeito sonoro
                 SoundEngine.PlaySound(SoundID.Item4, Player.position);
@@ -1144,6 +1151,11 @@ namespace Wolfgodrpg.Common.Players
         /// <param name="xp">Quantidade de XP a adicionar</param>
         public void GainArmorProficiencyXP(ArmorType armorType, float xp)
         {
+            if (!ArmorProficiencyExperience.ContainsKey(armorType))
+                ArmorProficiencyExperience[armorType] = 0f;
+            if (!ArmorProficiencyLevels.ContainsKey(armorType))
+                ArmorProficiencyLevels[armorType] = 1;
+            
             ArmorProficiencyExperience[armorType] += xp;
             
             // Verificar level up
@@ -1167,6 +1179,8 @@ namespace Wolfgodrpg.Common.Players
         {
             if (!WeaponProficiencyExperience.ContainsKey(weaponType))
                 WeaponProficiencyExperience[weaponType] = 0f;
+            if (!WeaponProficiencyLevels.ContainsKey(weaponType))
+                WeaponProficiencyLevels[weaponType] = 1;
             
             WeaponProficiencyExperience[weaponType] += xp;
             
@@ -1212,10 +1226,14 @@ namespace Wolfgodrpg.Common.Players
         private bool IsMagicArmor(Item helmet, Item chest, Item legs)
         {
             // Verificar se é armadura mágica (Mana bonus, etc.)
-            return helmet.manaIncrease > 0 || chest.manaIncrease > 0 || legs.manaIncrease > 0 ||
-                   helmet.Name.ToLower().Contains("robe") || chest.Name.ToLower().Contains("robe") || legs.Name.ToLower().Contains("robe") ||
-                   helmet.Name.ToLower().Contains("wizard") || chest.Name.ToLower().Contains("wizard") || legs.Name.ToLower().Contains("wizard") ||
-                   helmet.Name.ToLower().Contains("mage") || chest.Name.ToLower().Contains("mage") || legs.Name.ToLower().Contains("mage");
+            bool hasManaBonus = helmet.manaIncrease > 0 || chest.manaIncrease > 0 || legs.manaIncrease > 0;
+            bool hasMagicName = helmet.Name.ToLower().Contains("robe") || chest.Name.ToLower().Contains("robe") || legs.Name.ToLower().Contains("robe") ||
+                       helmet.Name.ToLower().Contains("wizard") || chest.Name.ToLower().Contains("wizard") || legs.Name.ToLower().Contains("wizard") ||
+                       helmet.Name.ToLower().Contains("mage") || chest.Name.ToLower().Contains("mage") || legs.Name.ToLower().Contains("mage") ||
+                       helmet.Name.ToLower().Contains("sorcerer") || chest.Name.ToLower().Contains("sorcerer") || legs.Name.ToLower().Contains("sorcerer") ||
+                       helmet.Name.ToLower().Contains("mystic") || chest.Name.ToLower().Contains("mystic") || legs.Name.ToLower().Contains("mystic");
+    
+            return hasManaBonus || hasMagicName;
         }
 
         /// <summary>
@@ -1229,11 +1247,16 @@ namespace Wolfgodrpg.Common.Players
         {
             // Verificar se é armadura pesada (alta defesa)
             int totalDefense = helmet.defense + chest.defense + legs.defense;
-            return totalDefense >= 20 || // Threshold para armadura pesada
-                   helmet.Name.ToLower().Contains("plate") || chest.Name.ToLower().Contains("plate") || legs.Name.ToLower().Contains("plate") ||
-                   helmet.Name.ToLower().Contains("heavy") || chest.Name.ToLower().Contains("heavy") || legs.Name.ToLower().Contains("heavy") ||
-                   helmet.Name.ToLower().Contains("titanium") || chest.Name.ToLower().Contains("titanium") || legs.Name.ToLower().Contains("titanium") ||
-                   helmet.Name.ToLower().Contains("adamantite") || chest.Name.ToLower().Contains("adamantite") || legs.Name.ToLower().Contains("adamantite");
+            bool hasHighDefense = totalDefense >= 15; // Threshold para armadura pesada
+            bool hasHeavyName = helmet.Name.ToLower().Contains("plate") || chest.Name.ToLower().Contains("plate") || legs.Name.ToLower().Contains("plate") ||
+                       helmet.Name.ToLower().Contains("heavy") || chest.Name.ToLower().Contains("heavy") || legs.Name.ToLower().Contains("heavy") ||
+                       helmet.Name.ToLower().Contains("titanium") || chest.Name.ToLower().Contains("titanium") || legs.Name.ToLower().Contains("titanium") ||
+                       helmet.Name.ToLower().Contains("adamantite") || chest.Name.ToLower().Contains("adamantite") || legs.Name.ToLower().Contains("adamantite") ||
+                       helmet.Name.ToLower().Contains("cobalt") || chest.Name.ToLower().Contains("cobalt") || legs.Name.ToLower().Contains("cobalt") ||
+                       helmet.Name.ToLower().Contains("mythril") || chest.Name.ToLower().Contains("mythril") || legs.Name.ToLower().Contains("mythril") ||
+                       helmet.Name.ToLower().Contains("orichalcum") || chest.Name.ToLower().Contains("orichalcum") || legs.Name.ToLower().Contains("orichalcum");
+    
+            return hasHighDefense || hasHeavyName;
         }
 
         /// <summary>
@@ -1242,9 +1265,8 @@ namespace Wolfgodrpg.Common.Players
         /// <param name="armorType">Tipo de armadura que subiu de nível</param>
         private void ShowArmorLevelUpEffect(ArmorType armorType)
         {
-            // Efeito visual e som de level up
-            Main.NewText($"Proficiency with {armorType} increased to level {ArmorProficiencyLevels[armorType]}!", 
-                         Color.LightBlue);
+            // Notificação global para todos
+            Main.NewText($"Proficiency with {armorType} increased to level {ArmorProficiencyLevels[armorType]}!", Color.LightBlue);
         }
 
         /// <summary>
@@ -1253,9 +1275,8 @@ namespace Wolfgodrpg.Common.Players
         /// <param name="weaponType">Tipo de arma que subiu de nível</param>
         private void ShowWeaponLevelUpEffect(WeaponType weaponType)
         {
-            // Efeito visual e som de level up
-            Main.NewText($"Proficiency with {weaponType} increased to level {WeaponProficiencyLevels[weaponType]}!", 
-                         Color.LightGreen);
+            // Notificação global para todos
+            Main.NewText($"Proficiency with {weaponType} increased to level {WeaponProficiencyLevels[weaponType]}!", Color.LightGreen);
         }
 
         /// <summary>

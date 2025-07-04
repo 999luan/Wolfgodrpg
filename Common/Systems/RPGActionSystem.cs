@@ -84,9 +84,14 @@ namespace Wolfgodrpg.Common.Systems
 
             // Regeneração (Survival XP)
             timeSinceLastRegen += 1f / 60f; // 1/60 = um segundo em ticks
-            if (timeSinceLastRegen >= 1f && player.lifeRegen > 0)
+            if (timeSinceLastRegen >= 1f && player.lifeRegen > 2 && player.statLife < player.statLifeMax2)
             {
-                RPGClassActionMapper.MapSurvivalAction(SurvivalAction.RegenerateHealth, player.lifeRegen);
+                // Só ganha XP se realmente está regenerando vida e não está com vida cheia
+                float regenAmount = Math.Min(player.lifeRegen, player.statLifeMax2 - player.statLife);
+                if (regenAmount > 0)
+                {
+                    RPGClassActionMapper.MapSurvivalAction(SurvivalAction.RegenerateHealth, regenAmount);
+                }
                 timeSinceLastRegen = 0f;
             }
         }

@@ -1,11 +1,11 @@
 displayName = WolfGod RPG
 author = WolfGod
-version = 0.7.1
+version = 0.8
 side = Both
 
 # Metadata moderna (tModLoader 2024+)
-description = Complete RPG system for Terraria featuring classes, levels, hunger, sanity, and progressive character development
-homepage = https://github.com/[seu-usuario]/Wolfgodrpg
+description = Complete RPG system for Terraria featuring 11 unique classes, progressive weapon/armor proficiency, hunger/sanity mechanics, and comprehensive character development. Features include: Warrior (melee tank), Archer (ranged precision), Mage (magic damage), Summoner (minion master), Acrobat (mobility), Explorer (discovery), Engineer (traps/machines), Survivalist (survival), Blacksmith (crafting), Alchemist (potions), Mystic (support). Each class has 50 levels with unique abilities and milestones. Includes dash mechanics, stamina system, attribute points, and item progression. Press 'M' for RPG menu, 'R' for stats. NerdGlasses accessory shows XP logs. Fully translated to English with balanced progression and tModLoader best practices.
+homepage = https://999luan.github.io/Wolfgodrpg/
 
 # Performance e compatibilidade
 includeSource = true
