@@ -260,4 +260,3 @@ namespace Wolfgodrpg.Common.Systems
         }
     }
 } 
-} 
