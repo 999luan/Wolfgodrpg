@@ -169,7 +169,7 @@ namespace Wolfgodrpg.Common.UI.Menus
                     break;
                 case MenuPage.Proficiencies:
                     _proficienciesPageUI.UpdateProficiencies(modPlayer);
-                    DebugLog.UI("SetPage", "Aba Proficiências atualizada");
+                    DebugLog.UI("SetPage", "Proficiencies tab updated");
                     break;
             }
         }

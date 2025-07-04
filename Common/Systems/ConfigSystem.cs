@@ -7,19 +7,7 @@ namespace Wolfgodrpg.Common.Systems
     {
         public override ConfigScope Mode => ConfigScope.ServerSide;
 
-        // === CONFIGURAÇÕES DE EXPERIÊNCIA ===
-        [LabelKey("$Mods.Wolfgodrpg.Config.ExpMultiplier.Label")]
-        [TooltipKey("$Mods.Wolfgodrpg.Config.ExpMultiplier.Tooltip")]
-        [DefaultValue(1.0f)]
-        [Range(0.1f, 10.0f)]
-        public float ExpMultiplier;
-
-        [LabelKey("$Mods.Wolfgodrpg.Config.KeepXPOnDeath.Label")]
-        [TooltipKey("$Mods.Wolfgodrpg.Config.KeepXPOnDeath.Tooltip")]
-        [DefaultValue(false)]
-        public bool KeepXPOnDeath;
-
-        // === CONFIGURAÇÕES DE FOME ===
+        // === HUNGER SETTINGS ===
         [LabelKey("$Mods.Wolfgodrpg.Config.EnableHunger.Label")]
         [TooltipKey("$Mods.Wolfgodrpg.Config.EnableHunger.Tooltip")]
         [DefaultValue(true)]
@@ -31,7 +19,7 @@ namespace Wolfgodrpg.Common.Systems
         [Range(0.1f, 5.0f)]
         public float HungerRate;
 
-        // === CONFIGURAÇÕES DE SANIDADE ===
+        // === SANITY SETTINGS ===
         [LabelKey("$Mods.Wolfgodrpg.Config.EnableSanity.Label")]
         [TooltipKey("$Mods.Wolfgodrpg.Config.EnableSanity.Tooltip")]
         [DefaultValue(true)]
@@ -43,7 +31,7 @@ namespace Wolfgodrpg.Common.Systems
         [Range(0.1f, 5.0f)]
         public float SanityRate;
 
-        // === CONFIGURAÇÕES DE ITENS ===
+        // === ITEM SETTINGS ===
         [LabelKey("$Mods.Wolfgodrpg.Config.RandomStats.Label")]
         [TooltipKey("$Mods.Wolfgodrpg.Config.RandomStats.Tooltip")]
         [DefaultValue(true)]
@@ -55,7 +43,7 @@ namespace Wolfgodrpg.Common.Systems
         [Range(0.1f, 5.0f)]
         public float ItemStatMultiplier;
 
-        // === CONFIGURAÇÕES DE INTERFACE ===
+        // === INTERFACE SETTINGS ===
         [LabelKey("$Mods.Wolfgodrpg.Config.UIScale.Label")]
         [TooltipKey("$Mods.Wolfgodrpg.Config.UIScale.Tooltip")]
         [DefaultValue(1.0f)]
@@ -67,7 +55,7 @@ namespace Wolfgodrpg.Common.Systems
         [DefaultValue(true)]
         public bool ShowNotifications;
 
-        // === CONFIGURAÇÕES DE DIFICULDADE ===
+        // === DIFFICULTY SETTINGS ===
         [LabelKey("$Mods.Wolfgodrpg.Config.MonsterHealthMultiplier.Label")]
         [TooltipKey("$Mods.Wolfgodrpg.Config.MonsterHealthMultiplier.Tooltip")]
         [DefaultValue(1.0f)]
@@ -80,7 +68,7 @@ namespace Wolfgodrpg.Common.Systems
         [Range(0.5f, 3.0f)]
         public float MonsterDamageMultiplier;
 
-        // === CONFIGURAÇÕES DE NÍVEL ===
+        // === LEVEL SETTINGS ===
         [LabelKey("$Mods.Wolfgodrpg.Config.MaxLevel.Label")]
         [TooltipKey("$Mods.Wolfgodrpg.Config.MaxLevel.Tooltip")]
         [DefaultValue(100)]

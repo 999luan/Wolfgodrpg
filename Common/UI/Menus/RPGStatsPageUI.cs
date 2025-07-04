@@ -154,14 +154,14 @@ namespace Wolfgodrpg.Common.UI.Menus
                         "warrior" => "Only goes for a fight!",
                         "archer" => "Robin Hood wannabe.",
                         "mage" => "Harry Potter feelings.",
-                        "summoner" => "Pokémon master.",
+                        "summoner" => "Pokemon master.",
                         "acrobat" => "Deadly leap caught!",
                         "explorer" => "Dora, the explorer.",
                         "engineer" => "Makes a mess even in Terraria.",
                         "survivalist" => "Bear Grylls of the pixel.",
                         "blacksmith" => "Hammer until the item breaks.",
                         "alchemist" => "Turns water into XP.",
-                        "mystic" => "Vidente on call.",
+                        "mystic" => "Fortune teller on call.",
                         _ => "Mysterious class..."
                     };
                     _statsList.Add(new StatCard(

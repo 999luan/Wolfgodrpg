@@ -66,14 +66,14 @@ namespace Wolfgodrpg.Common.Systems
                         ChatManager.DrawColorCodedStringWithShadow(spriteBatch, FontAssets.MouseText.Value, staminaText, position, Color.Yellow, 0f, Vector2.Zero, Vector2.One);
 
                         // Desenhar Sanidade
-                        string sanityText = $"Sanidade: {rpgPlayer.CurrentSanity:F0}%";
+                        string sanityText = $"Sanity: {rpgPlayer.CurrentSanity:F0}%";
                         Vector2 sanitySize = FontAssets.MouseText.Value.MeasureString(sanityText);
                         position.X = Main.screenWidth - 20 - sanitySize.X; // Resetar X e ajustar
                         position.Y -= sanitySize.Y + 2; // Mover para cima
                         ChatManager.DrawColorCodedStringWithShadow(spriteBatch, FontAssets.MouseText.Value, sanityText, position, Color.Purple, 0f, Vector2.Zero, Vector2.One);
 
                         // Desenhar Fome
-                        string hungerText = $"Fome: {rpgPlayer.CurrentHunger:F0}%";
+                        string hungerText = $"Hunger: {rpgPlayer.CurrentHunger:F0}%";
                         Vector2 hungerSize = FontAssets.MouseText.Value.MeasureString(hungerText);
                         position.X = Main.screenWidth - 20 - hungerSize.X; // Resetar X e ajustar
                         position.Y -= hungerSize.Y + 2; // Mover para cima

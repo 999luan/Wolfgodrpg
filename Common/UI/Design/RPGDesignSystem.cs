@@ -133,7 +133,7 @@ namespace Wolfgodrpg.Common.UI.Design
         }
 
         /// <summary>
-        /// Obtém a cor baseada no valor de um vital (fome, sanidade, stamina).
+        /// Obtém a cor baseada no valor de um vital (hunger, sanity, stamina).
         /// </summary>
         public static Color GetVitalColor(float value)
         {

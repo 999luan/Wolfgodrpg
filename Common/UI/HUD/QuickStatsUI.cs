@@ -52,8 +52,8 @@ namespace Wolfgodrpg.Common.UI.HUD
             statsString += $"Defesa: {player.statDefense}{Environment.NewLine}";
             statsString += $"Velocidade: {player.moveSpeed:F2}x{Environment.NewLine}";
             statsString += $"Dano: {stats["damage"]:F2}x{Environment.NewLine}";
-            statsString += $"Fome: {modPlayer.CurrentHunger:F0}%{Environment.NewLine}";
-            statsString += $"Sanidade: {modPlayer.CurrentSanity:F0}%{Environment.NewLine}";
+            statsString += $"Hunger: {modPlayer.CurrentHunger:F0}%{Environment.NewLine}";
+            statsString += $"Sanity: {modPlayer.CurrentSanity:F0}%{Environment.NewLine}";
 
             _statsText.SetText(statsString);
         }

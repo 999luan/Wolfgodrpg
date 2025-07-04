@@ -376,7 +376,7 @@ namespace Wolfgodrpg.Common.GlobalClasses
             
             DebugLog.Gameplay("NPC", "OnHitPlayer", $"Player '{target.name}' hit by '{npc.FullName}' - Damage: {hurtInfo.Damage}, Defense XP: {defenseXP:F1}");
 
-            // Reduzir sanidade em áreas perigosas
+            // Reduce sanity in dangerous areas
             if (npc.boss || npc.type == NPCID.EaterofSouls || npc.type == NPCID.Crimera)
             {
                 float oldSanity = modPlayer.CurrentSanity;

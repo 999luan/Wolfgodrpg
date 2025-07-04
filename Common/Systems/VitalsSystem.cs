@@ -24,7 +24,7 @@ namespace Wolfgodrpg.Common.Systems
                         var modPlayer = player.GetModPlayer<RPGPlayer>();
                         var config = ModContent.GetInstance<ConfigSystem>();
 
-                        // --- LÓGICA DE STAMINA ---
+                        // --- HUNGER LOGIC ---
                         // Remover referências a StaminaRegenDelay e CombatTimer
                         // if (modPlayer.StaminaRegenDelay > 0)
                         // {

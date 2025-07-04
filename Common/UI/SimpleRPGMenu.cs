@@ -99,19 +99,24 @@ namespace Wolfgodrpg.Common.UI
 
             string[] tabNames = { "Stats", "Classes", "Skills", "Progress", "Proficiencies" };
             float buttonWidth = 120f;
-            float spacing = 10f;
+            float spacing = 0f;
+            int tabCount = tabNames.Length;
+            float totalWidth = tabCount * buttonWidth;
+            float containerWidth = 0.95f; // 95% da largura do container
+            float startX = (1f - containerWidth) / 2f;
+            float slotWidth = containerWidth / tabCount;
             for (int i = 0; i < tabNames.Length; i++)
             {
                 int pageIndex = i;
                 var btn = new UITextPanel<string>(tabNames[i], 0.9f, true);
                 btn.Width.Set(buttonWidth, 0f);
                 btn.Height.Set(30f, 0f);
-                btn.Left.Set(i * (buttonWidth + spacing), 0f);
+                btn.HAlign = startX + slotWidth * i + slotWidth / 2f;
+                btn.Top.Set(0f, 0f);
                 btn.OnLeftClick += (evt, elm) => SetPage((MenuPage)pageIndex);
                 tabButtonContainer.Append(btn);
                 _tabButtons.Add(btn);
-                
-                DebugLog.UI("OnInitialize", $"Tab button '{tabNames[i]}' created at position {i * (buttonWidth + spacing):F1}");
+                DebugLog.UI("OnInitialize", $"Tab button '{tabNames[i]}' created at slot {i}");
             }
 
             SetPage(MenuPage.Stats);

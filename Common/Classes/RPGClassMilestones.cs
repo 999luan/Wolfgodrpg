@@ -39,14 +39,14 @@ namespace Wolfgodrpg.Common.Classes
         /// </summary>
         public static readonly Dictionary<string, List<ClassMilestone>> ClassMilestones = new Dictionary<string, List<ClassMilestone>>
         {
-            // === GUERREIRO ===
+            // === WARRIOR ===
             ["warrior"] = new List<ClassMilestone>
             {
-                new ClassMilestone("Vigor Inicial", "Aumenta a vida máxima", 1)
+                new ClassMilestone("Initial Vigor", "Increases max health", 1)
                 {
                     StatBonuses = { ["maxLife"] = 5f }
                 },
-                new ClassMilestone("Pele Grossa", "Aumenta a defesa", 5)
+                new ClassMilestone("Thick Skin", "Increases defense", 5)
                 {
                     StatBonuses = { ["defense"] = 4f }
                 },
@@ -54,15 +54,15 @@ namespace Wolfgodrpg.Common.Classes
                 {
                     StatBonuses = { ["meleeDamage"] = 0.06f }
                 },
-                new ClassMilestone("Instinto de Sobrevivência", "Aumenta a regeneração de vida", 15)
+                new ClassMilestone("Survival Instinct", "Increases health regeneration", 15)
                 {
                     StatBonuses = { ["lifeRegen"] = 1f }
                 },
-                new ClassMilestone("Golpe Decisivo", "Aumenta a chance de crítico corpo a corpo", 20)
+                new ClassMilestone("Decisive Strike", "Increases melee critical chance", 20)
                 {
                     StatBonuses = { ["meleeCrit"] = 8f }
                 },
-                new ClassMilestone("Armadura Improvisada", "Defesa extra ao receber dano crítico", 25)
+                new ClassMilestone("Improvised Armor", "Extra defense when taking critical damage", 25)
                 {
                     SpecialEffect = "defense_on_crit"
                 },
@@ -70,146 +70,146 @@ namespace Wolfgodrpg.Common.Classes
                 {
                     StatBonuses = { ["meleeSpeed"] = 0.10f }
                 },
-                new ClassMilestone("Espírito Indomável", "Chance de ignorar dano fatal", 35)
+                new ClassMilestone("Indomitable Spirit", "Chance to ignore fatal damage", 35)
                 {
                     SpecialEffect = "ignore_fatal_damage"
                 },
-                new ClassMilestone("Muralha de Ferro", "Aumenta a defesa permanentemente", 40)
+                new ClassMilestone("Iron Wall", "Permanently increases defense", 40)
                 {
                     StatBonuses = { ["defense"] = 10f }
                 },
-                new ClassMilestone("Campeão de Batalha", "Aumenta vida e defesa", 45)
+                new ClassMilestone("Battle Champion", "Increases health and defense", 45)
                 {
                     StatBonuses = { ["maxLife"] = 10f, ["defense"] = 10f }
                 },
-                new ClassMilestone("Lenda Viva", "Aumenta dano e defesa", 50)
+                new ClassMilestone("Living Legend", "Increases damage and defense", 50)
                 {
                     StatBonuses = { ["meleeDamage"] = 0.15f, ["defense"] = 15f }
                 }
             },
 
-            // === ARQUEIRO ===
+            // === ARCHER ===
             ["archer"] = new List<ClassMilestone>
             {
-                new ClassMilestone("Olho de Águia", "Aumenta a velocidade de projéteis", 1)
+                new ClassMilestone("Eagle Eye", "Increases projectile speed", 1)
                 {
                     StatBonuses = { ["projectileSpeed"] = 0.05f }
                 },
-                new ClassMilestone("Mira Precisa", "Aumenta a chance de crítico à distância", 5)
+                new ClassMilestone("Precise Aim", "Increases ranged critical chance", 5)
                 {
                     StatBonuses = { ["rangedCrit"] = 5f }
                 },
-                new ClassMilestone("Tiro Certeiro", "Aumenta o dano à distância", 10)
+                new ClassMilestone("Sure Shot", "Increases ranged damage", 10)
                 {
                     StatBonuses = { ["rangedDamage"] = 0.08f }
                 },
-                new ClassMilestone("Flecha Perfurante", "Flechas atravessam inimigos extras", 15)
+                new ClassMilestone("Piercing Arrow", "Arrows pierce extra enemies", 15)
                 {
                     SpecialEffect = "piercing_arrows"
                 },
-                new ClassMilestone("Munição Eficiente", "Chance de não consumir munição", 20)
+                new ClassMilestone("Efficient Ammunition", "Chance to not consume ammo", 20)
                 {
                     SpecialEffect = "ammo_conservation"
                 },
-                new ClassMilestone("Recarga Rápida", "Aumenta a velocidade de recarga", 25)
+                new ClassMilestone("Quick Reload", "Increases reload speed", 25)
                 {
                     StatBonuses = { ["reloadSpeed"] = 0.10f }
                 },
-                new ClassMilestone("Disparo Duplo", "Chance de disparar flecha extra", 30)
+                new ClassMilestone("Double Shot", "Chance to fire extra arrow", 30)
                 {
                     SpecialEffect = "double_shot"
                 },
-                new ClassMilestone("Camuflagem", "Aumenta a chance de esquiva", 35)
+                new ClassMilestone("Camouflage", "Increases dodge chance", 35)
                 {
                     StatBonuses = { ["dodgeChance"] = 8f }
                 },
-                new ClassMilestone("Mestre do Arco", "Aumenta o dano à distância", 40)
+                new ClassMilestone("Master of the Bow", "Increases ranged damage", 40)
                 {
                     StatBonuses = { ["rangedDamage"] = 0.12f }
                 },
-                new ClassMilestone("Flecha Fantasma", "Chance de disparar flecha fantasma", 45)
+                new ClassMilestone("Ghost Arrow", "Chance to fire ghost arrow", 45)
                 {
                     SpecialEffect = "ghost_arrow"
                 },
-                new ClassMilestone("Tiro Perfeito", "Crítico garantido uma vez por combate", 50)
+                new ClassMilestone("Perfect Shot", "Guaranteed critical once per combat", 50)
                 {
                     SpecialEffect = "guaranteed_crit"
                 }
             },
 
-            // === MAGO ===
+            // === MAGE ===
             ["mage"] = new List<ClassMilestone>
             {
-                new ClassMilestone("Mente Brilhante", "Aumenta a mana máxima", 1)
+                new ClassMilestone("Brilliant Mind", "Increases max mana", 1)
                 {
                     StatBonuses = { ["maxMana"] = 20f }
                 },
-                new ClassMilestone("Meditação", "Aumenta a regeneração de mana", 5)
+                new ClassMilestone("Meditation", "Increases mana regeneration", 5)
                 {
                     StatBonuses = { ["manaRegen"] = 0.05f }
                 },
-                new ClassMilestone("Poder Arcano", "Aumenta o dano mágico", 10)
+                new ClassMilestone("Arcane Power", "Increases magic damage", 10)
                 {
                     StatBonuses = { ["magicDamage"] = 0.08f }
                 },
-                new ClassMilestone("Conjuração Rápida", "Aumenta a velocidade de conjuração", 15)
+                new ClassMilestone("Rapid Casting", "Increases casting speed", 15)
                 {
                     StatBonuses = { ["castSpeed"] = 0.08f }
                 },
-                new ClassMilestone("Economia de Mana", "Chance de não consumir mana", 20)
+                new ClassMilestone("Mana Economy", "Chance to not consume mana", 20)
                 {
                     SpecialEffect = "mana_conservation"
                 },
-                new ClassMilestone("Projétil Extra", "Chance de projétil extra", 25)
+                new ClassMilestone("Extra Projectile", "Chance of extra projectile", 25)
                 {
                     SpecialEffect = "extra_projectile"
                 },
-                new ClassMilestone("Barreira Arcana", "Resistência a dano mágico", 30)
+                new ClassMilestone("Arcane Barrier", "Resistance to magic damage", 30)
                 {
                     StatBonuses = { ["magicResistance"] = 0.08f }
                 },
-                new ClassMilestone("Magia Persistente", "Magias aplicam debuff de lentidão", 35)
+                new ClassMilestone("Persistent Magic", "Spells apply slow debuff", 35)
                 {
                     SpecialEffect = "slow_debuff"
                 },
-                new ClassMilestone("Mestre dos Elementos", "Aumenta o dano mágico", 40)
+                new ClassMilestone("Master of Elements", "Increases magic damage", 40)
                 {
                     StatBonuses = { ["magicDamage"] = 0.12f }
                 },
-                new ClassMilestone("Mana Infinita", "Chance de mana infinita temporária", 45)
+                new ClassMilestone("Infinite Mana", "Chance of temporary infinite mana", 45)
                 {
                     SpecialEffect = "infinite_mana"
                 },
-                new ClassMilestone("Supremo Feiticeiro", "Magia grátis uma vez por combate", 50)
+                new ClassMilestone("Supreme Sorcerer", "Free spell once per combat", 50)
                 {
                     SpecialEffect = "free_spell"
                 }
             },
 
-            // === ACROBATA ===
+            // === ACROBAT ===
             ["acrobat"] = new List<ClassMilestone>
             {
-                new ClassMilestone("Passos Ágeis", "Aumenta a velocidade de movimento", 1)
+                new ClassMilestone("Agile Steps", "Increases movement speed", 1)
                 {
                     StatBonuses = { ["moveSpeed"] = 0.05f }
                 },
-                new ClassMilestone("Pulo Duplo", "Adiciona um pulo extra", 5)
+                new ClassMilestone("Double Jump", "Adds an extra jump", 5)
                 {
                     StatBonuses = { ["extraJumps"] = 1f }
                 },
-                new ClassMilestone("Reflexos Rápidos", "Aumenta a chance de esquiva", 10)
+                new ClassMilestone("Quick Reflexes", "Increases dodge chance", 10)
                 {
                     StatBonuses = { ["dodgeChance"] = 8f }
                 },
-                new ClassMilestone("Dash Inicial", "Adiciona um dash extra", 15)
+                new ClassMilestone("Initial Dash", "Adds an extra dash", 15)
                 {
                     StatBonuses = { ["extraDashes"] = 1f }
                 },
-                new ClassMilestone("Mestre do Dash", "Dash extra a cada 20 níveis", 20)
+                new ClassMilestone("Master of Dash", "Extra dash every 20 levels", 20)
                 {
                     SpecialEffect = "dash_per_level"
                 },
-                new ClassMilestone("Acrobacia Avançada", "Aumenta a altura do pulo", 25)
+                new ClassMilestone("Advanced Acrobatics", "Increases jump height", 25)
                 {
                     StatBonuses = { ["jumpHeight"] = 0.10f }
                 },
@@ -284,295 +284,295 @@ namespace Wolfgodrpg.Common.Classes
                 }
             },
 
-            // === EXPLORADOR ===
+            // === EXPLORER ===
             ["explorer"] = new List<ClassMilestone>
             {
-                new ClassMilestone("Passos Ligeiros", "Aumenta a velocidade de movimento", 1)
+                new ClassMilestone("Light Steps", "Increases movement speed", 1)
                 {
                     StatBonuses = { ["moveSpeed"] = 0.05f }
                 },
-                new ClassMilestone("Olhos de Águia", "Aumenta o alcance de visão", 5)
+                new ClassMilestone("Eagle Eyes", "Increases vision range", 5)
                 {
                     StatBonuses = { ["lightRadius"] = 0.08f }
                 },
-                new ClassMilestone("Rastreador", "Aumenta a chance de loot raro", 10)
+                new ClassMilestone("Tracker", "Increases rare loot chance", 10)
                 {
                     StatBonuses = { ["rareLootChance"] = 0.05f }
                 },
-                new ClassMilestone("Caminho Seguro", "Resistência a armadilhas", 15)
+                new ClassMilestone("Safe Path", "Trap resistance", 15)
                 {
                     StatBonuses = { ["trapResistance"] = 0.10f }
                 },
-                new ClassMilestone("Mestre do Mapa", "Aumenta a velocidade de movimento", 20)
+                new ClassMilestone("Map Master", "Increases movement speed", 20)
                 {
                     StatBonuses = { ["moveSpeed"] = 0.10f }
                 },
-                new ClassMilestone("Bússola Avançada", "Mostra localização exata", 25)
+                new ClassMilestone("Advanced Compass", "Shows exact location", 25)
                 {
                     SpecialEffect = "exact_location"
                 },
-                new ClassMilestone("Mochila Grande", "Adiciona slots de inventário", 30)
+                new ClassMilestone("Large Backpack", "Adds inventory slots", 30)
                 {
                     StatBonuses = { ["inventorySlots"] = 10f }
                 },
-                new ClassMilestone("Guia de Trilhas", "Velocidade em trilhas", 35)
+                new ClassMilestone("Trail Guide", "Speed on trails", 35)
                 {
                     StatBonuses = { ["miningSpeed"] = 0.10f }
                 },
-                new ClassMilestone("Rastreador Supremo", "Aumenta a chance de loot raro", 40)
+                new ClassMilestone("Supreme Tracker", "Increases rare loot chance", 40)
                 {
                     StatBonuses = { ["rareLootChance"] = 0.10f }
                 },
-                new ClassMilestone("Mochila Suprema", "Adiciona slots de inventário", 45)
+                new ClassMilestone("Supreme Backpack", "Adds inventory slots", 45)
                 {
                     StatBonuses = { ["inventorySlots"] = 10f }
                 },
-                new ClassMilestone("Explorador Supremo", "Bônus finais de movimento e loot", 50)
+                new ClassMilestone("Supreme Explorer", "Final movement and loot bonuses", 50)
                 {
                     StatBonuses = { ["moveSpeed"] = 0.15f, ["rareLootChance"] = 0.10f }
                 }
             },
 
-            // === ENGENHEIRO ===
+            // === ENGINEER ===
             ["engineer"] = new List<ClassMilestone>
             {
-                new ClassMilestone("Ferramentas Aprimoradas", "Aumenta a velocidade de mineração", 1)
+                new ClassMilestone("Enhanced Tools", "Increases mining speed", 1)
                 {
                     StatBonuses = { ["miningSpeed"] = 0.05f }
                 },
-                new ClassMilestone("Construção Rápida", "Aumenta a velocidade de construção", 5)
+                new ClassMilestone("Rapid Construction", "Increases build speed", 5)
                 {
                     StatBonuses = { ["buildSpeed"] = 0.05f }
                 },
-                new ClassMilestone("Armadilhas Eficientes", "Aumenta o dano de armadilhas", 10)
+                new ClassMilestone("Efficient Traps", "Increases trap damage", 10)
                 {
                     StatBonuses = { ["trapDamage"] = 0.08f }
                 },
-                new ClassMilestone("Torreta Extra", "Adiciona uma torreta extra", 15)
+                new ClassMilestone("Extra Turret", "Adds an extra turret", 15)
                 {
                     StatBonuses = { ["turretSlots"] = 1f }
                 },
-                new ClassMilestone("Reparos Rápidos", "Aumenta a velocidade de reparo", 20)
+                new ClassMilestone("Quick Repairs", "Increases repair speed", 20)
                 {
                     StatBonuses = { ["repairSpeed"] = 0.10f }
                 },
-                new ClassMilestone("Engrenagem Avançada", "Aumenta a eficiência de máquinas", 25)
+                new ClassMilestone("Advanced Gears", "Increases machine efficiency", 25)
                 {
                     StatBonuses = { ["machineEfficiency"] = 0.08f }
                 },
-                new ClassMilestone("Armadilha Explosiva", "Armadilhas causam explosão", 30)
+                new ClassMilestone("Explosive Trap", "Traps cause explosion", 30)
                 {
                     SpecialEffect = "explosive_traps"
                 },
-                new ClassMilestone("Torreta de Fogo", "Adiciona uma torreta extra", 35)
+                new ClassMilestone("Fire Turret", "Adds an extra turret", 35)
                 {
                     StatBonuses = { ["turretSlots"] = 1f }
                 },
-                new ClassMilestone("Mestre das Máquinas", "Aumenta o dano de armadilhas", 40)
+                new ClassMilestone("Master of Machines", "Increases trap damage", 40)
                 {
                     StatBonuses = { ["trapDamage"] = 0.10f }
                 },
-                new ClassMilestone("Construção Suprema", "Aumenta a velocidade de construção", 45)
+                new ClassMilestone("Supreme Construction", "Increases build speed", 45)
                 {
                     StatBonuses = { ["buildSpeed"] = 0.10f }
                 },
-                new ClassMilestone("Engenheiro Supremo", "Bônus finais de eficiência e dano", 50)
+                new ClassMilestone("Supreme Engineer", "Final efficiency and damage bonuses", 50)
                 {
                     StatBonuses = { ["machineEfficiency"] = 0.10f, ["trapDamage"] = 0.10f }
                 }
             },
 
-            // === SOBREVIVENTE ===
+            // === SURVIVALIST ===
             ["survivalist"] = new List<ClassMilestone>
             {
-                new ClassMilestone("Instinto de Sobrevivente", "Aumenta a resistência a dano", 1)
+                new ClassMilestone("Survival Instinct", "Increases damage resistance", 1)
                 {
                     StatBonuses = { ["damageResistance"] = 0.05f }
                 },
-                new ClassMilestone("Forrageador", "Aumenta a chance de loot extra", 5)
+                new ClassMilestone("Forager", "Increases extra loot chance", 5)
                 {
                     StatBonuses = { ["extraLootChance"] = 0.05f }
                 },
-                new ClassMilestone("Regeneração Natural", "Aumenta a regeneração de vida", 10)
+                new ClassMilestone("Natural Regeneration", "Increases health regeneration", 10)
                 {
                     StatBonuses = { ["lifeRegen"] = 1f }
                 },
-                new ClassMilestone("Caçador de Recursos", "Aumenta a chance de recursos raros", 15)
+                new ClassMilestone("Resource Hunter", "Increases rare resource chance", 15)
                 {
                     StatBonuses = { ["rareResourceChance"] = 0.05f }
                 },
-                new ClassMilestone("Mestre da Fome", "Fome diminui mais devagar", 20)
+                new ClassMilestone("Hunger Master", "Hunger decreases slower", 20)
                 {
                     StatBonuses = { ["hungerRate"] = -0.10f }
                 },
-                new ClassMilestone("Imunidade a Doenças", "Resistência a debuffs", 25)
+                new ClassMilestone("Disease Immunity", "Debuff resistance", 25)
                 {
                     StatBonuses = { ["debuffResistance"] = 0.10f }
                 },
-                new ClassMilestone("Regeneração Suprema", "Aumenta a regeneração de vida", 30)
+                new ClassMilestone("Supreme Regeneration", "Increases health regeneration", 30)
                 {
                     StatBonuses = { ["lifeRegen"] = 2f }
                 },
-                new ClassMilestone("Mestre da Sanidade", "Sanidade diminui mais devagar", 35)
+                new ClassMilestone("Sanity Master", "Sanity decreases slower", 35)
                 {
                     StatBonuses = { ["sanityRate"] = -0.10f }
                 },
-                new ClassMilestone("Sobrevivente Nato", "Bônus de resistência e loot", 40)
+                new ClassMilestone("Natural Survivor", "Resistance and loot bonuses", 40)
                 {
                     StatBonuses = { ["damageResistance"] = 0.10f, ["extraLootChance"] = 0.10f }
                 },
-                new ClassMilestone("Caçador de Tesouros", "Aumenta a chance de loot extra", 45)
+                new ClassMilestone("Treasure Hunter", "Increases extra loot chance", 45)
                 {
                     StatBonuses = { ["extraLootChance"] = 0.10f }
                 },
-                new ClassMilestone("Lenda da Sobrevivência", "Bônus finais de resistência e regeneração", 50)
+                new ClassMilestone("Legend of Survival", "Final resistance and regeneration bonuses", 50)
                 {
                     StatBonuses = { ["damageResistance"] = 0.15f, ["lifeRegen"] = 3f }
                 }
             },
 
-            // === FERREIRO ===
+            // === BLACKSMITH ===
             ["blacksmith"] = new List<ClassMilestone>
             {
-                new ClassMilestone("Forja Aprimorada", "Aumenta a chance de itens melhores", 1)
+                new ClassMilestone("Enhanced Forge", "Increases chance of better items", 1)
                 {
                     StatBonuses = { ["forgeQuality"] = 0.05f }
                 },
-                new ClassMilestone("Reparos Rápidos", "Aumenta a velocidade de reparo", 5)
+                new ClassMilestone("Quick Repairs", "Increases repair speed", 5)
                 {
                     StatBonuses = { ["repairSpeed"] = 0.05f }
                 },
-                new ClassMilestone("Dano de Ferramenta", "Aumenta o dano com ferramentas", 10)
+                new ClassMilestone("Tool Damage", "Increases damage with tools", 10)
                 {
                     StatBonuses = { ["toolDamage"] = 0.08f }
                 },
-                new ClassMilestone("Forja de Armas", "Aumenta o dano com armas forjadas", 15)
+                new ClassMilestone("Weapon Forge", "Increases damage with forged weapons", 15)
                 {
                     StatBonuses = { ["forgedWeaponDamage"] = 0.08f }
                 },
-                new ClassMilestone("Mestre da Forja", "Aumenta a chance de itens raros", 20)
+                new ClassMilestone("Master Forge", "Increases chance of rare items", 20)
                 {
                     StatBonuses = { ["rareItemChance"] = 0.10f }
                 },
-                new ClassMilestone("Reparos Divinos", "Aumenta a velocidade de reparo", 25)
+                new ClassMilestone("Divine Repairs", "Increases repair speed", 25)
                 {
                     StatBonuses = { ["repairSpeed"] = 0.10f }
                 },
-                new ClassMilestone("Forja Suprema", "Aumenta a chance de itens raros", 30)
+                new ClassMilestone("Supreme Forge", "Increases chance of rare items", 30)
                 {
                     StatBonuses = { ["rareItemChance"] = 0.15f }
                 },
-                new ClassMilestone("Dano Supremo", "Aumenta o dano com ferramentas e armas", 35)
+                new ClassMilestone("Supreme Damage", "Increases damage with tools and weapons", 35)
                 {
                     StatBonuses = { ["toolDamage"] = 0.10f, ["forgedWeaponDamage"] = 0.10f }
                 },
-                new ClassMilestone("Lenda da Forja", "Aumenta a chance de itens raros", 40)
+                new ClassMilestone("Legend of the Forge", "Increases chance of rare items", 40)
                 {
                     StatBonuses = { ["rareItemChance"] = 0.20f }
                 },
-                new ClassMilestone("Reparos Supremos", "Chance de reparos grátis", 45)
+                new ClassMilestone("Supreme Repairs", "Chance of free repairs", 45)
                 {
                     SpecialEffect = "free_repairs"
                 },
-                new ClassMilestone("Ferreiro Supremo", "Bônus finais de forja e dano", 50)
+                new ClassMilestone("Supreme Blacksmith", "Final forging and damage bonuses", 50)
                 {
                     StatBonuses = { ["rareItemChance"] = 0.25f, ["forgedWeaponDamage"] = 0.10f }
                 }
             },
 
-            // === ALQUIMISTA ===
+            // === ALCHEMIST ===
             ["alchemist"] = new List<ClassMilestone>
             {
-                new ClassMilestone("Mãos de Ouro", "Aumenta a cura de poções", 1)
+                new ClassMilestone("Golden Hands", "Increases potion healing", 1)
                 {
                     StatBonuses = { ["potionHealing"] = 0.05f }
                 },
-                new ClassMilestone("Mestre dos Buffs", "Aumenta a duração de buffs", 5)
+                new ClassMilestone("Master of Buffs", "Increases buff duration", 5)
                 {
                     StatBonuses = { ["buffDuration"] = 0.05f }
                 },
-                new ClassMilestone("Economia de Ingredientes", "Chance de não consumir poção", 10)
+                new ClassMilestone("Ingredient Economy", "Chance to not consume potion", 10)
                 {
                     SpecialEffect = "potion_conservation"
                 },
-                new ClassMilestone("Poção Potente", "Chance de buff extra", 15)
+                new ClassMilestone("Potent Potion", "Chance of extra buff", 15)
                 {
                     SpecialEffect = "extra_buff"
                 },
-                new ClassMilestone("Estoque Extra", "Adiciona slot de buff", 20)
+                new ClassMilestone("Extra Stock", "Adds buff slot", 20)
                 {
                     StatBonuses = { ["buffSlots"] = 1f }
                 },
-                new ClassMilestone("Sinergia Vital", "Poções de cura restauram mana", 25)
+                new ClassMilestone("Vital Synergy", "Healing potions restore mana", 25)
                 {
                     SpecialEffect = "heal_restores_mana"
                 },
-                new ClassMilestone("Poção Compartilhada", "Buffs afetam aliados", 30)
+                new ClassMilestone("Shared Potion", "Buffs affect allies", 30)
                 {
                     SpecialEffect = "shared_buffs"
                 },
-                new ClassMilestone("Mestre dos Elixires", "Aumenta a duração de buffs", 35)
+                new ClassMilestone("Master of Elixirs", "Increases buff duration", 35)
                 {
                     StatBonuses = { ["buffDuration"] = 0.10f }
                 },
-                new ClassMilestone("Poção Suprema", "Aumenta a cura de poções", 40)
+                new ClassMilestone("Supreme Potion", "Increases potion healing", 40)
                 {
                     StatBonuses = { ["potionHealing"] = 0.10f }
                 },
-                new ClassMilestone("Alquimia Rápida", "Aumenta a velocidade de uso", 45)
+                new ClassMilestone("Rapid Alchemy", "Increases use speed", 45)
                 {
                     StatBonuses = { ["potionUseSpeed"] = 0.10f }
                 },
-                new ClassMilestone("Alquimista Supremo", "Bônus finais de duração e cura", 50)
+                new ClassMilestone("Supreme Alchemist", "Final duration and healing bonuses", 50)
                 {
                     StatBonuses = { ["buffDuration"] = 0.15f, ["potionHealing"] = 0.15f }
                 }
             },
 
-            // === MÍSTICO ===
+            // === MYSTIC ===
             ["mystic"] = new List<ClassMilestone>
             {
-                new ClassMilestone("Aura Protetora", "Resistência a debuffs", 1)
+                new ClassMilestone("Protective Aura", "Debuff resistance", 1)
                 {
                     StatBonuses = { ["debuffResistance"] = 0.05f }
                 },
-                new ClassMilestone("Sorte do Destino", "Aumenta a sorte", 5)
+                new ClassMilestone("Destiny's Luck", "Increases luck", 5)
                 {
                     StatBonuses = { ["luck"] = 0.02f }
                 },
-                new ClassMilestone("Invocação Aprimorada", "Aumenta o dano de invocação", 10)
+                new ClassMilestone("Enhanced Summoning", "Increases summon damage", 10)
                 {
                     StatBonuses = { ["summonDamage"] = 0.05f }
                 },
-                new ClassMilestone("Minion Extra", "Adiciona um minion", 15)
+                new ClassMilestone("Extra Minion", "Adds a minion", 15)
                 {
                     StatBonuses = { ["minionSlots"] = 1f }
                 },
-                new ClassMilestone("Vida Espiritual", "Minions têm mais vida", 20)
+                new ClassMilestone("Spiritual Life", "Minions have more health", 20)
                 {
                     StatBonuses = { ["minionHealth"] = 0.05f }
                 },
-                new ClassMilestone("Sentinela Extra", "Adiciona uma sentinela", 25)
+                new ClassMilestone("Extra Sentinel", "Adds a sentinel", 25)
                 {
                     StatBonuses = { ["sentinelSlots"] = 1f }
                 },
-                new ClassMilestone("Fraqueza Mística", "Minions aplicam debuff", 30)
+                new ClassMilestone("Mystic Weakness", "Minions apply debuff", 30)
                 {
                     SpecialEffect = "minion_debuff"
                 },
-                new ClassMilestone("Aura de Cura", "Regeneração para aliados", 35)
+                new ClassMilestone("Healing Aura", "Regeneration for allies", 35)
                 {
                     StatBonuses = { ["allyLifeRegen"] = 1f }
                 },
-                new ClassMilestone("Mestre dos Espíritos", "Bônus de invocação e minion", 40)
+                new ClassMilestone("Master of Spirits", "Summon and minion bonuses", 40)
                 {
                     StatBonuses = { ["summonDamage"] = 0.08f, ["minionSlots"] = 1f }
                 },
-                new ClassMilestone("Invocação Rápida", "Aumenta a velocidade de invocação", 45)
+                new ClassMilestone("Rapid Summoning", "Increases summon speed", 45)
                 {
                     StatBonuses = { ["summonSpeed"] = 0.08f }
                 },
-                new ClassMilestone("Místico Supremo", "Bônus finais de minions e sentinelas", 50)
+                new ClassMilestone("Supreme Mystic", "Final minions and sentinels bonuses", 50)
                 {
                     StatBonuses = { ["minionSlots"] = 2f, ["sentinelSlots"] = 2f }
                 }
@@ -580,7 +580,7 @@ namespace Wolfgodrpg.Common.Classes
         };
 
         /// <summary>
-        /// Obtém todas as milestones desbloqueadas para uma classe específica
+        /// Gets all unlocked milestones for a specific class
         /// </summary>
         public static List<ClassMilestone> GetUnlockedMilestones(string className, float classLevel)
         {
@@ -593,7 +593,7 @@ namespace Wolfgodrpg.Common.Classes
         }
 
         /// <summary>
-        /// Obtém a próxima milestone para uma classe específica
+        /// Gets the next milestone for a specific class
         /// </summary>
         public static ClassMilestone GetNextMilestone(string className, float classLevel)
         {
@@ -605,7 +605,7 @@ namespace Wolfgodrpg.Common.Classes
         }
 
         /// <summary>
-        /// Calcula todos os bônus de stats das milestones desbloqueadas
+        /// Calculates all stat bonuses from unlocked milestones
         /// </summary>
         public static Dictionary<string, float> CalculateMilestoneBonuses(string className, float classLevel)
         {
@@ -626,7 +626,7 @@ namespace Wolfgodrpg.Common.Classes
         }
 
         /// <summary>
-        /// Obtém todos os efeitos especiais ativos das milestones desbloqueadas
+        /// Gets all active special effects from unlocked milestones
         /// </summary>
         public static List<string> GetActiveSpecialEffects(string className, float classLevel)
         {

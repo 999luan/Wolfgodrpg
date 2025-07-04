@@ -30,14 +30,14 @@ namespace Wolfgodrpg.Common.UI.HUD
             Append(mainPanel);
 
             // Inicializar as barras de status
-            hungerBar = new UIProgressBar(Color.Orange, "Fome");
+            hungerBar = new UIProgressBar(Color.Orange, "Hunger");
             hungerBar.Width.Set(0, 0.9f);
             hungerBar.Height.Set(20f, 0f);
             hungerBar.HAlign = 0.5f;
             hungerBar.Top.Set(10f, 0f);
             mainPanel.Append(hungerBar);
 
-            sanityBar = new UIProgressBar(Color.Purple, "Sanidade");
+            sanityBar = new UIProgressBar(Color.Purple, "Sanity");
             sanityBar.Width.Set(0, 0.9f);
             sanityBar.Height.Set(20f, 0f);
             sanityBar.HAlign = 0.5f;

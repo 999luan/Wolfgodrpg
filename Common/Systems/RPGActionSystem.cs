@@ -245,7 +245,7 @@ namespace Wolfgodrpg.Common.Systems
 
             var rpgPlayer = player.GetModPlayer<RPGPlayer>();
             
-            // Recuperar fome baseado no preço do item
+            // Restore hunger based on item price
             float hungerRecovery = MathHelper.Clamp(item.value * 0.01f, 10f, 50f);
             rpgPlayer.CurrentHunger = MathHelper.Clamp(
                 rpgPlayer.CurrentHunger + hungerRecovery,

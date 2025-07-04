@@ -8,77 +8,77 @@ namespace Wolfgodrpg.Common.Classes
 {
     public enum ClassAbility
     {
-        // Habilidades do Acrobata
+        // Acrobat Abilities
         BasicDash = 1,
         DoubleJump = 25,
         EnhancedDash = 50,
         EvasiveDash = 75,
         AirDash = 100,
 
-        // Habilidades do Guerreiro
+        // Warrior Abilities
         BasicCombat = 1,
         ImprovedDefense = 25,
         WeaponMastery = 50,
         BattleCry = 75,
         BerserkerRage = 100,
 
-        // Habilidades do Arqueiro
+        // Archer Abilities
         BasicArchery = 1,
         PreciseShot = 25,
         RapidFire = 50,
         PowerShot = 75,
         MultiShot = 100,
 
-        // Habilidades do Mago
+        // Mage Abilities
         BasicMagic = 1,
         SpellMastery = 25,
         ElementalPower = 50,
         ArcaneShield = 75,
         SpellCascade = 100,
 
-        // Habilidades do Invocador
+        // Summoner Abilities
         BasicSummon = 1,
         ImprovedMinions = 25,
         MinionMastery = 50,
         SoulBond = 75,
         LegionCommand = 100,
 
-        // Habilidades do Explorador
+        // Explorer Abilities
         BasicExploration = 1,
         ImprovedMovement = 25,
         TreasureHunter = 50,
         PathFinder = 75,
         MasterExplorer = 100,
 
-        // Habilidades do Engenheiro
+        // Engineer Abilities
         BasicEngineering = 1,
         ImprovedCrafting = 25,
         AdvancedMechanics = 50,
         TechMastery = 75,
         MasterInventor = 100,
 
-        // Habilidades do Sobrevivente
+        // Survivalist Abilities
         BasicSurvival = 1,
         ImprovedVitality = 25,
         NaturalHealing = 50,
         AdaptiveBody = 75,
         UltimateEndurance = 100,
 
-        // Habilidades do Ferreiro
+        // Blacksmith Abilities
         BasicSmithing = 1,
         ImprovedForging = 25,
         MasterBlacksmith = 50,
         LegendaryWeapons = 75,
         DivineCrafting = 100,
 
-        // Habilidades do Alquimista
+        // Alchemist Abilities
         BasicAlchemy = 1,
         ImprovedPotions = 25,
         MasterBrewer = 50,
         ElementalMixing = 75,
         UltimatePotions = 100,
 
-        // Habilidades do Místico
+        // Mystic Abilities
         BasicMysticism = 1,
         ImprovedRegeneration = 25,
         VitalityMastery = 50,
@@ -121,20 +121,20 @@ namespace Wolfgodrpg.Common.Classes
     {
         public static readonly Dictionary<string, ClassInfo> ActionClasses = new Dictionary<string, ClassInfo>
         {
-            // === CLASSES DE COMBATE ===
+            // === COMBAT CLASSES ===
             
-            // Guerreiro
+            // Warrior
             {"warrior", new ClassInfo(
                 "Warrior",
-                "Mestre do combate corpo a corpo")
+                "Master of melee combat")
             {
                 Milestones = new Dictionary<ClassAbility, string>
                 {
-                    {ClassAbility.BasicCombat, "Técnicas básicas de combate"},
-                    {ClassAbility.ImprovedDefense, "Defesa aprimorada"},
-                    {ClassAbility.WeaponMastery, "Maestria com armas"},
-                    {ClassAbility.BattleCry, "Grito de guerra"},
-                    {ClassAbility.BerserkerRage, "Fúria do berserker"}
+                    {ClassAbility.BasicCombat, "Basic combat techniques"},
+                    {ClassAbility.ImprovedDefense, "Enhanced defense"},
+                    {ClassAbility.WeaponMastery, "Weapon mastery"},
+                    {ClassAbility.BattleCry, "Battle cry"},
+                    {ClassAbility.BerserkerRage, "Berserker rage"}
                 },
                 BaseStats = new Dictionary<string, float>
                 {
@@ -152,18 +152,18 @@ namespace Wolfgodrpg.Common.Classes
                 }
             }},
 
-            // Arqueiro
+            // Archer
             {"archer", new ClassInfo(
                 "Archer",
-                "Especialista em combate à distância")
+                "Specialist in ranged combat")
             {
                 Milestones = new Dictionary<ClassAbility, string>
                 {
-                    {ClassAbility.BasicArchery, "Técnicas básicas de arco"},
-                    {ClassAbility.PreciseShot, "Tiro preciso"},
-                    {ClassAbility.RapidFire, "Tiro rápido"},
-                    {ClassAbility.PowerShot, "Tiro poderoso"},
-                    {ClassAbility.MultiShot, "Tiro múltiplo"}
+                    {ClassAbility.BasicArchery, "Basic archery techniques"},
+                    {ClassAbility.PreciseShot, "Precise shot"},
+                    {ClassAbility.RapidFire, "Rapid fire"},
+                    {ClassAbility.PowerShot, "Power shot"},
+                    {ClassAbility.MultiShot, "Multi shot"}
                 },
                 BaseStats = new Dictionary<string, float>
                 {
@@ -181,18 +181,18 @@ namespace Wolfgodrpg.Common.Classes
                 }
             }},
 
-            // Mago
+            // Mage
             {"mage", new ClassInfo(
                 "Mage",
-                "Mestre das artes arcanas")
+                "Master of arcane arts")
             {
                 Milestones = new Dictionary<ClassAbility, string>
                 {
-                    {ClassAbility.BasicMagic, "Magias básicas"},
-                    {ClassAbility.SpellMastery, "Maestria em feitiços"},
-                    {ClassAbility.ElementalPower, "Poder elemental"},
-                    {ClassAbility.ArcaneShield, "Escudo arcano"},
-                    {ClassAbility.SpellCascade, "Cascata de feitiços"}
+                    {ClassAbility.BasicMagic, "Basic magic"},
+                    {ClassAbility.SpellMastery, "Spell mastery"},
+                    {ClassAbility.ElementalPower, "Elemental power"},
+                    {ClassAbility.ArcaneShield, "Arcane shield"},
+                    {ClassAbility.SpellCascade, "Spell cascade"}
                 },
                 BaseStats = new Dictionary<string, float>
                 {
@@ -210,18 +210,18 @@ namespace Wolfgodrpg.Common.Classes
                 }
             }},
 
-            // Invocador
+            // Summoner
             {"summoner", new ClassInfo(
                 "Summoner",
-                "Comandante de criaturas místicas")
+                "Commander of mystical creatures")
             {
                 Milestones = new Dictionary<ClassAbility, string>
                 {
-                    {ClassAbility.BasicSummon, "Invocação básica"},
-                    {ClassAbility.ImprovedMinions, "Servos aprimorados"},
-                    {ClassAbility.MinionMastery, "Maestria em invocação"},
-                    {ClassAbility.SoulBond, "Vínculo espiritual"},
-                    {ClassAbility.LegionCommand, "Comando da legião"}
+                    {ClassAbility.BasicSummon, "Basic summoning"},
+                    {ClassAbility.ImprovedMinions, "Enhanced servants"},
+                    {ClassAbility.MinionMastery, "Summoning mastery"},
+                    {ClassAbility.SoulBond, "Spiritual bond"},
+                    {ClassAbility.LegionCommand, "Legion command"}
                 },
                 BaseStats = new Dictionary<string, float>
                 {
@@ -239,20 +239,20 @@ namespace Wolfgodrpg.Common.Classes
                 }
             }},
 
-            // === CLASSES DE UTILIDADE ===
+            // === UTILITY CLASSES ===
 
-            // Acrobata
+            // Acrobat
             {"acrobat", new ClassInfo(
                 "Acrobat",
-                "Mestre da mobilidade e agilidade")
+                "Master of mobility and agility")
             {
                 Milestones = new Dictionary<ClassAbility, string>
                 {
-                    {ClassAbility.BasicDash, "Dash básico"},
-                    {ClassAbility.DoubleJump, "Pulo duplo"},
-                    {ClassAbility.EnhancedDash, "Dash aprimorado"},
-                    {ClassAbility.EvasiveDash, "Dash evasivo"},
-                    {ClassAbility.AirDash, "Dash aéreo"}
+                    {ClassAbility.BasicDash, "Basic dash"},
+                    {ClassAbility.DoubleJump, "Double jump"},
+                    {ClassAbility.EnhancedDash, "Enhanced dash"},
+                    {ClassAbility.EvasiveDash, "Evasive dash"},
+                    {ClassAbility.AirDash, "Air dash"}
                 },
                 BaseStats = new Dictionary<string, float>
                 {
@@ -270,17 +270,17 @@ namespace Wolfgodrpg.Common.Classes
                 }
             }},
 
-            // Explorador
+            // Explorer
             {"explorer", new ClassInfo(
                 "Explorer",
-                "Especialista em exploração e descoberta")
+                "Specialist in exploration and discovery")
             {
                 Milestones = new Dictionary<ClassAbility, string>
                 {
-                    {ClassAbility.BasicExploration, "Exploração básica"},
-                    {ClassAbility.ImprovedMovement, "Movimento aprimorado"},
-                    {ClassAbility.TreasureHunter, "Caçador de tesouros"},
-                    {ClassAbility.PathFinder, "Desbravador"},
+                    {ClassAbility.BasicExploration, "Basic exploration"},
+                    {ClassAbility.ImprovedMovement, "Enhanced movement"},
+                    {ClassAbility.TreasureHunter, "Treasure hunter"},
+                    {ClassAbility.PathFinder, "Pathfinder"},
                     {ClassAbility.MasterExplorer, "Master Explorer"}
                 },
                 BaseStats = new Dictionary<string, float>
@@ -299,18 +299,18 @@ namespace Wolfgodrpg.Common.Classes
                 }
             }},
 
-            // Engenheiro
+            // Engineer
             {"engineer", new ClassInfo(
                 "Engineer",
-                "Mestre da tecnologia e construção")
+                "Master of technology and construction")
             {
                 Milestones = new Dictionary<ClassAbility, string>
                 {
-                    {ClassAbility.BasicEngineering, "Engenharia básica"},
-                    {ClassAbility.ImprovedCrafting, "Criação aprimorada"},
-                    {ClassAbility.AdvancedMechanics, "Mecânica avançada"},
-                    {ClassAbility.TechMastery, "Maestria tecnológica"},
-                    {ClassAbility.MasterInventor, "Inventor supremo"}
+                    {ClassAbility.BasicEngineering, "Basic engineering"},
+                    {ClassAbility.ImprovedCrafting, "Enhanced crafting"},
+                    {ClassAbility.AdvancedMechanics, "Advanced mechanics"},
+                    {ClassAbility.TechMastery, "Technology mastery"},
+                    {ClassAbility.MasterInventor, "Supreme inventor"}
                 },
                 BaseStats = new Dictionary<string, float>
                 {
@@ -328,18 +328,18 @@ namespace Wolfgodrpg.Common.Classes
                 }
             }},
 
-            // Sobrevivente
+            // Survivalist
             {"survivalist", new ClassInfo(
                 "Survivalist",
-                "Especialista em sobrevivência e adaptação")
+                "Specialist in survival and adaptation")
             {
                 Milestones = new Dictionary<ClassAbility, string>
                 {
-                    {ClassAbility.BasicSurvival, "Sobrevivência básica"},
-                    {ClassAbility.ImprovedVitality, "Vitalidade aprimorada"},
-                    {ClassAbility.NaturalHealing, "Cura natural"},
-                    {ClassAbility.AdaptiveBody, "Corpo adaptativo"},
-                    {ClassAbility.UltimateEndurance, "Resistência suprema"}
+                    {ClassAbility.BasicSurvival, "Basic survival"},
+                    {ClassAbility.ImprovedVitality, "Enhanced vitality"},
+                    {ClassAbility.NaturalHealing, "Natural healing"},
+                    {ClassAbility.AdaptiveBody, "Adaptive body"},
+                    {ClassAbility.UltimateEndurance, "Supreme endurance"}
                 },
                 BaseStats = new Dictionary<string, float>
                 {
@@ -357,18 +357,18 @@ namespace Wolfgodrpg.Common.Classes
                 }
             }},
 
-            // Ferreiro
+            // Blacksmith
             {"blacksmith", new ClassInfo(
                 "Blacksmith",
-                "Mestre da forja e metalurgia")
+                "Master of forging and metallurgy")
             {
                 Milestones = new Dictionary<ClassAbility, string>
                 {
-                    {ClassAbility.BasicSmithing, "Forja básica"},
-                    {ClassAbility.ImprovedForging, "Forja aprimorada"},
+                    {ClassAbility.BasicSmithing, "Basic smithing"},
+                    {ClassAbility.ImprovedForging, "Enhanced forging"},
                     {ClassAbility.MasterBlacksmith, "Master Blacksmith"},
-                    {ClassAbility.LegendaryWeapons, "Armas lendárias"},
-                    {ClassAbility.DivineCrafting, "Forja divina"}
+                    {ClassAbility.LegendaryWeapons, "Legendary weapons"},
+                    {ClassAbility.DivineCrafting, "Divine crafting"}
                 },
                 BaseStats = new Dictionary<string, float>
                 {
@@ -386,18 +386,18 @@ namespace Wolfgodrpg.Common.Classes
                 }
             }},
 
-            // Alquimista
+            // Alchemist
             {"alchemist", new ClassInfo(
                 "Alchemist",
-                "Mestre das poções e elixires")
+                "Master of potions and elixirs")
             {
                 Milestones = new Dictionary<ClassAbility, string>
                 {
-                    {ClassAbility.BasicAlchemy, "Alquimia básica"},
-                    {ClassAbility.ImprovedPotions, "Poções aprimoradas"},
+                    {ClassAbility.BasicAlchemy, "Basic alchemy"},
+                    {ClassAbility.ImprovedPotions, "Enhanced potions"},
                     {ClassAbility.MasterBrewer, "Master Alchemist"},
-                    {ClassAbility.ElementalMixing, "Misturas elementais"},
-                    {ClassAbility.UltimatePotions, "Poções supremas"}
+                    {ClassAbility.ElementalMixing, "Elemental mixing"},
+                    {ClassAbility.UltimatePotions, "Supreme potions"}
                 },
                 BaseStats = new Dictionary<string, float>
                 {
@@ -415,18 +415,18 @@ namespace Wolfgodrpg.Common.Classes
                 }
             }},
 
-            // Místico
+            // Mystic
             {"mystic", new ClassInfo(
                 "Mystic",
-                "Mestre do equilíbrio vital e harmonia")
+                "Master of vital balance and harmony")
             {
                 Milestones = new Dictionary<ClassAbility, string>
                 {
-                    {ClassAbility.BasicMysticism, "Misticismo básico"},
-                    {ClassAbility.ImprovedRegeneration, "Regeneração aprimorada"},
-                    {ClassAbility.VitalityMastery, "Maestria vital"},
-                    {ClassAbility.SpiritualHarmony, "Harmonia espiritual"},
-                    {ClassAbility.TranscendentBeing, "Ser transcendente"}
+                    {ClassAbility.BasicMysticism, "Basic mysticism"},
+                    {ClassAbility.ImprovedRegeneration, "Enhanced regeneration"},
+                    {ClassAbility.VitalityMastery, "Vitality mastery"},
+                    {ClassAbility.SpiritualHarmony, "Spiritual harmony"},
+                    {ClassAbility.TranscendentBeing, "Transcendent being"}
                 },
                 BaseStats = new Dictionary<string, float>
                 {
@@ -447,22 +447,22 @@ namespace Wolfgodrpg.Common.Classes
             }}
         };
 
-        // Informações de stats aleatórios para itens
+        // Random stats information for items
         public static readonly Dictionary<string, StatInfo> RandomStats = new Dictionary<string, StatInfo>
         {
-            {"damage", new StatInfo("Dano", 1f, 5f)},
-            {"critChance", new StatInfo("Chance Crítica", 1f, 3f)},
-            {"attackSpeed", new StatInfo("Velocidade de Ataque", 1f, 3f)},
-            {"defense", new StatInfo("Defesa", 1f, 4f)},
-            {"moveSpeed", new StatInfo("Velocidade de Movimento", 1f, 3f)},
-            {"lifeRegen", new StatInfo("Regeneração de Vida", 1f, 2f)},
-            {"manaRegen", new StatInfo("Regeneração de Mana", 1f, 2f)},
-            {"staminaRegen", new StatInfo("Regeneração de Stamina", 1f, 2f)},
-            {"sanityRegen", new StatInfo("Regeneração de Sanidade", 1f, 2f)},
-            {"hungerRegen", new StatInfo("Regeneração de Fome", 1f, 2f)}
+            {"damage", new StatInfo("Damage", 1f, 5f)},
+            {"critChance", new StatInfo("Critical Chance", 1f, 3f)},
+            {"attackSpeed", new StatInfo("Attack Speed", 1f, 3f)},
+            {"defense", new StatInfo("Defense", 1f, 4f)},
+            {"moveSpeed", new StatInfo("Movement Speed", 1f, 3f)},
+            {"lifeRegen", new StatInfo("Health Regeneration", 1f, 2f)},
+            {"manaRegen", new StatInfo("Mana Regeneration", 1f, 2f)},
+            {"staminaRegen", new StatInfo("Stamina Regeneration", 1f, 2f)},
+            {"sanityRegen", new StatInfo("Sanity Regeneration", 1f, 2f)},
+            {"hungerRegen", new StatInfo("Hunger Regeneration", 1f, 2f)}
         };
 
-        // Quantidade de stats por raridade
+        // Number of stats per rarity
         public static readonly Dictionary<ItemRarity, int> StatsPerRarity = new Dictionary<ItemRarity, int>
         {
             {ItemRarity.Common, 1},
@@ -472,7 +472,7 @@ namespace Wolfgodrpg.Common.Classes
             {ItemRarity.Legendary, 5}
         };
 
-        // Multiplicador de stats por raridade
+        // Stat multiplier per rarity
         public static readonly Dictionary<ItemRarity, float> StatMultiplierPerRarity = new Dictionary<ItemRarity, float>
         {
             {ItemRarity.Common, 1.0f},

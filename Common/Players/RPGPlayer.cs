@@ -75,12 +75,12 @@ namespace Wolfgodrpg.Common.Players
 
         // === SISTEMA DE VITAIS ===
         /// <summary>
-        /// Fome atual do jogador (0-100).
+        /// Current hunger of the player (0-100).
         /// </summary>
         public float CurrentHunger { get; set; } = 100f;
         
         /// <summary>
-        /// Sanidade atual do jogador (0-100).
+        /// Current sanity of the player (0-100).
         /// </summary>
         public float CurrentSanity { get; set; } = 100f;
         
@@ -90,12 +90,12 @@ namespace Wolfgodrpg.Common.Players
         public float CurrentStamina { get; set; } = 100f;
         
         /// <summary>
-        /// Taxa de regeneração de fome por segundo.
+        /// Hunger regeneration rate per second.
         /// </summary>
         public float HungerRegenRate { get; set; } = 0.5f;
         
         /// <summary>
-        /// Taxa de regeneração de sanidade por segundo.
+        /// Sanity regeneration rate per second.
         /// </summary>
         public float SanityRegenRate { get; set; } = 0.3f;
         
@@ -179,6 +179,19 @@ namespace Wolfgodrpg.Common.Players
         private Vector2 dashDirection = Vector2.Zero;
         private float dashStartRotation = 0f;
         private float dashTargetRotation = 0f;
+
+        // === LOGS DE XP ACUMULADOS ===
+        public List<string> XPLogs = new List<string>();
+
+        public void AddXPLog(string log)
+        {
+            XPLogs.Add(log);
+        }
+
+        public void ClearXPLogs()
+        {
+            XPLogs.Clear();
+        }
 
         /// <summary>
         /// Inicializa o jogador com valores padrão.
@@ -850,20 +863,20 @@ namespace Wolfgodrpg.Common.Players
         /// </summary>
         private void ApplyVitalEffects()
         {
-            // Efeitos de fome baixa
+            // Low hunger effects
             if (CurrentHunger < 20f)
             {
                 Player.moveSpeed *= 0.8f;
                 Player.jumpSpeedBoost *= 0.8f;
             }
             
-            // Efeitos de sanidade baixa
+            // Low sanity effects
             if (CurrentSanity < 30f)
             {
                 Player.statDefense -= 5;
             }
             
-            // Efeitos de stamina baixa
+            // Low stamina effects
             if (CurrentStamina < 25f)
             {
                 Player.moveSpeed *= 0.9f;

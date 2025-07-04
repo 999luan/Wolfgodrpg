@@ -1,6 +1,7 @@
 using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ModLoader;
+using Wolfgodrpg.Common.Players;
 
 namespace Wolfgodrpg.Common.Systems
 {
@@ -43,6 +44,21 @@ namespace Wolfgodrpg.Common.Systems
             
             // Usar Main.NewText diretamente para simplicidade
             Main.NewText(message, color);
+        }
+
+        public static void ShowAllXPLogs(Player player)
+        {
+            var modPlayer = player.GetModPlayer<RPGPlayer>();
+            if (modPlayer == null || modPlayer.XPLogs.Count == 0)
+            {
+                Main.NewText("No XP logs to show.", Color.LightGray);
+                return;
+            }
+            foreach (var log in modPlayer.XPLogs)
+            {
+                Main.NewText(log, Color.LightBlue);
+            }
+            modPlayer.ClearXPLogs();
         }
 
         /// <summary>
