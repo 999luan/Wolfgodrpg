@@ -54,7 +54,7 @@ namespace Wolfgodrpg.Common.UI.Menus
             // Verificações robustas de null (padrão ExampleMod)
             if (Main.LocalPlayer == null || !Main.LocalPlayer.active || Main.LocalPlayer.inventory == null)
             {
-                _itemsList.Add(new UIText("Jogador não disponível."));
+                _itemsList.Add(new UIText("Player not available."));
                 return;
             }
             
@@ -86,7 +86,7 @@ namespace Wolfgodrpg.Common.UI.Menus
 
             if (!foundItems)
             {
-                _itemsList.Add(new UIText("Nenhum item com atributos RPG encontrado."));
+                _itemsList.Add(new UIText("No item with RPG attributes found."));
             }
         }
         
@@ -121,7 +121,7 @@ namespace Wolfgodrpg.Common.UI.Menus
                 Append(_iconText);
 
                 // Raridade
-                _rarityText = new UIText($"Raridade: {GetRarityName(item.rare)}", 0.9f);
+                _rarityText = new UIText($"Rarity: {GetRarityName(item.rare)}", 0.9f);
                 _rarityText.TextColor = Color.LightGray;
                 _rarityText.Left.Set(80f, 0f);
                 _rarityText.Top.Set(50f, 0f);
@@ -132,7 +132,7 @@ namespace Wolfgodrpg.Common.UI.Menus
                 // Stats aleatórios
                 if (globalItem.RandomStats != null && globalItem.RandomStats.Any())
                 {
-                    var statsHeader = new UIText("📊 Atributos RPG:", 0.9f);
+                    var statsHeader = new UIText("📊 RPG Attributes:", 0.9f);
                     statsHeader.TextColor = Color.LightBlue;
                     statsHeader.Left.Set(20f, 0f);
                     statsHeader.Top.Set(yOffset, 0f);
@@ -158,7 +158,7 @@ namespace Wolfgodrpg.Common.UI.Menus
                     float nextLevelExp = GetProgressiveExperienceForLevel(level + 1);
                     float progressPercent = nextLevelExp > 0 ? (progressiveItem.Experience / nextLevelExp) * 100f : 0f;
                     
-                    _progressiveText = new UIText($"⚡ Nível {level:F0} | XP: {progressiveItem.Experience:F0}/{nextLevelExp:F0} ({progressPercent:F1}%)", 0.8f);
+                    _progressiveText = new UIText($"⚡ Level {level:F0} | XP: {progressiveItem.Experience:F0}/{nextLevelExp:F0} ({progressPercent:F1}%)", 0.8f);
                     _progressiveText.TextColor = Color.LightGreen;
                     _progressiveText.Left.Set(20f, 0f);
                     _progressiveText.Top.Set(yOffset, 0f);
@@ -209,19 +209,19 @@ namespace Wolfgodrpg.Common.UI.Menus
             {
                 return rarity switch
                 {
-                    -1 => "Comum",
-                    0 => "Branco",
-                    1 => "Verde",
-                    2 => "Azul",
-                    3 => "Roxo",
-                    4 => "Laranja",
-                    5 => "Vermelho",
-                    6 => "Rosa",
-                    7 => "Amarelo",
-                    8 => "Ciano",
+                    -1 => "Common",
+                    0 => "White",
+                    1 => "Green",
+                    2 => "Blue",
+                    3 => "Purple",
+                    4 => "Orange",
+                    5 => "Red",
+                    6 => "Pink",
+                    7 => "Yellow",
+                    8 => "Cyan",
                     9 => "Magenta",
-                    10 => "Dourado",
-                    _ => "Desconhecido"
+                    10 => "Gold",
+                    _ => "Unknown"
                 };
             }
 
@@ -248,7 +248,7 @@ namespace Wolfgodrpg.Common.UI.Menus
             public override void MouseOver(UIMouseEvent evt)
             {
                 base.MouseOver(evt);
-                Main.instance.MouseText("Item com atributos RPG");
+                Main.instance.MouseText("Item with RPG attributes");
             }
         }
     }

@@ -81,15 +81,15 @@ namespace Wolfgodrpg.Common.GlobalItems
             
             int newLevel = GetItemLevel();
             
-            DebugLog.Item("GainExperience", $"Item '{item.Name}' ganhou {amount * multiplier:F1} XP (base: {amount:F1}, mult: {multiplier:F2}, reason: {reason}) - Level: {oldLevel}->{newLevel}, Total XP: {oldExp:F1}->{Experience:F1}");
+            DebugLog.Item("GainExperience", $"Item '{item.Name}' gained {amount * multiplier:F1} XP (base: {amount:F1}, mult: {multiplier:F2}, reason: {reason}) - Level: {oldLevel}->{newLevel}, Total XP: {oldExp:F1}->{Experience:F1}");
             
             if (newLevel > oldLevel && Main.myPlayer >= 0 && Main.myPlayer < Main.player.Length)
             {
                 Player player = Main.player[Main.myPlayer];
                 if (player.active)
                 {
-                    DebugLog.Gameplay("Item", "GainExperience", $"LEVEL UP! Item '{item.Name}' subiu para nível {newLevel}");
-                    Main.NewText($"{item.Name} subiu para nível {newLevel}!", Color.Gold);
+                    DebugLog.Gameplay("Item", "GainExperience", $"LEVEL UP! Item '{item.Name}' leveled up to level {newLevel}");
+                    Main.NewText($"{item.Name} leveled up to level {newLevel}!", Color.Gold);
                 }
             }
         }
@@ -120,24 +120,24 @@ namespace Wolfgodrpg.Common.GlobalItems
         private bool ShouldGainExperience(Item item)
         {
             // Log de debug para entender o que está acontecendo
-            DebugLog.Item("ShouldGainExperience", $"Verificando item '{item.Name}' - damage: {item.damage}, defense: {item.defense}, consumable: {item.consumable}, DamageType: {item.DamageType}");
+            DebugLog.Item("ShouldGainExperience", $"Checking item '{item.Name}' - damage: {item.damage}, defense: {item.defense}, consumable: {item.consumable}, DamageType: {item.DamageType}");
             
             // Itens que NÃO devem ganhar experiência
             if (item.damage <= 0 && item.defense <= 0) 
             {
-                DebugLog.Item("ShouldGainExperience", $"Item '{item.Name}' rejeitado - sem dano nem defesa");
+                DebugLog.Item("ShouldGainExperience", $"Item '{item.Name}' rejected - no damage or defense");
                 return false; // Sem dano nem defesa
             }
             
             if (item.axe > 0 || item.hammer > 0 || item.pick > 0) 
             {
-                DebugLog.Item("ShouldGainExperience", $"Item '{item.Name}' rejeitado - é ferramenta");
+                DebugLog.Item("ShouldGainExperience", $"Item '{item.Name}' rejected - is tool");
                 return false; // Ferramentas
             }
             
             if (item.fishingPole > 0) 
             {
-                DebugLog.Item("ShouldGainExperience", $"Item '{item.Name}' rejeitado - é vara de pesca");
+                DebugLog.Item("ShouldGainExperience", $"Item '{item.Name}' rejected - is fishing rod");
                 return false; // Varas de pesca
             }
             
@@ -146,7 +146,7 @@ namespace Wolfgodrpg.Common.GlobalItems
             
             if (item.consumable) 
             {
-                DebugLog.Item("ShouldGainExperience", $"Item '{item.Name}' rejeitado - é consumível");
+                DebugLog.Item("ShouldGainExperience", $"Item '{item.Name}' rejected - is consumable");
                 return false; // Consumíveis
             }
             
@@ -162,7 +162,7 @@ namespace Wolfgodrpg.Common.GlobalItems
             // Se tem dano > 0 (arma) OU defesa > 0 (armadura), deve ganhar XP
             if ((isWeapon && item.damage > 0) || isArmor)
             {
-                DebugLog.Item("ShouldGainExperience", $"Item '{item.Name}' APROVADO - é {(isWeapon ? "arma" : "armadura")}");
+                DebugLog.Item("ShouldGainExperience", $"Item '{item.Name}' APPROVED - is {(isWeapon ? "weapon" : "armor")}");
                 return true;
             }
             
@@ -186,7 +186,7 @@ namespace Wolfgodrpg.Common.GlobalItems
                 if (damageBonus > 0)
                 {
                     damage += damageBonus;
-                    DebugLog.Item("ModifyWeaponDamage", $"Item '{item.Name}' (Nível {level}) - Bônus de dano aplicado: +{damageBonus:P0}");
+                    DebugLog.Item("ModifyWeaponDamage", $"Item '{item.Name}' (Level {level}) - Damage bonus applied: +{damageBonus:P0}");
                 }
             }
         }
@@ -201,7 +201,7 @@ namespace Wolfgodrpg.Common.GlobalItems
                 float critBonus = (level - 10) * 0.5f; // +0.5% crit por nível após 10
                 crit += critBonus;
                 
-                DebugLog.Item("ModifyWeaponCrit", $"Item '{item.Name}' (Nível {level}) - Bônus de crit aplicado: +{critBonus:F1}%");
+                DebugLog.Item("ModifyWeaponCrit", $"Item '{item.Name}' (Level {level}) - Crit bonus applied: +{critBonus:F1}%");
             }
         }
 
@@ -227,7 +227,7 @@ namespace Wolfgodrpg.Common.GlobalItems
                 reason = "elite";
             }
             
-            DebugLog.Item("OnHitNPC", $"Item '{item.Name}' acertou '{target.FullName}' - Dano: {damageDone}, XP: {expGain:F1}, Reason: {reason}");
+            DebugLog.Item("OnHitNPC", $"Item '{item.Name}' hit '{target.FullName}' - Damage: {damageDone}, XP: {expGain:F1}, Reason: {reason}");
             
             GainExperience(item, expGain, reason);
         }
@@ -237,7 +237,7 @@ namespace Wolfgodrpg.Common.GlobalItems
         {
             if (!ShouldGainExperience(item)) return;
             
-            DebugLog.Item("OnConsumeItem", $"Item '{item.Name}' foi usado pelo jogador '{player.name}'");
+            DebugLog.Item("OnConsumeItem", $"Item '{item.Name}' was used by player '{player.name}'");
         }
 
         // === MODIFICAR TOOLTIPS ===
@@ -249,7 +249,7 @@ namespace Wolfgodrpg.Common.GlobalItems
             
             // Linha de nível
             tooltips.Add(new TooltipLine(Mod, "ItemLevel", 
-                $"Nível: {level}") { OverrideColor = Color.Gold });
+                $"Level: {level}") { OverrideColor = Color.Gold });
             
             // Linha de XP e progresso (só se não for nível máximo)
             if (level < MAX_LEVEL)
@@ -264,14 +264,14 @@ namespace Wolfgodrpg.Common.GlobalItems
             else
             {
                 tooltips.Add(new TooltipLine(Mod, "ItemXP", 
-                    "XP: MÁXIMO") { OverrideColor = Color.Purple });
+                    "XP: MAX") { OverrideColor = Color.Purple });
             }
             
             // Linha de uso
             if (UsageCount > 0)
             {
                 tooltips.Add(new TooltipLine(Mod, "ItemUsage", 
-                    $"Usado {UsageCount} vezes") { OverrideColor = Color.Gray });
+                    $"Used {UsageCount} times") { OverrideColor = Color.Gray });
             }
             
             // Bônus aplicados
@@ -286,7 +286,7 @@ namespace Wolfgodrpg.Common.GlobalItems
                     if (damageBonus > 0)
                     {
                         tooltips.Add(new TooltipLine(Mod, "DamageBonus", 
-                            $"Bônus de Dano: +{damageBonus:P0}") { OverrideColor = Color.LightGreen });
+                            $"Damage Bonus: +{damageBonus:P0}") { OverrideColor = Color.LightGreen });
                     }
                 }
                 
@@ -295,14 +295,14 @@ namespace Wolfgodrpg.Common.GlobalItems
                 {
                     float defenseBonus = (level - 1) * 0.5f; // +0.5 defesa por nível
                     tooltips.Add(new TooltipLine(Mod, "DefenseBonus", 
-                        $"Bônus de Defesa: +{defenseBonus:F1}") { OverrideColor = Color.LightBlue });
+                        $"Defense Bonus: +{defenseBonus:F1}") { OverrideColor = Color.LightBlue });
                 }
                 
                 if (level > 10) // Bônus de crit a partir do nível 10
                 {
                     float critBonus = (level - 10) * 0.5f;
                     tooltips.Add(new TooltipLine(Mod, "CritBonus", 
-                        $"Bônus de Crítico: +{critBonus:F1}%") { OverrideColor = Color.Yellow });
+                        $"Crit Bonus: +{critBonus:F1}%") { OverrideColor = Color.Yellow });
                 }
             }
             
@@ -310,7 +310,7 @@ namespace Wolfgodrpg.Common.GlobalItems
             if (level == 1)
             {
                 tooltips.Add(new TooltipLine(Mod, "XPHint", 
-                    "Use este item para ganhar XP!") { OverrideColor = Color.Cyan });
+                    "Use this item to gain XP!") { OverrideColor = Color.Cyan });
             }
         }
 
@@ -323,7 +323,7 @@ namespace Wolfgodrpg.Common.GlobalItems
                 tag["usageCount"] = UsageCount;
                 tag["hasRandomStats"] = HasRandomStats;
                 
-                DebugLog.Item("SaveData", $"Item '{item.Name}' salvo - XP: {Experience:F1}, Usos: {UsageCount}, Inicializado: {HasRandomStats}");
+                DebugLog.Item("SaveData", $"Item '{item.Name}' saved - XP: {Experience:F1}, Uses: {UsageCount}, Initialized: {HasRandomStats}");
             }
         }
 
@@ -341,11 +341,11 @@ namespace Wolfgodrpg.Common.GlobalItems
                     InitializeItemIfNeeded(item);
                 }
                 
-                DebugLog.Item("LoadData", $"Item '{item.Name}' carregado - XP: {Experience:F1}, Usos: {UsageCount}, Nível: {GetItemLevel()}, Inicializado: {HasRandomStats}");
+                DebugLog.Item("LoadData", $"Item '{item.Name}' loaded - XP: {Experience:F1}, Uses: {UsageCount}, Level: {GetItemLevel()}, Initialized: {HasRandomStats}");
             }
             catch (Exception ex)
             {
-                DebugLog.Error("Item", "LoadData", $"Erro ao carregar dados do item '{item.Name}'", ex);
+                DebugLog.Error("Item", "LoadData", $"Error loading item data for '{item.Name}'", ex);
                 Experience = 0f;
                 UsageCount = 0;
                 HasRandomStats = false;
@@ -361,7 +361,7 @@ namespace Wolfgodrpg.Common.GlobalItems
             clone.UsageCount = UsageCount;
             clone.HasRandomStats = HasRandomStats;
             
-            DebugLog.Item("Clone", $"Item '{item.Name}' clonado - XP: {Experience:F1}, Usos: {UsageCount}, Inicializado: {HasRandomStats}");
+            DebugLog.Item("Clone", $"Item '{item.Name}' cloned - XP: {Experience:F1}, Uses: {UsageCount}, Initialized: {HasRandomStats}");
             
             return clone;
         }
@@ -376,7 +376,7 @@ namespace Wolfgodrpg.Common.GlobalItems
         public override void OnCreated(Item item, ItemCreationContext context)
         {
             // Inicializar para todos os contextos de criação válidos
-            DebugLog.Item("OnCreated", $"Item '{item.Name}' criado via {context.GetType().Name}");
+            DebugLog.Item("OnCreated", $"Item '{item.Name}' created via {context.GetType().Name}");
             InitializeItemIfNeeded(item);
         }
 
@@ -390,12 +390,12 @@ namespace Wolfgodrpg.Common.GlobalItems
         {
             if (!ShouldGainExperience(item)) 
             {
-                DebugLog.Item("InitializeItemIfNeeded", $"Item '{item.Name}' não deve ganhar XP (damage: {item.damage}, consumable: {item.consumable})");
+                DebugLog.Item("InitializeItemIfNeeded", $"Item '{item.Name}' should not gain XP (damage: {item.damage}, consumable: {item.consumable})");
                 return;
             }
             if (HasRandomStats) 
             {
-                DebugLog.Item("InitializeItemIfNeeded", $"Item '{item.Name}' já foi inicializado");
+                DebugLog.Item("InitializeItemIfNeeded", $"Item '{item.Name}' already initialized");
                 return; // Já foi inicializado
             }
             
@@ -409,11 +409,11 @@ namespace Wolfgodrpg.Common.GlobalItems
             if (initialExp > 0)
             {
                 Experience = initialExp;
-                DebugLog.Item("InitializeItemIfNeeded", $"Item '{item.Name}' inicializado com {initialExp:F1} XP inicial (raridade: {item.rare})");
+                DebugLog.Item("InitializeItemIfNeeded", $"Item '{item.Name}' initialized with {initialExp:F1} initial XP (rarity: {item.rare})");
             }
             else
             {
-                DebugLog.Item("InitializeItemIfNeeded", $"Item '{item.Name}' inicializado no nível 1");
+                DebugLog.Item("InitializeItemIfNeeded", $"Item '{item.Name}' initialized at level 1");
             }
         }
     }

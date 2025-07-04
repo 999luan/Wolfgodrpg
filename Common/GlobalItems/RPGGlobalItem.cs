@@ -244,13 +244,13 @@ namespace Wolfgodrpg.Common.GlobalItems
                 Color color = level > 0 ? Color.Gold : Color.Gray;
                 
                 tooltips.Add(new TooltipLine(Mod, "WeaponProficiency", 
-                    $"[c/{color.Hex3()}:Proficiência {weaponTypeName}: Nível {level}]"));
+                    $"[c/{color.Hex3()}:Proficiency {weaponTypeName}: Level {level}]"));
                 
                 if (level > 0)
                 {
                     float progress = (xp / xpNeeded) * 100f;
                     tooltips.Add(new TooltipLine(Mod, "WeaponProgress", 
-                        $"[c/7F7F7F:Progresso: {progress:F1}% ({xp:F0}/{xpNeeded:F0} XP)]"));
+                        $"[c/7F7F7F:Progress: {progress:F1}% ({xp:F0}/{xpNeeded:F0} XP)]"));
                 }
             }
 
@@ -265,13 +265,13 @@ namespace Wolfgodrpg.Common.GlobalItems
                 Color color = level > 0 ? Color.Gold : Color.Gray;
                 
                 tooltips.Add(new TooltipLine(Mod, "ArmorProficiency", 
-                    $"[c/{color.Hex3()}:Proficiência {armorTypeName}: Nível {level}]"));
+                    $"[c/{color.Hex3()}:Proficiency {armorTypeName}: Level {level}]"));
                 
                 if (level > 0)
                 {
                     float progress = (xp / xpNeeded) * 100f;
                     tooltips.Add(new TooltipLine(Mod, "ArmorProgress", 
-                        $"[c/7F7F7F:Progresso: {progress:F1}% ({xp:F0}/{xpNeeded:F0} XP)]"));
+                        $"[c/7F7F7F:Progress: {progress:F1}% ({xp:F0}/{xpNeeded:F0} XP)]"));
                 }
             }
         }
@@ -345,11 +345,11 @@ namespace Wolfgodrpg.Common.GlobalItems
         {
             return type switch
             {
-                WeaponType.Melee => "Corpo a Corpo",
-                WeaponType.Ranged => "À Distância",
-                WeaponType.Magic => "Mágica",
-                WeaponType.Summon => "Invocação",
-                _ => "Desconhecido"
+                WeaponType.Melee => "Melee",
+                WeaponType.Ranged => "Ranged",
+                WeaponType.Magic => "Magic",
+                WeaponType.Summon => "Summon",
+                _ => "Unknown"
             };
         }
 
@@ -357,10 +357,10 @@ namespace Wolfgodrpg.Common.GlobalItems
         {
             return type switch
             {
-                ArmorType.Light => "Leve",
-                ArmorType.Heavy => "Pesada",
-                ArmorType.MagicRobes => "Mágica",
-                _ => "Desconhecida"
+                ArmorType.Light => "Light",
+                ArmorType.Heavy => "Heavy",
+                ArmorType.MagicRobes => "Magic",
+                _ => "Unknown"
             };
         }
 

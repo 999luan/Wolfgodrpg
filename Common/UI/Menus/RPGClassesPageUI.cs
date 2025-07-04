@@ -51,17 +51,17 @@ namespace Wolfgodrpg.Common.UI.Menus
             
             if (modPlayer == null || modPlayer.Player == null || !modPlayer.Player.active)
             {
-                _classesList.Add(new UIText("Jogador não disponível."));
+                _classesList.Add(new UIText("Player not available."));
                 return;
             }
 
             if (RPGClassDefinitions.ActionClasses == null || RPGClassDefinitions.ActionClasses.Count == 0)
             {
-                _classesList.Add(new UIText("Nenhuma classe definida."));
+                _classesList.Add(new UIText("No classes defined."));
                 return;
             }
 
-            // Removido: _classesList.Add(new UIText("🎯 DETALHES DAS CLASSES", 1.1f, true) { TextColor = Color.Gold });
+            // Removed: _classesList.Add(new UIText("🎯 CLASS DETAILS", 1.1f, true) { TextColor = Color.Gold });
 
             foreach (var classEntry in RPGClassDefinitions.ActionClasses)
             {
@@ -114,8 +114,8 @@ namespace Wolfgodrpg.Common.UI.Menus
                 MarginTop = 10f;
                 MarginBottom = 10f;
 
-                // Título da classe
-                _titleText = new UIText($"{className} - Nível {level:F0}", 1.2f, true);
+                // Class title
+                _titleText = new UIText($"{className} - Level {level:F0}", 1.2f, true);
                 _titleText.TextColor = _color;
                 _titleText.Left.Set(20f, 0f);
                 _titleText.Top.Set(15f, 0f);
@@ -128,8 +128,8 @@ namespace Wolfgodrpg.Common.UI.Menus
                 _iconText.Top.Set(50f, 0f);
                 Append(_iconText);
 
-                // Nível e progresso
-                _levelText = new UIText($"Nível {level:F0}", 1.1f);
+                // Level and progress
+                _levelText = new UIText($"Level {level:F0}", 1.1f);
                 _levelText.TextColor = Color.White;
                 _levelText.Left.Set(80f, 0f);
                 _levelText.Top.Set(50f, 0f);
@@ -144,10 +144,10 @@ namespace Wolfgodrpg.Common.UI.Menus
 
                 float yOffset = 110f;
 
-                // Habilidades desbloqueadas
+                // Unlocked abilities
                 if (milestones != null && milestones.Count > 0)
                 {
-                    _abilitiesHeaderText = new UIText("✅ Habilidades Desbloqueadas:", 0.9f);
+                    _abilitiesHeaderText = new UIText("✅ Unlocked Abilities:", 0.9f);
                     _abilitiesHeaderText.TextColor = Color.LightGreen;
                     _abilitiesHeaderText.Left.Set(20f, 0f);
                     _abilitiesHeaderText.Top.Set(yOffset, 0f);
@@ -166,10 +166,10 @@ namespace Wolfgodrpg.Common.UI.Menus
                     }
                 }
 
-                // Bônus de stats
+                // Attribute bonuses
                 if (statBonuses != null && statBonuses.Count > 0)
                 {
-                    _statsHeaderText = new UIText("📊 Bônus de Atributos:", 0.9f);
+                    _statsHeaderText = new UIText("📊 Attribute Bonuses:", 0.9f);
                     _statsHeaderText.TextColor = Color.LightBlue;
                     _statsHeaderText.Left.Set(20f, 0f);
                     _statsHeaderText.Top.Set(yOffset, 0f);

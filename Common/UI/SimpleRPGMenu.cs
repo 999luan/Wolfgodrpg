@@ -22,7 +22,7 @@ namespace Wolfgodrpg.Common.UI
     {
         Stats = 0,
         Classes = 1,
-        Items = 2,
+        Skills = 2,
         Progress = 3,
         Proficiencies = 4
     }
@@ -97,7 +97,7 @@ namespace Wolfgodrpg.Common.UI
             _pages = new List<UIElement> { _statsPageUI, _classesPageUI, _skillsPageUI, _progressPageUI, _proficienciesPageUI };
             _tabButtons = new List<UITextPanel<string>>();
 
-            string[] tabNames = { "Status", "Classes", "Itens", "Progresso", "Proficiências" };
+            string[] tabNames = { "Stats", "Classes", "Skills", "Progress", "Proficiencies" };
             float buttonWidth = 120f;
             float spacing = 10f;
             for (int i = 0; i < tabNames.Length; i++)
@@ -111,30 +111,30 @@ namespace Wolfgodrpg.Common.UI
                 tabButtonContainer.Append(btn);
                 _tabButtons.Add(btn);
                 
-                DebugLog.UI("OnInitialize", $"Botão de aba '{tabNames[i]}' criado na posição {i * (buttonWidth + spacing):F1}");
+                DebugLog.UI("OnInitialize", $"Tab button '{tabNames[i]}' created at position {i * (buttonWidth + spacing):F1}");
             }
 
             SetPage(MenuPage.Stats);
             
-            DebugLog.UI("OnInitialize", "SimpleRPGMenu inicializado com sucesso");
+            DebugLog.UI("OnInitialize", "SimpleRPGMenu initialized successfully");
         }
 
         public override void OnActivate()
         {
-            DebugLog.UI("OnActivate", "Menu RPG ativado");
-            _needsUpdate = true; // Forçar atualização ao abrir
+            DebugLog.UI("OnActivate", "RPG menu activated");
+            _needsUpdate = true; // Force update when opening
             base.OnActivate();
         }
 
         public override void OnDeactivate()
         {
-            DebugLog.UI("OnDeactivate", "Menu RPG desativado");
+            DebugLog.UI("OnDeactivate", "RPG menu deactivated");
             base.OnDeactivate();
         }
 
         private void SetPage(MenuPage page)
         {
-            // Não atualize se já estiver na mesma página (otimização ExampleMod)
+            // Do not update if already on the same page (optimization ExampleMod)
             if (_currentPage == page) return;
 
             _currentPage = page;
@@ -143,7 +143,7 @@ namespace Wolfgodrpg.Common.UI
             _pageContainer.Append(_pages[(int)page]);
             UpdateTabButtonStates();
 
-            // Forçar atualização ao trocar de página
+            // Force update when changing pages
             _needsUpdate = true;
             UpdateCurrentPage();
         }
@@ -170,21 +170,21 @@ namespace Wolfgodrpg.Common.UI
         }
 
         /// <summary>
-        /// Verifica se há mudanças nos dados do jogador que requerem atualização da UI.
+        /// Checks if there are changes in player data that require UI updates.
         /// </summary>
         private void CheckForUpdates()
         {
             var modPlayer = RPGUtils.GetLocalRPGPlayer();
             if (modPlayer == null) return;
 
-            // Verificar se houve mudanças significativas
+            // Check if there were significant changes
             if (_lastPlayerData == null || HasSignificantChanges(modPlayer))
             {
                 _needsUpdate = true;
                 _lastPlayerData = ClonePlayerData(modPlayer);
             }
 
-            // Atualizar se necessário
+            // Update if necessary
             if (_needsUpdate)
             {
                 UpdateCurrentPage();
@@ -193,7 +193,7 @@ namespace Wolfgodrpg.Common.UI
         }
 
         /// <summary>
-        /// Verifica se houve mudanças significativas nos dados do jogador.
+        /// Checks if there were significant changes in player data.
         /// </summary>
         private bool HasSignificantChanges(RPGPlayer currentPlayer)
         {
@@ -294,25 +294,43 @@ namespace Wolfgodrpg.Common.UI
         /// </summary>
         private void UpdateCurrentPage()
         {
+            // Check if player is available before trying to access
             var modPlayer = RPGUtils.GetLocalRPGPlayer();
-            if (modPlayer == null) return;
+            if (modPlayer == null) 
+            {
+                DebugLog.UI("SetPage", "Player not available, skipping update");
+                return;
+            }
 
+            // Check if classes were initialized
+            if (modPlayer.ClassLevels == null || modPlayer.ClassLevels.Count == 0)
+            {
+                DebugLog.UI("SetPage", "Classes not initialized, skipping update");
+                return;
+            }
+
+            // Optimized update: only when changing tabs
             switch (_currentPage)
             {
                 case MenuPage.Stats:
                     _statsPageUI.UpdateStats(modPlayer);
+                    DebugLog.UI("SetPage", "Stats tab updated");
                     break;
                 case MenuPage.Classes:
                     _classesPageUI.UpdateClasses(modPlayer);
+                    DebugLog.UI("SetPage", "Classes tab updated");
                     break;
-                case MenuPage.Items:
+                case MenuPage.Skills:
                     _skillsPageUI.UpdateSkills(modPlayer);
+                    DebugLog.UI("SetPage", "Skills tab updated");
                     break;
                 case MenuPage.Progress:
                     _progressPageUI.UpdateProgress(modPlayer);
+                    DebugLog.UI("SetPage", "Progress tab updated");
                     break;
                 case MenuPage.Proficiencies:
                     _proficienciesPageUI.UpdateProficiencies(modPlayer);
+                    DebugLog.UI("SetPage", "Proficiencies tab updated");
                     break;
             }
         }

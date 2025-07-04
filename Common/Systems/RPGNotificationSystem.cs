@@ -23,7 +23,7 @@ namespace Wolfgodrpg.Common.Systems
             
             if (newLevel > 0)
             {
-                message += $" (Nível {newLevel}!)";
+                message += $" (Level {newLevel}!)";
                 color = Color.Gold;
             }
 
@@ -38,7 +38,7 @@ namespace Wolfgodrpg.Common.Systems
         /// <param name="newLevel">Novo nível</param>
         public static void AddLevelUpNotification(string className, int newLevel)
         {
-            string message = $"🎉 {GetClassNameDisplay(className)} Nível {newLevel}!";
+            string message = $"🎉 {GetClassNameDisplay(className)} Level {newLevel}!";
             Color color = Color.Gold;
             
             // Usar Main.NewText diretamente para simplicidade
@@ -52,17 +52,17 @@ namespace Wolfgodrpg.Common.Systems
         {
             return className switch
             {
-                "warrior" => "Guerreiro",
-                "archer" => "Arqueiro",
-                "mage" => "Mago",
-                "summoner" => "Invocador",
-                "acrobat" => "Acrobata",
-                "explorer" => "Explorador",
-                "engineer" => "Engenheiro",
-                "survivalist" => "Sobrevivente",
-                "blacksmith" => "Ferreiro",
-                "alchemist" => "Alquimista",
-                "mystic" => "Místico",
+                "warrior" => "Warrior",
+                "archer" => "Archer",
+                "mage" => "Mage",
+                "summoner" => "Summoner",
+                "acrobat" => "Acrobat",
+                "explorer" => "Explorer",
+                "engineer" => "Engineer",
+                "survivalist" => "Survivalist",
+                "blacksmith" => "Blacksmith",
+                "alchemist" => "Alchemist",
+                "mystic" => "Mystic",
                 _ => className
             };
         }

@@ -259,98 +259,94 @@ namespace Wolfgodrpg.Common.Players
                 }
                 return;
             }
-            // Double-tap para 4 direções
+
+            // Double-tap para 4 direções - Lógica corrigida para evitar ativação acidental
             // Esquerda
             if (Player.controlLeft)
             {
+                // Só incrementa o timer se não estiver segurando por muito tempo
+                if (leftTapTimer > 0 && leftTapTimer < DoubleTapTime)
+                {
+                    leftTapTimer++;
+                }
+                else if (leftTapTimer == 0)
+                {
+                    // Primeiro tap detectado
+                    leftTapTimer = 1;
+                }
+                // Se estiver segurando por muito tempo, não ativa o dash
+            }
+            else
+            {
+                // Quando solta a tecla, verifica se foi um double tap válido
                 if (leftTapTimer > 0 && leftTapTimer < DoubleTapTime && DashCooldown <= 0 && DashesUsed < MaxDashes && CurrentStamina >= 20f && dashTimer == 0)
                 {
                     PerformDash(new Vector2(-1, 0));
-                    leftTapTimer = 0;
                 }
-                else if (Player.releaseLeft)
-                {
-                    leftTapTimer = 1;
-                }
-                else if (leftTapTimer > 0)
-                {
-                    leftTapTimer++;
-                    if (leftTapTimer > DoubleTapTime) leftTapTimer = 0;
-                }
+                leftTapTimer = 0; // Reset do timer
             }
-            else if (leftTapTimer > 0)
-            {
-                leftTapTimer++;
-                if (leftTapTimer > DoubleTapTime) leftTapTimer = 0;
-            }
+
             // Direita
             if (Player.controlRight)
+            {
+                if (rightTapTimer > 0 && rightTapTimer < DoubleTapTime)
+                {
+                    rightTapTimer++;
+                }
+                else if (rightTapTimer == 0)
+                {
+                    rightTapTimer = 1;
+                }
+            }
+            else
             {
                 if (rightTapTimer > 0 && rightTapTimer < DoubleTapTime && DashCooldown <= 0 && DashesUsed < MaxDashes && CurrentStamina >= 20f && dashTimer == 0)
                 {
                     PerformDash(new Vector2(1, 0));
-                    rightTapTimer = 0;
                 }
-                else if (Player.releaseRight)
-                {
-                    rightTapTimer = 1;
-                }
-                else if (rightTapTimer > 0)
-                {
-                    rightTapTimer++;
-                    if (rightTapTimer > DoubleTapTime) rightTapTimer = 0;
-                }
+                rightTapTimer = 0;
             }
-            else if (rightTapTimer > 0)
-            {
-                rightTapTimer++;
-                if (rightTapTimer > DoubleTapTime) rightTapTimer = 0;
-            }
+
             // Cima
             if (Player.controlUp)
+            {
+                if (upTapTimer > 0 && upTapTimer < DoubleTapTime)
+                {
+                    upTapTimer++;
+                }
+                else if (upTapTimer == 0)
+                {
+                    upTapTimer = 1;
+                }
+            }
+            else
             {
                 if (upTapTimer > 0 && upTapTimer < DoubleTapTime && DashCooldown <= 0 && DashesUsed < MaxDashes && CurrentStamina >= 20f && dashTimer == 0)
                 {
                     PerformDash(new Vector2(0, -1));
-                    upTapTimer = 0;
                 }
-                else if (Player.releaseUp)
-                {
-                    upTapTimer = 1;
-                }
-                else if (upTapTimer > 0)
-                {
-                    upTapTimer++;
-                    if (upTapTimer > DoubleTapTime) upTapTimer = 0;
-                }
+                upTapTimer = 0;
             }
-            else if (upTapTimer > 0)
-            {
-                upTapTimer++;
-                if (upTapTimer > DoubleTapTime) upTapTimer = 0;
-            }
+
             // Baixo
             if (Player.controlDown)
+            {
+                if (downTapTimer > 0 && downTapTimer < DoubleTapTime)
+                {
+                    downTapTimer++;
+                }
+                else if (downTapTimer == 0)
+                {
+                    downTapTimer = 1;
+                }
+            }
+            else
             {
                 if (downTapTimer > 0 && downTapTimer < DoubleTapTime && DashCooldown <= 0 && DashesUsed < MaxDashes && CurrentStamina >= 20f && dashTimer == 0)
                 {
                     PerformDash(new Vector2(0, 1));
-                    downTapTimer = 0;
                 }
-                else if (Player.releaseDown)
-                {
-                    downTapTimer = 1;
-                }
-                else if (downTapTimer > 0)
-                {
-                    downTapTimer++;
-                    if (downTapTimer > DoubleTapTime) downTapTimer = 0;
-                }
-            }
-            else if (downTapTimer > 0)
-            {
-                downTapTimer++;
-                if (downTapTimer > DoubleTapTime) downTapTimer = 0;
+                downTapTimer = 0;
             }
         }
 
@@ -966,7 +962,7 @@ namespace Wolfgodrpg.Common.Players
                 PlayerExperience -= expForNextLevel;
                 AttributePoints += 5; // Ganha 5 pontos de atributo por nível
                 // TODO: Adicionar notificação de level up do jogador
-                Main.NewText($"Você subiu para o nível {PlayerLevel}! Você ganhou 5 pontos de atributo!", Color.Gold);
+                Main.NewText($"You leveled up to level {PlayerLevel}! You gained 5 attribute points!", Color.Gold);
                 SoundEngine.PlaySound(SoundID.Item37, Player.position);
                 CheckPlayerLevelUp(); // Recursivamente verifica se subiu múltiplos níveis
             }
@@ -1013,7 +1009,7 @@ namespace Wolfgodrpg.Common.Players
                 SoundEngine.PlaySound(SoundID.Item4, Player.position);
                 
                 // Mostrar texto de level up na tela
-                Main.NewText($"{GetClassNameDisplay(className)} subiu para o nível {ClassLevels[className]}!", Color.Gold);
+                Main.NewText($"{GetClassNameDisplay(className)} leveled up to level {ClassLevels[className]}!", Color.Gold);
             }
         }
 
@@ -1234,8 +1230,8 @@ namespace Wolfgodrpg.Common.Players
         private void ShowArmorLevelUpEffect(ArmorType armorType)
         {
             // Efeito visual e som de level up
-            Main.NewText($"Proficiência com {armorType} aumentou para nível {ArmorProficiencyLevels[armorType]}!", 
-                         Color.Gold);
+            Main.NewText($"Proficiency with {armorType} increased to level {ArmorProficiencyLevels[armorType]}!", 
+                         Color.LightBlue);
         }
 
         /// <summary>
@@ -1245,8 +1241,8 @@ namespace Wolfgodrpg.Common.Players
         private void ShowWeaponLevelUpEffect(WeaponType weaponType)
         {
             // Efeito visual e som de level up
-            Main.NewText($"Proficiência com {weaponType} aumentou para nível {WeaponProficiencyLevels[weaponType]}!", 
-                         Color.Gold);
+            Main.NewText($"Proficiency with {weaponType} increased to level {WeaponProficiencyLevels[weaponType]}!", 
+                         Color.LightGreen);
         }
 
         /// <summary>
@@ -1256,17 +1252,17 @@ namespace Wolfgodrpg.Common.Players
         {
             return className switch
             {
-                "warrior" => "Guerreiro",
-                "archer" => "Arqueiro",
-                "mage" => "Mago",
-                "summoner" => "Invocador",
-                "acrobat" => "Acrobata",
-                "explorer" => "Explorador",
-                "engineer" => "Engenheiro",
-                "survivalist" => "Sobrevivente",
-                "blacksmith" => "Ferreiro",
-                "alchemist" => "Alquimista",
-                "mystic" => "Místico",
+                "warrior" => "Warrior",
+                "archer" => "Archer",
+                "mage" => "Mage",
+                "summoner" => "Summoner",
+                "acrobat" => "Acrobat",
+                "explorer" => "Explorer",
+                "engineer" => "Engineer",
+                "survivalist" => "Survivalist",
+                "blacksmith" => "Blacksmith",
+                "alchemist" => "Alchemist",
+                "mystic" => "Mystic",
                 _ => className
             };
         }

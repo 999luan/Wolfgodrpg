@@ -45,41 +45,41 @@ namespace Wolfgodrpg.Common.UI.Menus
 
             if (modPlayer == null || modPlayer.Player == null || !modPlayer.Player.active)
             {
-                _skillsList.Add(new UIText("Jogador não disponível."));
+                _skillsList.Add(new UIText("Player not available."));
                 return;
             }
 
-            // Listar todas as habilidades desbloqueadas por classe
+            // List all unlocked abilities by class
             foreach (var classEntry in modPlayer.ClassLevels.OrderByDescending(kv => kv.Value))
             {
                 string classKey = classEntry.Key;
                 float classLevel = classEntry.Value;
                 if (!RPGClassDefinitions.ActionClasses.TryGetValue(classKey, out var classInfo)) continue;
 
-                // Título da classe
-                var classTitle = new UIText($"{classInfo.Name} (Nv. {classLevel:F0})", 1.1f, true);
+                // Class title
+                var classTitle = new UIText($"{classInfo.Name} (Lv. {classLevel:F0})", 1.1f, true);
                 classTitle.TextColor = RPGDesignSystem.GetClassColor(classKey);
                 classTitle.Top.Set(topOffset, 0f);
                 _skillsList.Add(classTitle);
                 topOffset = 0f;
 
-                // Habilidades desbloqueadas
+                // Unlocked abilities
                 var unlocked = classInfo.Milestones?.Where(m => (int)m.Key <= classLevel).ToList();
                 if (unlocked != null && unlocked.Count > 0)
                 {
                     foreach (var milestone in unlocked)
                     {
-                        _skillsList.Add(new SkillCard(milestone.Value, classInfo.Name, classKey, milestone.Key.ToString(), "Passiva/Ativa", RPGDesignSystem.GetClassColor(classKey)));
+                        _skillsList.Add(new SkillCard(milestone.Value, classInfo.Name, classKey, milestone.Key.ToString(), "Passive/Active", RPGDesignSystem.GetClassColor(classKey)));
                     }
                 }
 
-                // Regra especial: Acrobata ganha +1 dash a cada 10 níveis
+                // Special rule: Acrobat gains +1 dash every 10 levels
                 if (classKey == "acrobat" && classLevel >= 10)
                 {
                     int extraDashes = (int)(classLevel / 10);
                     for (int i = 1; i <= extraDashes; i++)
                     {
-                        _skillsList.Add(new SkillCard($"+1 Dash Extra (Total: {i})", classInfo.Name, classKey, $"Nv. {i * 10}", "Especial", RPGDesignSystem.GetClassColor(classKey)));
+                        _skillsList.Add(new SkillCard($"+1 Extra Dash (Total: {i})", classInfo.Name, classKey, $"Lv. {i * 10}", "Special", RPGDesignSystem.GetClassColor(classKey)));
                     }
                 }
             }

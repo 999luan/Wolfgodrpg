@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Wolfgodrpg")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1538700ddf4e9b42fa3b124e2db99157c9126abd")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e2107a06e36288e02345e30f979b9d9cb857b6df")]
 [assembly: System.Reflection.AssemblyProductAttribute("Wolfgodrpg")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Wolfgodrpg")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

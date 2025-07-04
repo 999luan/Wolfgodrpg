@@ -49,14 +49,14 @@ namespace Wolfgodrpg.Common.UI.Menus
         }
 
         /// <summary>
-        /// Atualiza as proficiências exibidas.
+        /// Updates the displayed proficiencies.
         /// </summary>
-        /// <param name="modPlayer">Jogador RPG</param>
+        /// <param name="modPlayer">RPG Player</param>
         public void UpdateProficiencies(RPGPlayer modPlayer)
         {
             if (modPlayer == null)
             {
-                DebugLog.UI("UpdateProficiencies", "Jogador não disponível");
+                DebugLog.UI("UpdateProficiencies", "Player not available");
                 return;
             }
 
@@ -64,7 +64,7 @@ namespace Wolfgodrpg.Common.UI.Menus
 
             float topOffset = 10f;
 
-            // Armaduras
+            // Armors
             foreach (ArmorType armorType in System.Enum.GetValues<ArmorType>())
             {
                 if (armorType == ArmorType.None) continue;
@@ -73,7 +73,7 @@ namespace Wolfgodrpg.Common.UI.Menus
                 topOffset = 0f;
             }
 
-            // Armas
+            // Weapons
             foreach (WeaponType weaponType in System.Enum.GetValues<WeaponType>())
             {
                 if (weaponType == WeaponType.None) continue;
@@ -82,7 +82,7 @@ namespace Wolfgodrpg.Common.UI.Menus
                 topOffset = 0f;
             }
 
-            // Itens progressivos (do inventário) - Comentado até implementar ProgressiveItemCard
+            // Progressive items (from inventory) - Commented until ProgressiveItemCard is implemented
             /*
             if (Main.LocalPlayer != null && Main.LocalPlayer.inventory != null)
             {
@@ -99,7 +99,7 @@ namespace Wolfgodrpg.Common.UI.Menus
             }
             */
 
-            DebugLog.UI("UpdateProficiencies", "Proficiências de armadura e itens atualizadas com sucesso");
+            DebugLog.UI("UpdateProficiencies", "Armor and item proficiencies updated successfully");
         }
 
         private ProficiencyCard CreateArmorProficiencyCard(ArmorType armorType, RPGPlayer modPlayer, float topOffset = 0f)
@@ -147,18 +147,18 @@ namespace Wolfgodrpg.Common.UI.Menus
         }
 
         /// <summary>
-        /// Obtém o nome de um tipo de armadura.
+        /// Gets the name of an armor type.
         /// </summary>
-        /// <param name="armorType">Tipo de armadura</param>
-        /// <returns>Nome do tipo de armadura</returns>
+        /// <param name="armorType">Armor type</param>
+        /// <returns>Armor type name</returns>
         private string GetArmorTypeName(ArmorType armorType)
         {
             return armorType switch
             {
-                ArmorType.Light => "Armadura Leve",
-                ArmorType.Heavy => "Armadura Pesada",
-                ArmorType.MagicRobes => "Vestes Mágicas",
-                _ => "Desconhecido"
+                ArmorType.Light => "Light Armor",
+                ArmorType.Heavy => "Heavy Armor",
+                ArmorType.MagicRobes => "Magic Robes",
+                _ => "Unknown"
             };
         }
 
@@ -195,19 +195,19 @@ namespace Wolfgodrpg.Common.UI.Menus
         }
 
         /// <summary>
-        /// Obtém o nome de um tipo de arma.
+        /// Gets the name of a weapon type.
         /// </summary>
-        /// <param name="weaponType">Tipo de arma</param>
-        /// <returns>Nome do tipo de arma</returns>
+        /// <param name="weaponType">Weapon type</param>
+        /// <returns>Weapon type name</returns>
         private string GetWeaponTypeName(WeaponType weaponType)
         {
             return weaponType switch
             {
-                WeaponType.Melee => "Arma Corpo a Corpo",
-                WeaponType.Ranged => "Arma à Distância",
-                WeaponType.Magic => "Arma Mágica",
-                WeaponType.Summon => "Arma de Invocação",
-                _ => "Desconhecido"
+                WeaponType.Melee => "Melee Weapon",
+                WeaponType.Ranged => "Ranged Weapon",
+                WeaponType.Magic => "Magic Weapon",
+                WeaponType.Summon => "Summon Weapon",
+                _ => "Unknown"
             };
         }
 
@@ -271,7 +271,7 @@ namespace Wolfgodrpg.Common.UI.Menus
                 Append(titleText);
 
                 // Nível
-                var levelText = new UIText($"Nível {level:F0}", 0.95f);
+                var levelText = new UIText($"Level {level:F0}", 0.95f);
                 levelText.TextColor = Color.White;
                 levelText.Left.Set(80f, 0f);
                 levelText.Top.Set(45f, 0f);
@@ -285,7 +285,7 @@ namespace Wolfgodrpg.Common.UI.Menus
                 Append(expText);
 
                 // Progresso
-                var progressText = new UIText($"Progresso: {progressPercent:F1}%", 0.8f);
+                var progressText = new UIText($"Progress: {progressPercent:F1}%", 0.8f);
                 progressText.TextColor = RPGDesignSystem.GetProgressColor(progressPercent);
                 progressText.Left.Set(80f, 0f);
                 progressText.Top.Set(85f, 0f);
@@ -331,7 +331,7 @@ namespace Wolfgodrpg.Common.UI.Menus
                 Append(titleText);
 
                 // Nível
-                var levelText = new UIText($"Nível {level:F0}", 0.95f);
+                var levelText = new UIText($"Level {level:F0}", 0.95f);
                 levelText.TextColor = Color.White;
                 levelText.Left.Set(80f, 0f);
                 levelText.Top.Set(45f, 0f);
@@ -345,7 +345,7 @@ namespace Wolfgodrpg.Common.UI.Menus
                 Append(expText);
 
                 // Progresso
-                var progressText = new UIText($"Progresso: {progressPercent:F1}%", 0.8f);
+                var progressText = new UIText($"Progress: {progressPercent:F1}%", 0.8f);
                 progressText.TextColor = RPGDesignSystem.GetProgressColor(progressPercent);
                 progressText.Left.Set(80f, 0f);
                 progressText.Top.Set(85f, 0f);

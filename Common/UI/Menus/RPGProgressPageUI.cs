@@ -47,37 +47,37 @@ namespace Wolfgodrpg.Common.UI.Menus
         {
             _progressList.Clear();
             
-            // Verificações robustas de null (padrão ExampleMod)
+            // Robust null checks (ExampleMod standard)
             if (modPlayer == null || modPlayer.Player == null || !modPlayer.Player.active)
             {
-                _progressList.Add(new UIText("Jogador não disponível."));
+                _progressList.Add(new UIText("Player not available."));
                 return;
             }
 
-            // Seção: Chefes Derrotados
-            _progressList.Add(new ProgressSectionCard("CHEFES DERROTADOS", "👑"));
-            _progressList.Add(new ProgressCard("Olho de Cthulhu", NPC.downedBoss1, "👁️", "O olho que tudo vê..."));
-            _progressList.Add(new ProgressCard("Devorador/Cérebro", NPC.downedBoss2, "🐛", "Cérebros e vermes!"));
-            _progressList.Add(new ProgressCard("Esqueletron", NPC.downedBoss3, "💀", "Esqueleto gigante!"));
-            _progressList.Add(new ProgressCard("Rainha Abelha", NPC.downedQueenBee, "🐝", "Zzzzzzzz!"));
-            _progressList.Add(new ProgressCard("Parede de Carne", Main.hardMode, "🥩", "Muralha de carne!"));
-            _progressList.Add(new ProgressCard("Plantera", NPC.downedPlantBoss, "🌱", "Planta assassina!"));
-            _progressList.Add(new ProgressCard("Golem", NPC.downedGolemBoss, "🤖", "Golem de pedra!"));
-            _progressList.Add(new ProgressCard("Senhor da Lua", NPC.downedMoonlord, "🌙", "O fim está próximo!"));
+            // Section: Defeated Bosses
+            _progressList.Add(new ProgressSectionCard("DEFEATED BOSSES", "👑"));
+            _progressList.Add(new ProgressCard("Eye of Cthulhu", NPC.downedBoss1, "👁️", "The eye that sees all..."));
+            _progressList.Add(new ProgressCard("Eater of Worlds/Brain", NPC.downedBoss2, "🐛", "Brains and worms!"));
+            _progressList.Add(new ProgressCard("Skeletron", NPC.downedBoss3, "💀", "Giant skeleton!"));
+            _progressList.Add(new ProgressCard("Queen Bee", NPC.downedQueenBee, "🐝", "Zzzzzzzz!"));
+            _progressList.Add(new ProgressCard("Wall of Flesh", Main.hardMode, "🥩", "Wall of flesh!"));
+            _progressList.Add(new ProgressCard("Plantera", NPC.downedPlantBoss, "🌱", "Killer plant!"));
+            _progressList.Add(new ProgressCard("Golem", NPC.downedGolemBoss, "🤖", "Stone golem!"));
+            _progressList.Add(new ProgressCard("Moon Lord", NPC.downedMoonlord, "🌙", "The end is near!"));
 
-            // Seção: Eventos Especiais
-            _progressList.Add(new ProgressSectionCard("EVENTOS ESPECIAIS", "🎪"));
-            _progressList.Add(new ProgressCard("Invasão Goblin", NPC.downedGoblins, "👹", "Goblins invadem!"));
-            _progressList.Add(new ProgressCard("Exército do Velho", NPC.downedFrost, "❄️", "Congelando tudo!"));
-            _progressList.Add(new ProgressCard("Invasão Pirata", NPC.downedPirates, "🏴‍☠️", "Yarr matey!"));
-            _progressList.Add(new ProgressCard("Invasão Marciana", NPC.downedMartians, "👽", "ET liga casa!"));
+            // Section: Special Events
+            _progressList.Add(new ProgressSectionCard("SPECIAL EVENTS", "🎪"));
+            _progressList.Add(new ProgressCard("Goblin Invasion", NPC.downedGoblins, "👹", "Goblins invade!"));
+            _progressList.Add(new ProgressCard("Frost Legion", NPC.downedFrost, "❄️", "Freezing everything!"));
+            _progressList.Add(new ProgressCard("Pirate Invasion", NPC.downedPirates, "🏴‍☠️", "Yarr matey!"));
+            _progressList.Add(new ProgressCard("Martian Invasion", NPC.downedMartians, "👽", "ET phone home!"));
 
-            // Seção: Progresso do Mundo
-            _progressList.Add(new ProgressSectionCard("PROGRESSO DO MUNDO", "🌍"));
-            _progressList.Add(new ProgressCard("Modo Difícil", Main.hardMode, "🔥", "Agora ficou sério!"));
+            // Section: World Progress
+            _progressList.Add(new ProgressSectionCard("WORLD PROGRESS", "🌍"));
+            _progressList.Add(new ProgressCard("Hard Mode", Main.hardMode, "🔥", "Now it's serious!"));
             
-            // Seção: Estatísticas RPG
-            _progressList.Add(new ProgressSectionCard("ESTATÍSTICAS RPG", "📊"));
+            // Section: RPG Statistics
+            _progressList.Add(new ProgressSectionCard("RPG STATISTICS", "📊"));
             float totalClassLevels = 0;
             if (modPlayer.ClassExperience != null)
             {
@@ -86,8 +86,8 @@ namespace Wolfgodrpg.Common.UI.Menus
                     totalClassLevels += modPlayer.ClassLevels.TryGetValue(classExp.Key, out var lvl) ? lvl : 0f;
                 }
             }
-            _progressList.Add(new ProgressCard("Níveis Totais de Classes", (int)totalClassLevels, "⭐", "Progresso total das classes"));
-            // Removido: Fome Atual, Sanidade Atual, Stamina Atual
+            _progressList.Add(new ProgressCard("Total Class Levels", (int)totalClassLevels, "⭐", "Total class progress"));
+            // Removed: Current Hunger, Current Sanity, Current Stamina
         }
 
         // Card de seção de progresso
@@ -162,7 +162,7 @@ namespace Wolfgodrpg.Common.UI.Menus
                 Append(_iconText);
 
                 // Status
-                _statusText = new UIText(completed ? "✓ Concluído" : "✗ Pendente", 0.9f);
+                _statusText = new UIText(completed ? "✓ Completed" : "✗ Pending", 0.9f);
                 _statusText.TextColor = completed ? Color.LightGreen : Color.LightGray;
                 _statusText.Left.Set(80f, 0f);
                 _statusText.Top.Set(45f, 0f);

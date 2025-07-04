@@ -50,7 +50,7 @@ namespace Wolfgodrpg.Common.UI.Menus
             
             if (modPlayer == null || modPlayer.Player == null || !modPlayer.Player.active)
             {
-                _statsList.Add(new UIText("Jogador não disponível."));
+                _statsList.Add(new UIText("Player not available."));
                 return;
             }
             
@@ -58,78 +58,78 @@ namespace Wolfgodrpg.Common.UI.Menus
 
             // Player Level and Attribute Points
             _statsList.Add(new StatCard(
-                "Nível Geral",
+                "General Level",
                 $"{modPlayer.PlayerLevel}",
                 "👑",
-                "Evolução constante!",
-                $"XP: {modPlayer.PlayerExperience:F0}/{RPGPlayer.GetPlayerExperienceForLevel(modPlayer.PlayerLevel + 1):F0} | Pontos: {modPlayer.AttributePoints}",
+                "Constant evolution!",
+                $"XP: {modPlayer.PlayerExperience:F0}/{RPGPlayer.GetPlayerExperienceForLevel(modPlayer.PlayerLevel + 1):F0} | Points: {modPlayer.AttributePoints}",
                 RPGDesignSystem.Colors.Warning
             ));
 
             // Primary Attributes with distribution buttons
-            _statsList.Add(new AttributeStatCard(modPlayer, "Força", modPlayer.Strength, "💪", "Poder bruto!", "Afeta dano corpo a corpo e capacidade de carga.\nClasses relacionadas: Guerreiro, Blacksmith", RPGDesignSystem.Colors.Warning, "Strength"));
-            _statsList.Add(new AttributeStatCard(modPlayer, "Destreza", modPlayer.Dexterity, "🎯", "Precisão de sniper!", "Afeta dano à distância, chance crítica e velocidade de ataque.\nClasses relacionadas: Arqueiro, Acrobata", RPGDesignSystem.Colors.Info, "Dexterity"));
-            _statsList.Add(new AttributeStatCard(modPlayer, "Inteligência", modPlayer.Intelligence, "🧠", "Einstein do pixel!", "Afeta dano mágico, mana máxima e velocidade de conjuração.\nClasses relacionadas: Mago, Alquimista, Místico", RPGDesignSystem.Colors.Primary, "Intelligence"));
-            _statsList.Add(new AttributeStatCard(modPlayer, "Constituição", modPlayer.Constitution, "🛡️", "Tank de verdade!", "Afeta vida máxima, defesa e regeneração de vida.\nClasses relacionadas: Guerreiro, Sobrevivente", RPGDesignSystem.Colors.Success, "Constitution"));
-            _statsList.Add(new AttributeStatCard(modPlayer, "Sabedoria", modPlayer.Wisdom, "🦉", "Conhecimento ancestral!", "Afeta dano de invocação, sorte e resistência a debuffs.\nClasses relacionadas: Místico, Invocador", RPGDesignSystem.Colors.PrimaryLight, "Wisdom"));
+            _statsList.Add(new AttributeStatCard(modPlayer, "Strength", modPlayer.Strength, "💪", "Raw power!", "Affects melee damage and carrying capacity.\nRelated classes: Warrior, Blacksmith", RPGDesignSystem.Colors.Warning, "Strength"));
+            _statsList.Add(new AttributeStatCard(modPlayer, "Dexterity", modPlayer.Dexterity, "🎯", "Sniper precision!", "Affects ranged damage, critical chance and attack speed.\nRelated classes: Archer, Acrobat", RPGDesignSystem.Colors.Info, "Dexterity"));
+            _statsList.Add(new AttributeStatCard(modPlayer, "Intelligence", modPlayer.Intelligence, "🧠", "Pixel Einstein!", "Affects magic damage, max mana and casting speed.\nRelated classes: Mage, Alchemist, Mystic", RPGDesignSystem.Colors.Primary, "Intelligence"));
+            _statsList.Add(new AttributeStatCard(modPlayer, "Constitution", modPlayer.Constitution, "🛡️", "True tank!", "Affects max health, defense and health regeneration.\nRelated classes: Warrior, Survivalist", RPGDesignSystem.Colors.Success, "Constitution"));
+            _statsList.Add(new AttributeStatCard(modPlayer, "Wisdom", modPlayer.Wisdom, "🦉", "Ancestral knowledge!", "Affects summon damage, luck and debuff resistance.\nRelated classes: Mystic, Summoner", RPGDesignSystem.Colors.PrimaryLight, "Wisdom"));
 
             // Vital Stats
             _statsList.Add(new StatCard(
-                "Fome",
+                "Hunger",
                 $"{modPlayer.CurrentHunger:F1}%",
                 "🍖",
-                "Coma ou morra de fome!",
-                "Afeta a regeneração de vida e velocidade de movimento.",
+                "Eat or starve!",
+                "Affects health regeneration and movement speed.",
                 RPGDesignSystem.GetVitalColor(modPlayer.CurrentHunger)
             ));
             _statsList.Add(new StatCard(
-                "Sanidade",
+                "Sanity",
                 $"{modPlayer.CurrentSanity:F1}%",
                 "🧠",
-                "Não enlouqueça!",
-                "Afeta a chance de eventos aleatórios e buffs mentais.",
+                "Don't go insane!",
+                "Affects chance of random events and mental buffs.",
                 RPGDesignSystem.GetVitalColor(modPlayer.CurrentSanity)
             ));
             _statsList.Add(new StatCard(
                 "Stamina",
                 $"{modPlayer.CurrentStamina:F1}%",
                 "⚡",
-                "Fôlego de atleta!",
-                "Afeta a velocidade de dash, pulo e ações físicas.",
+                "Athlete's breath!",
+                "Affects dash speed, jump and physical actions.",
                 RPGDesignSystem.GetVitalColor(modPlayer.CurrentStamina)
             ));
 
             // Player Stats (Vida, Mana, Defesa, Velocidade)
             _statsList.Add(new StatCard(
-                "Vida",
+                "Health",
                 $"{player.statLife} / {player.statLifeMax2}",
                 "❤️",
-                "Cuidado com os chefes!",
-                "Se chegar a zero, você morre.",
+                "Watch out for bosses!",
+                "If it reaches zero, you die.",
                 RPGDesignSystem.Colors.Success
             ));
             _statsList.Add(new StatCard(
                 "Mana",
                 $"{player.statMana} / {player.statManaMax2}",
                 "🔮",
-                "Místicos piram!",
-                "Necessária para magias e habilidades especiais.",
+                "Mystics go crazy!",
+                "Required for spells and special abilities.",
                 RPGDesignSystem.Colors.Info
             ));
             _statsList.Add(new StatCard(
-                "Defesa",
+                "Defense",
                 $"{player.statDefense}",
                 "🛡️",
-                "Torne-se uma muralha!",
-                "Reduz o dano recebido de inimigos.",
+                "Become a wall!",
+                "Reduces damage taken from enemies.",
                 RPGDesignSystem.Colors.Primary
             ));
             _statsList.Add(new StatCard(
-                "Velocidade",
+                "Speed",
                 $"{player.moveSpeed:F2}",
                 "🏃",
                 "Gotta go fast!",
-                "Afeta o quão rápido você se move.",
+                "Affects how fast you move.",
                 RPGDesignSystem.Colors.PrimaryLight
             ));
 
@@ -148,24 +148,24 @@ namespace Wolfgodrpg.Common.UI.Menus
                     float progressPercent = nextLevelExp > 0 ? (currentExp / nextLevelExp * 100f) : 0f;
                     var nextMilestone = classInfo.Milestones?.FirstOrDefault(m => (int)m.Key > level) ?? default;
                     string desc = !nextMilestone.Equals(default(KeyValuePair<ClassAbility, string>)) && !string.IsNullOrEmpty(nextMilestone.Value)
-                        ? $"Próxima habilidade: {nextMilestone.Value} (Nv.{(int)nextMilestone.Key})"
-                        : "Todas habilidades desbloqueadas!";
+                        ? $"Next ability: {nextMilestone.Value} (Lv.{(int)nextMilestone.Key})"
+                        : "All abilities unlocked!";
                     string funny = classKey switch {
-                        "warrior" => "Só vai na porrada!",
+                        "warrior" => "Only goes for a fight!",
                         "archer" => "Robin Hood wannabe.",
                         "mage" => "Harry Potter feelings.",
                         "summoner" => "Pokémon master.",
-                        "acrobat" => "Salto mortal carpado!",
-                        "explorer" => "Dora, a aventureira.",
-                        "engineer" => "Faz gambiarra até no Terraria.",
-                        "survivalist" => "Bear Grylls do pixel.",
-                        "blacksmith" => "Martela até item quebrar.",
-                        "alchemist" => "Transforma água em XP.",
-                        "mystic" => "Vidente de plantão.",
-                        _ => "Classe misteriosa..."
+                        "acrobat" => "Deadly leap caught!",
+                        "explorer" => "Dora, the explorer.",
+                        "engineer" => "Makes a mess even in Terraria.",
+                        "survivalist" => "Bear Grylls of the pixel.",
+                        "blacksmith" => "Hammer until the item breaks.",
+                        "alchemist" => "Turns water into XP.",
+                        "mystic" => "Vidente on call.",
+                        _ => "Mysterious class..."
                     };
                     _statsList.Add(new StatCard(
-                        classInfo.Name + $" (Nv.{level:F0})",
+                        classInfo.Name + $" (Lv.{level:F0})",
                         $"XP: {currentExp:F0}/{nextLevelExp:F0} ({progressPercent:F1}%)",
                         "⭐",
                         funny,
@@ -361,7 +361,7 @@ namespace Wolfgodrpg.Common.UI.Menus
                 }
                 else
                 {
-                    Main.NewText("Você não tem pontos de atributo disponíveis!", Color.Red);
+                    Main.NewText("You don't have attribute points available!", Color.Red);
                 }
             }
 

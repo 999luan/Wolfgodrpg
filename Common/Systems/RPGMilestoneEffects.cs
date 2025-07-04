@@ -1,6 +1,8 @@
 using Microsoft.Xna.Framework;
 using Terraria;
 using Wolfgodrpg.Common.Players;
+using Terraria.ModLoader; // Necessário para DamageClass
+using Terraria.ID; // Necessário para BuffID
 
 namespace Wolfgodrpg.Common.Systems
 {
@@ -123,13 +125,13 @@ namespace Wolfgodrpg.Common.Systems
             if (classLevel >= 20) // Milestone 20: Wall Jump
             {
                 // Permitir wall jump
-                player.Player.wallJump = true;
+                // player.Player.wallJump = true; // Propriedade inexistente, precisa de implementação customizada
             }
 
             if (classLevel >= 30) // Milestone 30: Double Jump
             {
                 // Permitir double jump
-                player.Player.doubleJump = true;
+                // player.Player.doubleJump = true; // Propriedade inexistente, precisa de implementação customizada
             }
         }
 
@@ -177,7 +179,7 @@ namespace Wolfgodrpg.Common.Systems
             {
                 // Aumentar eficiência de ferramentas
                 player.Player.pickSpeed -= 0.1f;
-                player.Player.axe -= 1;
+                // player.Player.axe -= 1; // Propriedade inexistente, não faz sentido em Player
             }
 
             if (classLevel >= 30) // Milestone 30: Automation
