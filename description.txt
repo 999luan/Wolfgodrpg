@@ -1,33 +1,56 @@
-# ⚠️ ALPHA WARNING
-This mod is in ALPHA stage. Many features are experimental or incomplete, and bugs are expected. Feedback is welcome!
+WolfgodRPG - Advanced RPG System for Terraria
 
-# WolfGod RPG - Balanced RPG Mod for Terraria
-WolfGod RPG transforms your Terraria experience with an action-based progression system, 13 unique classes, vital stats (hunger, sanity, stamina), items with random stats and evolution, and a custom interface. The focus is on maintaining challenge and natural progression without breaking game balance.
+🎮 COMPLETE RPG EXPERIENCE
+Transform your Terraria world into an epic RPG adventure with advanced systems:
 
-## Core Features
-- **13 Action Classes**: Gain XP and level up by using weapons, jumping, running, mining, building, fishing, and more.
-- **Vitals System**: Hunger, sanity, and stamina affect your performance.
-- **Unique Items**: Random stats and item evolution as you use them.
-- **Intuitive Interface**: RPG menu (M), quick stats (R), tabs for classes, progress, and items.
-- **Compatibility**: Works in singleplayer, multiplayer, servers, and with other mods.
-- **Configurable**: Adjust XP multipliers, difficulty, notifications, and UI scale.
+⚔️ COMBAT MODE SYSTEM
+• Souls-like dash with double-tap directional controls
+• Smooth 360° rotation animation during dash
+• Multiple dashes with stamina management
+• Stun system when stamina depletes (2 seconds)
+• Combat mode toggle with hotkey
 
-## How to Play
-1. Install the mod and enter your world.
-2. Press **M** to open the RPG menu.
-3. Play normally: XP is gained by performing actions (combat, mining, building, etc).
-4. Level up classes, unlock abilities, and optimize your items.
-5. Manage hunger and sanity to maintain performance.
+🍎 VITALS SYSTEM
+• Hunger: Decreases naturally, affects damage and speed
+• Sanity: Decreases in combat/darkness, regenerates in houses
+• Stamina: Powers dash and movement abilities
+• Food drops from enemies (15% chance)
 
-## Highlights
-- Natural progression, no forced grind.
-- Balanced: XP multipliers are limited to preserve challenge.
-- Talent and achievement systems planned for the future.
-- Open source and active community.
+🏃 MOVEMENT SKILLS
+• Dash: Souls-like directional dash
+• Double Jump: Unlocked at level 3
+• Wall Jump: Unlocked at level 4
+• All skills consume stamina
 
-## Links
-- Wiki: https://999luan.github.io/Wolfgodrpg/
-- GitHub: https://github.com/999luan/Wolfgodrpg
-- Support: Issues on GitHub
+📊 RPG SYSTEMS
+• Player leveling with attribute points
+• Subclass system with unique abilities
+• Armor and weapon proficiency
+• Experience tracking and notifications
 
-WolfGod RPG: evolve your way, with challenge and guaranteed fun!
+🎯 KEY FEATURES
+• Modular skill system
+• Real-time vitals management
+• Visual feedback and effects
+• Multiplayer synchronization
+• Custom UI with scrollable interface
+
+⚡ STAMINA MANAGEMENT
+• Natural regeneration outside combat mode
+• Automatic regeneration with hunger cost in combat
+• Stun penalty when stamina depletes
+• Dash blocking without sufficient stamina
+
+🏠 SANITY SYSTEM
+• Decreases during combat or in darkness
+• Regenerates in houses and bases
+• Confusion effect when reaching zero
+• Visual and audio feedback
+
+🍖 HUNGER SYSTEM
+• Natural decrease over time
+• Affects damage output and movement speed
+• Food restoration from eating items
+• Starvation effects when reaching zero
+
+Perfect for players who want a deep, challenging RPG experience in Terraria!

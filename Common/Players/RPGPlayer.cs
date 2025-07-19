@@ -248,16 +248,6 @@ namespace Wolfgodrpg.Common.Players
         /// Porcentagem de stamina consumida por dash
         /// </summary>
         private const float DASH_STAMINA_COST_PERCENT = 10f;
-        
-        /// <summary>
-        /// Timer de stun quando stamina chega a zero (2 segundos = 120 frames)
-        /// </summary>
-        private int stunTimer = 0;
-        
-        /// <summary>
-        /// Flag indicando se está stunado
-        /// </summary>
-        private bool isStunned = false;
 
         // Flag para autodash (será ativada pelo item)
         public bool AutoDashEnabled = false;
@@ -350,55 +340,11 @@ namespace Wolfgodrpg.Common.Players
         {
             UpdateVitals();
             UpdateDash();
-            UpdateStunEffects();
             ProcessMilestoneEffects();
             UpdateMovementSkills();
             
             // Atualizar skills das subclasses
             SubClasses?.UpdateAllSkills();
-        }
-        
-        /// <summary>
-        /// Atualiza efeitos visuais do stun.
-        /// </summary>
-        private void UpdateStunEffects()
-        {
-            if (isStunned && stunTimer > 0)
-            {
-                // Efeitos visuais durante o stun
-                if (Main.rand.NextBool(3)) // 33% de chance por frame
-                {
-                    // Partículas de exaustão
-                    Dust.NewDustDirect(
-                        Player.position + new Vector2(Main.rand.Next(Player.width), Main.rand.Next(Player.height)),
-                        0, 0, DustID.Smoke,
-                        Main.rand.NextFloat(-1f, 1f), Main.rand.NextFloat(-1f, 1f),
-                        100, Color.Gray, 0.8f
-                    );
-                }
-                
-                // Efeito de tela tremendo
-                if (Main.rand.NextBool(10)) // 10% de chance por frame
-                {
-                    // Efeito visual de stun (partículas extras)
-                    for (int i = 0; i < 3; i++)
-                    {
-                        Dust.NewDustDirect(
-                            Player.position + new Vector2(Main.rand.Next(Player.width), Main.rand.Next(Player.height)),
-                            0, 0, DustID.Smoke,
-                            Main.rand.NextFloat(-2f, 2f), Main.rand.NextFloat(-2f, 2f),
-                            80, Color.DarkGray, 1.2f
-                        );
-                    }
-                }
-                
-                // Feedback visual do tempo restante
-                if (stunTimer % 60 == 0) // A cada segundo
-                {
-                    float remainingSeconds = stunTimer / 60f;
-                    Main.NewText($"Stunned! {remainingSeconds:F1}s remaining...", Color.Red);
-                }
-            }
         }
 
         /// <summary>
@@ -467,7 +413,7 @@ namespace Wolfgodrpg.Common.Players
         public override void ProcessTriggers(TriggersSet triggersSet)
         {
             // === SISTEMA DE DASH SOULS-LIKE COM DUPLO TOQUE ===
-            if (CombatModeActive && UnlockedDash && !isDashing && !isStunned)
+            if (CombatModeActive && UnlockedDash && !isDashing)
             {
                 // Verificar se tem stamina suficiente para dash
                 if (CurrentStamina < DASH_STAMINA_COST_PERCENT)
@@ -1001,7 +947,7 @@ namespace Wolfgodrpg.Common.Players
             // === SISTEMA DE STAMINA ===
             // Stamina regenera de 2 formas:
             // 1. Naturalmente e rapidamente fora do modo de combate
-            // 2. Automaticamente quando gasta 100% e diminui a fome (com stun de 2 segundos)
+            // 2. Automaticamente quando gasta 100% e diminui a fome
             if (!CombatModeActive)
             {
                 // Regeneração rápida fora do modo de combate
@@ -1010,45 +956,23 @@ namespace Wolfgodrpg.Common.Players
             else
             {
                 // No modo de combate, só regenera se gastou 100% e diminuiu a fome
-                if (CurrentStamina <= 0f && !isStunned)
+                if (CurrentStamina <= 0f)
                 {
-                    // Ativar stun por 2 segundos
-                    stunTimer = 120; // 2 segundos = 120 frames
-                    isStunned = true;
-                    
-                    // Feedback visual do stun
-                    Main.NewText("You are exhausted! Stunned for 2 seconds!", Color.Red);
-                    SoundEngine.PlaySound(SoundID.Item25, Player.position);
-                    
-                    // Aplicar efeito visual de stun
-                    Player.AddBuff(BuffID.Slow, 120); // Slow por 2 segundos
-                }
-                
-                // Atualizar timer de stun
-                if (stunTimer > 0)
-                {
-                    stunTimer--;
-                    if (stunTimer == 0)
+                    // Consumir 1 de fome para regenerar stamina automaticamente
+                    if (CurrentHunger > 0f)
                     {
-                        // Stun acabou, regenerar stamina automaticamente
-                        isStunned = false;
+                        CurrentHunger = Math.Max(0f, CurrentHunger - 1f);
+                        CurrentStamina = 100f; // Regenera automaticamente para 100%
                         
-                        // Consumir 1 de fome para regenerar stamina automaticamente
-                        if (CurrentHunger > 0f)
-                        {
-                            CurrentHunger = Math.Max(0f, CurrentHunger - 1f);
-                            CurrentStamina = 100f; // Regenera automaticamente para 100%
-                            
-                            // Feedback visual
-                            Main.NewText("Stamina restored! Hunger decreased.", Color.Yellow);
-                            SoundEngine.PlaySound(SoundID.Item37, Player.position);
-                        }
-                        else
-                        {
-                            // Se não tem fome, regenera só 50%
-                            CurrentStamina = 50f;
-                            Main.NewText("Stamina partially restored (no hunger).", Color.Orange);
-                        }
+                        // Feedback visual
+                        Main.NewText("Stamina restored! Hunger decreased.", Color.Yellow);
+                        SoundEngine.PlaySound(SoundID.Item37, Player.position);
+                    }
+                    else
+                    {
+                        // Se não tem fome, regenera só 50%
+                        CurrentStamina = 50f;
+                        Main.NewText("Stamina partially restored (no hunger).", Color.Orange);
                     }
                 }
             }
