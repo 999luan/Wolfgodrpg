@@ -198,8 +198,7 @@ namespace Wolfgodrpg.Common.Systems
             if (classLevel >= 10) // Milestone 10: Wilderness Expert
             {
                 // Reduzir consumo de fome/sanidade
-                player.HungerRegenRate *= 0.8f;
-                player.SanityRegenRate *= 0.8f;
+                // TODO: Implementar sistema de modificadores de regeneração
             }
 
             if (classLevel >= 25) // Milestone 25: Natural Healing

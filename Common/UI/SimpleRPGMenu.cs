@@ -1,3 +1,5 @@
+// DESATIVADO - UI antiga substituída pela nova UI de subclasses
+// Esta UI foi mantida para referência, mas não está mais em uso
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
@@ -50,15 +52,18 @@ namespace Wolfgodrpg.Common.UI
 
         public override void OnInitialize()
         {
-            DebugLog.UI("OnInitialize", "Inicializando SimpleRPGMenu");
+            // DESATIVADO - UI antiga substituída pela nova UI de subclasses
+            // Não inicializar mais esta UI para evitar conflitos
+            DebugLog.UI("OnInitialize", "SimpleRPGMenu DESATIVADO - usando nova UI de subclasses");
             
             if (Wolfgodrpg.Instance != null)
-                Wolfgodrpg.Instance.Logger.Info("[SimpleRPGMenu] OnInitialize called.");
+                Wolfgodrpg.Instance.Logger.Info("[SimpleRPGMenu] DESATIVADO - usando nova UI");
             
-            Width.Set(0, 0.8f);
-            Height.Set(0, 0.8f);
-            HAlign = 0.5f;
-            VAlign = 0.5f;
+            // Não definir dimensões para evitar que apareça
+            Width.Set(0, 0f);
+            Height.Set(0, 0f);
+            HAlign = 0f;
+            VAlign = 0f;
 
             _mainPanel = new UIPanel();
             _mainPanel.Width.Set(0, 1f);

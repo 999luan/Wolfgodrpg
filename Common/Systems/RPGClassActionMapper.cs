@@ -48,13 +48,13 @@ namespace Wolfgodrpg.Common.Systems
             switch (action)
             {
                 case MovementAction.Dash:
-                    rpgPlayer.AddClassExperience("acrobat", value * 0.1f);
+                    rpgPlayer.AddClassExperience("acrobat", (int)(value * 0.1f));
                     break;
                 case MovementAction.Jump:
-                    rpgPlayer.AddClassExperience("acrobat", 2f);
+                    rpgPlayer.AddClassExperience("acrobat", (int)2f);
                     break;
                 case MovementAction.Walk:
-                    rpgPlayer.AddClassExperience("acrobat", value * 0.001f);
+                    rpgPlayer.AddClassExperience("acrobat", (int)(value * 0.001f));
                     break;
             }
         }
@@ -79,13 +79,13 @@ namespace Wolfgodrpg.Common.Systems
             switch (action)
             {
                 case CombatAction.HitNPC:
-                    rpgPlayer.AddClassExperience(className, xpAmount);
+                    rpgPlayer.AddClassExperience(className, (int)xpAmount);
                     break;
                 case CombatAction.KillNPC:
-                    rpgPlayer.AddClassExperience(className, xpAmount * 2f);
+                    rpgPlayer.AddClassExperience(className, (int)(xpAmount * 2f));
                     break;
                 case CombatAction.TakeDamage:
-                    rpgPlayer.AddClassExperience("warrior", xpAmount * 0.5f); // Guerreiro ganha XP por tankar
+                    rpgPlayer.AddClassExperience("warrior", (int)(xpAmount * 0.5f)); // Guerreiro ganha XP por tankar
                     break;
             }
         }
@@ -109,23 +109,23 @@ namespace Wolfgodrpg.Common.Systems
             {
                 case CraftingAction.CraftWeapon:
                     // Armas dão XP para ferreiro
-                    rpgPlayer.AddClassExperience("blacksmith", baseXP);
+                    rpgPlayer.AddClassExperience("blacksmith", (int)baseXP);
                     break;
                 case CraftingAction.CraftArmor:
                     // Armaduras dão XP para ferreiro
-                    rpgPlayer.AddClassExperience("blacksmith", baseXP);
+                    rpgPlayer.AddClassExperience("blacksmith", (int)baseXP);
                     break;
                 case CraftingAction.CraftPotion:
                     // Poções dão XP para alquimista
-                    rpgPlayer.AddClassExperience("alchemist", baseXP);
+                    rpgPlayer.AddClassExperience("alchemist", (int)baseXP);
                     break;
                 case CraftingAction.CraftBuilding:
                     // Blocos/construção dão XP para engenheiro
-                    rpgPlayer.AddClassExperience("engineer", baseXP);
+                    rpgPlayer.AddClassExperience("engineer", (int)baseXP);
                     break;
                 case CraftingAction.CraftTool:
                     // Ferramentas dão XP para ferreiro
-                    rpgPlayer.AddClassExperience("blacksmith", baseXP);
+                    rpgPlayer.AddClassExperience("blacksmith", (int)baseXP);
                     break;
             }
         }
@@ -146,16 +146,16 @@ namespace Wolfgodrpg.Common.Systems
             switch (action)
             {
                 case ExplorationAction.DiscoverBiome:
-                    rpgPlayer.AddClassExperience("explorer", 50f);
+                    rpgPlayer.AddClassExperience("explorer", (int)50f);
                     break;
                 case ExplorationAction.FindTreasure:
-                    rpgPlayer.AddClassExperience("explorer", value * 0.1f);
+                    rpgPlayer.AddClassExperience("explorer", (int)(value * 0.1f));
                     break;
                 case ExplorationAction.MineResource:
-                    rpgPlayer.AddClassExperience("explorer", 5f);
+                    rpgPlayer.AddClassExperience("explorer", (int)5f);
                     break;
                 case ExplorationAction.TravelDistance:
-                    rpgPlayer.AddClassExperience("explorer", value * 0.001f);
+                    rpgPlayer.AddClassExperience("explorer", (int)(value * 0.001f));
                     break;
             }
         }
@@ -176,13 +176,13 @@ namespace Wolfgodrpg.Common.Systems
             switch (action)
             {
                 case SurvivalAction.EatFood:
-                    rpgPlayer.AddClassExperience("survivalist", 10f);
+                    rpgPlayer.AddClassExperience("survivalist", (int)10f);
                     break;
                 case SurvivalAction.RegenerateHealth:
-                    rpgPlayer.AddClassExperience("survivalist", value * 0.1f);
+                    rpgPlayer.AddClassExperience("survivalist", (int)(value * 0.1f));
                     break;
                 case SurvivalAction.EnvironmentalResistance:
-                    rpgPlayer.AddClassExperience("survivalist", 5f);
+                    rpgPlayer.AddClassExperience("survivalist", (int)5f);
                     break;
             }
         }
@@ -204,11 +204,11 @@ namespace Wolfgodrpg.Common.Systems
             {
                 case FishingAction.CatchFish:
                     // Pesca dá XP para sobrevivente (habilidade de sobrevivência)
-                    rpgPlayer.AddClassExperience("survivalist", value * 0.1f);
+                    rpgPlayer.AddClassExperience("survivalist", (int)(value * 0.1f));
                     break;
                 case FishingAction.CatchRareFish:
                     // Peixes raros dão mais XP
-                    rpgPlayer.AddClassExperience("survivalist", value * 0.5f);
+                    rpgPlayer.AddClassExperience("survivalist", (int)(value * 0.5f));
                     break;
             }
         }
@@ -232,11 +232,11 @@ namespace Wolfgodrpg.Common.Systems
             {
                 case TradeAction.BuyItem:
                     // Compras dão XP para explorador (descoberta de itens)
-                    rpgPlayer.AddClassExperience("explorer", xpAmount);
+                    rpgPlayer.AddClassExperience("explorer", (int)xpAmount);
                     break;
                 case TradeAction.SellItem:
                     // Vendas dão XP para explorador (negociação)
-                    rpgPlayer.AddClassExperience("explorer", xpAmount);
+                    rpgPlayer.AddClassExperience("explorer", (int)xpAmount);
                     break;
             }
         }

@@ -23,7 +23,7 @@ namespace Wolfgodrpg.Common.Systems
             foreach (var classEntry in RPGClassDefinitions.ActionClasses)
             {
                 string className = classEntry.Key;
-                float level = modPlayer.ClassLevels.TryGetValue(className, out var lvl) ? lvl : 0f;
+                float level = modPlayer.SubClasses.SubClasses.FirstOrDefault(sc => sc.Name.ToLower() == className.ToLower())?.Level ?? 0f;
 
                 if (level > 1)
                 {

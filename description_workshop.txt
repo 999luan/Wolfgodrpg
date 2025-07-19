@@ -1,33 +1,33 @@
 # ⚠️ ALPHA WARNING
 This mod is in ALPHA stage. Many features are experimental or incomplete, and bugs are expected. Feedback is welcome!
 
-# WolfGod RPG - Mod de RPG balanceado para Terraria
-ol
-WolfGod RPG transforma sua experiência em Terraria com um sistema de progressão por ações, 13 classes únicas, vitais (fome, sanidade, stamina), itens com stats aleatórios e evolução, e interface customizada. O foco é manter o desafio e a progressão natural, sem quebrar o equilíbrio do jogo.
+# WolfGod RPG - Balanced RPG Mod for Terraria
+WolfGod RPG transforms your Terraria experience with an action-based progression system, 13 unique classes, vital stats (hunger, sanity, stamina), items with random stats and evolution, and a custom interface. The focus is on maintaining challenge and natural progression without breaking game balance.
 
-## Principais Recursos
-- **13 Classes de Ação**: Ganhe XP e evolua ao usar armas, pular, correr, minerar, construir, pescar, etc.
-- **Sistema de Vitals**: Fome, sanidade e stamina afetam seu desempenho.
-- **Itens Únicos**: Stats aleatórios e evolução de itens conforme o uso.
-- **Interface Intuitiva**: Menu RPG (M), stats rápidos (R), abas para classes, progresso e itens.
-- **Compatibilidade**: Funciona em singleplayer, multiplayer, servidor e com outros mods.
-- **Configurações**: Ajuste multiplicadores de XP, dificuldade, notificações e escala da interface.
+## Core Features
+- **13 Action Classes**: Gain XP and level up by using weapons, jumping, running, mining, building, fishing, and more.
+- **Vitals System**: Hunger, sanity, and stamina affect your performance.
+- **Unique Items**: Random stats and item evolution as you use them.
+- **Intuitive Interface**: RPG menu (M), quick stats (R), tabs for classes, progress, and items.
+- **Compatibility**: Works in singleplayer, multiplayer, servers, and with other mods.
+- **Configurable**: Adjust XP multipliers, difficulty, notifications, and UI scale.
 
-## Como Jogar
-1. Instale o mod e entre no mundo.
-2. Pressione **M** para abrir o menu RPG.
-3. Jogue normalmente: XP é ganho ao realizar ações (combate, mineração, construção, etc).
-4. Evolua classes, desbloqueie habilidades e otimize seus itens.
-5. Gerencie fome e sanidade para manter a performance.
+## How to Play
+1. Install the mod and enter your world.
+2. Press **M** to open the RPG menu.
+3. Play normally: XP is gained by performing actions (combat, mining, building, etc).
+4. Level up classes, unlock abilities, and optimize your items.
+5. Manage hunger and sanity to maintain performance.
 
-## Diferenciais
-- Progressão natural, sem grind forçado.
-- Equilíbrio: multiplicadores limitados para não quebrar o jogo.
-- Sistema de talentos e conquistas planejados para o futuro.
-- Código aberto e comunidade ativa.
+## Highlights
+- Natural progression, no forced grind.
+- Balanced: XP multipliers are limited to preserve challenge.
+- Talent and achievement systems planned for the future.
+- Open source and active community.
 
 ## Links
+- Wiki: https://999luan.github.io/Wolfgodrpg/
 - GitHub: https://github.com/999luan/Wolfgodrpg
-- Suporte: Issues no GitHub
+- Support: Issues on GitHub
 
-WolfGod RPG: evolua jogando do seu jeito, com desafio e diversão garantidos!
+WolfGod RPG: evolve your way, with challenge and guaranteed fun!

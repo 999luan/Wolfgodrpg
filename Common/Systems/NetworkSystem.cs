@@ -28,18 +28,17 @@ namespace Wolfgodrpg.Common.Systems
                     }
                     break;
 
-                case WolfgodrpgMessageType.SyncClass:
-                    string syncClassName = reader.ReadString();
-                    float syncLevel = reader.ReadSingle();
-                    float syncExp = reader.ReadSingle();
-                    modPlayer.ClassLevels[syncClassName] = syncLevel;
-                    modPlayer.ClassExperience[syncClassName] = syncExp;
-                    break;
+                // case WolfgodrpgMessageType.SyncClass: // Obsolete, handled by SyncRPGPlayer
+                //     string syncClassName = reader.ReadString();
+                //     float syncLevel = reader.ReadSingle();
+                //     float syncExp = reader.ReadSingle();
+                //     // This logic is now handled by the SubClassSystem's LoadData
+                //     break;
 
-                case WolfgodrpgMessageType.UnlockAbility:
-                    ClassAbility newAbility = (ClassAbility)reader.ReadInt32();
-                    modPlayer.UnlockedAbilities.Add(newAbility);
-                    break;
+                // case WolfgodrpgMessageType.UnlockAbility: // Obsolete, abilities are unlocked via subclass level
+                //     ClassAbility newAbility = (ClassAbility)reader.ReadInt32();
+                //     // This logic is now handled by the SubClassSystem's LoadData
+                //     break;
 
                 case WolfgodrpgMessageType.UpdateVitals:
                     float value = reader.ReadSingle();
@@ -62,32 +61,22 @@ namespace Wolfgodrpg.Common.Systems
 
         private void HandlePlayerSync(RPGPlayer modPlayer, BinaryReader reader)
         {
-            // Receber classes
-            int classCount = reader.ReadInt32();
-            modPlayer.ClassLevels.Clear();
-            for (int i = 0; i < classCount; i++)
+            // Receber subclasses
+            int subClassCount = reader.ReadInt32();
+            for (int i = 0; i < subClassCount; i++)
             {
-                string className = reader.ReadString();
-                float level = reader.ReadSingle();
-                modPlayer.ClassLevels[className] = level;
-            }
+                string subclassName = reader.ReadString();
+                int level = reader.ReadInt32();
+                int xp = reader.ReadInt32();
+                bool isUnlocked = reader.ReadBoolean();
 
-            int expCount = reader.ReadInt32();
-            modPlayer.ClassExperience.Clear();
-            for (int i = 0; i < expCount; i++)
-            {
-                string className = reader.ReadString();
-                float exp = reader.ReadSingle();
-                modPlayer.ClassExperience[className] = exp;
-            }
-
-            // Receber habilidades
-            int abilityCount = reader.ReadInt32();
-            modPlayer.UnlockedAbilities.Clear();
-            for (int i = 0; i < abilityCount; i++)
-            {
-                ClassAbility ability = (ClassAbility)reader.ReadInt32();
-                modPlayer.UnlockedAbilities.Add(ability);
+                var subClass = modPlayer.SubClasses.SubClasses.FirstOrDefault(sc => sc.Name == subclassName);
+                if (subClass != null)
+                {
+                    subClass.SetLevel(level);
+                    subClass.SetXP(xp);
+                    subClass.SetUnlocked(isUnlocked);
+                }
             }
 
             // Receber vitals
@@ -105,26 +94,14 @@ namespace Wolfgodrpg.Common.Systems
             packet.Write((byte)WolfgodrpgMessageType.SyncRPGPlayer);
             packet.Write(modPlayer.Player.whoAmI);
 
-            // Enviar classes
-            packet.Write(modPlayer.ClassLevels.Count);
-            foreach (var kvp in modPlayer.ClassLevels)
+            // Enviar subclasses
+            packet.Write(modPlayer.SubClasses.SubClasses.Count);
+            foreach (var subClass in modPlayer.SubClasses.SubClasses)
             {
-                packet.Write(kvp.Key);
-                packet.Write(kvp.Value);
-            }
-
-            packet.Write(modPlayer.ClassExperience.Count);
-            foreach (var kvp in modPlayer.ClassExperience)
-            {
-                packet.Write(kvp.Key);
-                packet.Write(kvp.Value);
-            }
-
-            // Enviar habilidades
-            packet.Write(modPlayer.UnlockedAbilities.Count);
-            foreach (var ability in modPlayer.UnlockedAbilities)
-            {
-                packet.Write((int)ability);
+                packet.Write(subClass.Name);
+                packet.Write(subClass.Level);
+                packet.Write(subClass.XP);
+                packet.Write(subClass.IsUnlocked);
             }
 
             // Enviar vitals

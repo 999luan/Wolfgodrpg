@@ -1,38 +1,29 @@
 using Terraria.ModLoader;
-using Terraria.GameInput;
-using Terraria.UI;
-using System.Collections.Generic;
-using Microsoft.Xna.Framework;
-using Terraria; // Adicionado para Main
-using Wolfgodrpg.Common.UI;
 
 namespace Wolfgodrpg.Common.Systems
 {
     public class RPGKeybinds : ModSystem
     {
-        
-        public static ModKeybind OpenRPGMenuKeybind { get; private set; }
+        public static ModKeybind ToggleMasterUIKeybind { get; private set; }
 
-        
-
-        public override void PostSetupContent()
+        public override void Load()
         {
-            
-            OpenRPGMenuKeybind = KeybindLoader.RegisterKeybind(Mod, "OpenRPGMenu", "M");
+            ToggleMasterUIKeybind = KeybindLoader.RegisterKeybind(Mod, "Open Wolfgod UI", "K");
         }
 
-        
+        public override void Unload()
+        {
+            ToggleMasterUIKeybind = null;
+        }
     }
 
     public class RPGKeybindPlayer : ModPlayer
     {
-        public override void ProcessTriggers(TriggersSet triggersSet)
+        public override void ProcessTriggers(Terraria.GameInput.TriggersSet triggersSet)
         {
-            
-
-            if (RPGKeybinds.OpenRPGMenuKeybind.JustPressed)
+            if (RPGKeybinds.ToggleMasterUIKeybind.JustPressed)
             {
-                RPGMenuController.ToggleMenu();
+                ModContent.GetInstance<WolfgodUISystem>().ToggleMasterUI();
             }
         }
     }

@@ -1,6 +1,6 @@
 displayName = WolfGod RPG
 author = WolfGod
-version = 0.8
+version = 0.8.1
 side = Both
 
 # Metadata moderna (tModLoader 2024+)

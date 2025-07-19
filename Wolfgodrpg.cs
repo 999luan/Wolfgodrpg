@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Terraria.ModLoader;
 using Terraria;
+using Terraria.ModLoader.Config;
 using Wolfgodrpg.Common.Systems;
 using System.IO;
 using Terraria.ID;
@@ -19,6 +20,8 @@ namespace Wolfgodrpg
 		
 		// Referência estática para fácil acesso
 		public static Wolfgodrpg Instance { get; private set; }
+		
+		// Keybinds (movidos para RPGKeybinds.cs)
 		
 		public override void Load()
 		{
@@ -63,26 +66,22 @@ namespace Wolfgodrpg
                     modPlayer.CurrentSanity = reader.ReadSingle();
                     modPlayer.CurrentStamina = reader.ReadSingle();
 
-                    // Ler dados de classe
-                    int classLevelCount = reader.ReadInt32();
-                    modPlayer.ClassLevels.Clear();
-                    for (int i = 0; i < classLevelCount; i++)
+                    // Ler dados de subclasses
+                    int subClassCount = reader.ReadInt32();
+                    for (int i = 0; i < subClassCount; i++)
                     {
-                        modPlayer.ClassLevels[reader.ReadString()] = reader.ReadSingle();
-                    }
+                        string subclassName = reader.ReadString();
+                        int level = reader.ReadInt32();
+                        int xp = reader.ReadInt32();
+                        bool isUnlocked = reader.ReadBoolean();
 
-                    int classExpCount = reader.ReadInt32();
-                    modPlayer.ClassExperience.Clear();
-                    for (int i = 0; i < classExpCount; i++)
-                    {
-                        modPlayer.ClassExperience[reader.ReadString()] = reader.ReadSingle();
-                    }
-
-                    int abilityCount = reader.ReadInt32();
-                    modPlayer.UnlockedAbilities.Clear();
-                    for (int i = 0; i < abilityCount; i++)
-                    {
-                        modPlayer.UnlockedAbilities.Add((ClassAbility)reader.ReadInt32());
+                        var subClass = modPlayer.SubClasses.SubClasses.FirstOrDefault(sc => sc.Name == subclassName);
+                        if (subClass != null)
+                        {
+                            subClass.SetLevel(level);
+                            subClass.SetXP(xp);
+                            subClass.SetUnlocked(isUnlocked);
+                        }
                     }
 
                     // Se o pacote veio do servidor, o cliente precisa reenviá-lo para outros clientes
@@ -134,26 +133,27 @@ namespace Wolfgodrpg
                     }
                     break;
 
-                case WolfgodrpgMessageType.SyncClass:
-                case WolfgodrpgMessageType.SyncClassLevel:
-                    playerID = reader.ReadByte();
-                    modPlayer = Main.player[playerID].GetModPlayer<Common.Players.RPGPlayer>();
-                    string className = reader.ReadString();
-                    float level = reader.ReadSingle();
-                    float experience = reader.ReadSingle();
-                    modPlayer.ClassLevels[className] = level;
-                    modPlayer.ClassExperience[className] = experience;
-                    if (Main.netMode == NetmodeID.Server)
-                    {
-                        var packet = GetPacket();
-                        packet.Write((byte)msgType);
-                        packet.Write(playerID);
-                        packet.Write(className);
-                        packet.Write(level);
-                        packet.Write(experience);
-                        packet.Send(-1, whoAmI);
-                    }
-                    break;
+                // Obsolete cases, handled by SyncRPGPlayer
+                // case WolfgodrpgMessageType.SyncClass:
+                // case WolfgodrpgMessageType.SyncClassLevel:
+                //     playerID = reader.ReadByte();
+                //     modPlayer = Main.player[playerID].GetModPlayer<Common.Players.RPGPlayer>();
+                //     string className = reader.ReadString();
+                //     float level = reader.ReadSingle();
+                //     float experience = reader.ReadSingle();
+                //     modPlayer.ClassLevels[className] = level;
+                //     modPlayer.ClassExperience[className] = experience;
+                //     if (Main.netMode == NetmodeID.Server)
+                //     {
+                //         var packet = GetPacket();
+                //         packet.Write((byte)msgType);
+                //         packet.Write(playerID);
+                //         packet.Write(className);
+                //         packet.Write(level);
+                //         packet.Write(experience);
+                //         packet.Send(-1, whoAmI);
+                //     }
+                //     break;
             }
         }
 
@@ -162,11 +162,12 @@ namespace Wolfgodrpg
 			Logger.Info("Sistemas RPG carregados:");
 			Logger.Info("- ModPlayer: RPGPlayer");
 			Logger.Info("- GlobalNPC: BalancedNPC");
-			Logger.Info("- GlobalItem: ProgressiveItem, RPGGlobalItem");
+			Logger.Info("- GlobalItem: ProgressiveItem, RPGGlobalItem, RPGWeaponProficiencyHooks");
+			Logger.Info("- GlobalProjectile: RPGProjectileProficiencyHooks");
 			Logger.Info("- GlobalRecipe: RPGGlobalRecipe");
 			Logger.Info("- GlobalTile: RPGGlobalTile");
-			Logger.Info("- UIState: QuickStatsUI, RPGStatsUI, SimpleRPGMenu");
-			Logger.Info("- Systems: PlayerVitalsSystem, RPGActionSystem, RPGCalculations, RPGConfig, RPGFishingProjectile, RPGHooks, RPGKeybinds, RPGMenuController, RPGMenuControls, RPGDebugSystem");
+			Logger.Info("- UIState: MasterUIState (Unified)");
+			Logger.Info("- Systems: PlayerVitalsSystem, RPGActionSystem, RPGCalculations, RPGConfig, RPGFishingProjectile, RPGHooks, RPGKeybinds, RPGDebugSystem, WolfgodUISystem");
 		}
 	}
 }

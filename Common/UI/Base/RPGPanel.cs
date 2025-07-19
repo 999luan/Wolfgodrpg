@@ -25,11 +25,11 @@ namespace Wolfgodrpg.Common.UI.Base
             _backgroundTexture = ModContent.Request<Texture2D>(_texturePath).Value;
             if (_backgroundTexture == null)
             {
-                Wolfgodrpg.Instance.Logger.Warn($"[RPGPanel] Failed to load background texture from: {_texturePath}");
+                ModContent.GetInstance<Wolfgodrpg>()?.Logger.Warn($"[RPGPanel] Failed to load background texture from: {_texturePath}");
             }
             else
             {
-                Wolfgodrpg.Instance.Logger.Info($"[RPGPanel] Loaded background texture: {_texturePath}, Dimensions: {_backgroundTexture.Width}x{_backgroundTexture.Height}");
+                ModContent.GetInstance<Wolfgodrpg>()?.Logger.Info($"[RPGPanel] Loaded background texture: {_texturePath}, Dimensions: {_backgroundTexture.Width}x{_backgroundTexture.Height}");
             }
         }
 

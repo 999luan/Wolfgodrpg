@@ -79,7 +79,10 @@ Mods: {
 		# KEYBINDS
 		Keybinds: {
 			OpenRPGMenu.DisplayName: Open RPG Menu
-			QuickStats.DisplayName: Toggle Quick Stats
+			ToggleXPBar.DisplayName: Toggle XP Bar
+			ToggleStatsUI.DisplayName: Toggle Stats UI
+			ToggleQuickStats.DisplayName: Toggle Quick Stats
+			ToggleStatusSkillUI.DisplayName: Toggle Status & Skills
 		}
 
 		# ITENS
@@ -104,7 +107,16 @@ Mods: {
 	}
 }
 
-Keybinds.OpenRPGMenu.DisplayName: Open R P G Menu
+Keybinds: {
+	OpenRPGMenu.DisplayName: Open R P G Menu
+	ToggleXPBar.DisplayName: Toggle X P Bar
+	ToggleStatsUI.DisplayName: Toggle Stats U I
+	ToggleQuickStats.DisplayName: Toggle Quick Stats
+	ToggleStatusSkillUI.DisplayName: Toggle Status & Skills
+	ToggleCombatMode.DisplayName: Toggle Combat Mode
+	ToggleRefactoredUI.DisplayName: Toggle Refactored U I
+	ToggleSubclassUI.DisplayName: Toggle Subclass U I
+}
 
 Items: {
 	AutoDashItem: {

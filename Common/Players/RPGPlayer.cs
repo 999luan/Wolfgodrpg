@@ -4,6 +4,7 @@ using Terraria.ID;
 using Microsoft.Xna.Framework;
 using System.Collections.Generic;
 using Wolfgodrpg.Common.Classes;
+using Wolfgodrpg.Common.Skills;
 using Terraria.Audio;
 using Terraria.GameInput;
 using Terraria.ModLoader.IO;
@@ -25,7 +26,7 @@ namespace Wolfgodrpg.Common.Players
         /// <summary>
         /// Cooldown restante do dash em frames.
         /// </summary>
-        public int DashCooldown { get; set; } = 30; // 0.5 segundos
+        public int DashCooldown { get; set; } = 0; // Resetado para usar novo sistema
         
         /// <summary>
         /// Número de dashes usados na sessão atual.
@@ -58,51 +59,86 @@ namespace Wolfgodrpg.Common.Players
         public int MaxDashes { get; set; } = 1;
 
         // === SISTEMA DE CLASSES ===
-        /// <summary>
-        /// Dicionário com os níveis de cada classe do jogador.
-        /// </summary>
-        public Dictionary<string, float> ClassLevels = new Dictionary<string, float>();
-        
-        /// <summary>
-        /// Dicionário com a experiência atual de cada classe.
-        /// </summary>
-        public Dictionary<string, float> ClassExperience = new Dictionary<string, float>();
-        
-        /// <summary>
-        /// Lista de habilidades desbloqueadas pelo jogador.
-        /// </summary>
-        public List<ClassAbility> UnlockedAbilities = new List<ClassAbility>();
+        // OBSOLETE: A lógica de classes, níveis e experiência foi movida para SubClassSystem.
+        // public Dictionary<string, float> ClassLevels = new Dictionary<string, float>();
+        // public Dictionary<string, float> ClassExperience = new Dictionary<string, float>();
+        // public List<ClassAbility> UnlockedAbilities = new List<ClassAbility>();
 
-        // === SISTEMA DE VITAIS ===
         /// <summary>
-        /// Current hunger of the player (0-100).
+        /// Lista de skills de movimentação do jogador.
         /// </summary>
-        public float CurrentHunger { get; set; } = 100f;
+        public List<Skills.BaseSkill> MovementSkills = new List<Skills.BaseSkill>();
+
+        // === SISTEMA DE MODO DE COMBATE ===
+        /// <summary>
+        /// Indica se o modo de combate está ativo.
+        /// </summary>
+        public bool CombatModeActive { get; set; } = false;
         
         /// <summary>
-        /// Current sanity of the player (0-100).
+        /// Cooldown do dash em ticks (usando a propriedade existente).
         /// </summary>
-        public float CurrentSanity { get; set; } = 100f;
         
         /// <summary>
-        /// Stamina atual do jogador (0-100).
+        /// Flags de desbloqueio das habilidades.
         /// </summary>
-        public float CurrentStamina { get; set; } = 100f;
+        public bool UnlockedDash { get; set; } = true;
+        public bool UnlockedDoubleJump { get; set; } = false;
+        public bool UnlockedWallJump { get; set; } = false;
         
         /// <summary>
-        /// Hunger regeneration rate per second.
+        /// Estado do double jump.
         /// </summary>
-        public float HungerRegenRate { get; set; } = 0.5f;
+        private bool usedDoubleJump = false;
+
+        // === SISTEMAS MODULARES ===
+        /// <summary>
+        /// Sistema de vitais do jogador
+        /// </summary>
+        public VitalsSystem Vitals { get; private set; }
         
         /// <summary>
-        /// Sanity regeneration rate per second.
+        /// Sistema de atributos do jogador
         /// </summary>
-        public float SanityRegenRate { get; set; } = 0.3f;
+        public AttributesSystem Attributes { get; private set; }
         
         /// <summary>
-        /// Taxa de regeneração de stamina por segundo.
+        /// Sistema de subclasses do jogador
         /// </summary>
-        public float StaminaRegenRate { get; set; } = 0.7f;
+        public SubClassSystem SubClasses { get; private set; }
+
+        // === PROPRIEDADES DE ACESSO PARA COMPATIBILIDADE ===
+        /// <summary>
+        /// Acesso à fome atual (para compatibilidade)
+        /// </summary>
+        public float CurrentHunger
+        {
+            get => Vitals?.CurrentHunger ?? 100f;
+            set { if (Vitals != null) Vitals.CurrentHunger = value; }
+        }
+
+        /// <summary>
+        /// Acesso à sanidade atual (para compatibilidade)
+        /// </summary>
+        public float CurrentSanity
+        {
+            get => Vitals?.CurrentSanity ?? 100f;
+            set { if (Vitals != null) Vitals.CurrentSanity = value; }
+        }
+
+        /// <summary>
+        /// Acesso à stamina atual (para compatibilidade)
+        /// </summary>
+        public float CurrentStamina
+        {
+            get => Vitals?.CurrentStamina ?? 100f;
+            set { if (Vitals != null) Vitals.CurrentStamina = value; }
+        }
+
+        /// <summary>
+        /// Acesso à stamina máxima (para compatibilidade)
+        /// </summary>
+        public float MaxStamina => VitalsSystem.MAX_STAMINA;
 
         // === ATRIBUTOS PRIMÁRIOS === ⭐ NOVO
         /// <summary>
@@ -179,6 +215,18 @@ namespace Wolfgodrpg.Common.Players
         private Vector2 dashDirection = Vector2.Zero;
         private float dashStartRotation = 0f;
         private float dashTargetRotation = 0f;
+        private float dashRollProgress = 0f; // Progresso da rolagem (0-1)
+        private bool isDashing = false; // Flag para indicar se está fazendo dash
+
+        /// <summary>
+        /// Função de easing cúbico para animações suaves.
+        /// </summary>
+        /// <param name="t">Progresso da animação (0-1)</param>
+        /// <returns>Valor suavizado</returns>
+        private float EaseInOutCubic(float t)
+        {
+            return t < 0.5f ? 4f * t * t * t : 1f - (float)Math.Pow(-2f * t + 2f, 3f) / 2f;
+        }
 
         // === LOGS DE XP ACUMULADOS ===
         public List<string> XPLogs = new List<string>();
@@ -198,12 +246,17 @@ namespace Wolfgodrpg.Common.Players
         /// </summary>
         public override void Initialize()
         {
-            // Inicializar classes com nível 0
-            foreach (var className in RPGClassDefinitions.ActionClasses.Keys)
-            {
-                ClassLevels[className] = 0f;
-                ClassExperience[className] = 0f;
-            }
+            // Inicializar sistemas modulares
+            Vitals = new VitalsSystem();
+            Attributes = new AttributesSystem();
+            SubClasses = new SubClassSystem();
+            
+            // A inicialização de classes agora é feita em SubClassSystem
+            // foreach (var className in RPGClassDefinitions.ActionClasses.Keys)
+            // {
+            //     ClassLevels[className] = 0f;
+            //     ClassExperience[className] = 0f;
+            // }
             
             // Inicializar proficiências de armadura ⭐ NOVO
             foreach (ArmorType armorType in System.Enum.GetValues<ArmorType>())
@@ -219,17 +272,12 @@ namespace Wolfgodrpg.Common.Players
                 WeaponProficiencyExperience[weaponType] = 0f;
             }
             
-            // Resetar vitals
-            CurrentHunger = 100f;
-            CurrentSanity = 100f;
-            CurrentStamina = 100f;
-            
-            // Inicializar atributos primários
-            Strength = 10;
-            Dexterity = 10;
-            Intelligence = 10;
-            Constitution = 10;
-            Wisdom = 10;
+            // Inicializar atributos primários (usando o sistema modular)
+            Strength = Attributes.Strength;
+            Dexterity = Attributes.Dexterity;
+            Intelligence = Attributes.Intelligence;
+            Constitution = Attributes.Constitution;
+            Wisdom = Attributes.Wisdom;
 
             // Inicializar nível do jogador
             PlayerLevel = 1;
@@ -240,6 +288,9 @@ namespace Wolfgodrpg.Common.Players
             DashCooldown = 0;
             DashesUsed = 0;
             DashResetTimer = 0;
+            
+            // Inicializar skills de movimentação
+            InitializeMovementSkills();
         }
 
         /// <summary>
@@ -250,6 +301,69 @@ namespace Wolfgodrpg.Common.Players
             UpdateVitals();
             UpdateDash();
             ProcessMilestoneEffects();
+            UpdateMovementSkills();
+            
+            // Atualizar skills das subclasses
+            SubClasses?.UpdateAllSkills();
+        }
+
+        /// <summary>
+        /// Atualiza antes do movimento do jogador.
+        /// </summary>
+        public override void PreUpdateMovement()
+        {
+            // Resetar double jump quando tocar o chão
+            if (Player.velocity.Y == 0)
+            {
+                usedDoubleJump = false;
+            }
+
+            // Atualizar cooldown do dash
+            if (DashCooldown > 0)
+                DashCooldown--;
+
+            // === DOUBLE JUMP ===
+            if (CombatModeActive && UnlockedDoubleJump && Player.controlJump && !usedDoubleJump && !Player.velocity.Y.Equals(0))
+            {
+                if (ConsumeStaminaPercent(10f))
+                {
+                    Player.velocity.Y = -Player.jumpSpeed * 0.8f;
+                    usedDoubleJump = true;
+                    
+                    // Efeito visual
+                    for (int i = 0; i < 5; i++)
+                    {
+                        Dust.NewDustDirect(Player.position, Player.width, Player.height, DustID.Cloud,
+                            Main.rand.NextFloat(-2f, 2f), Main.rand.NextFloat(-2f, 2f), 0, Color.White);
+                    }
+                    
+                    // Efeito sonoro
+                    SoundEngine.PlaySound(SoundID.Item24, Player.position);
+                }
+            }
+
+            // === WALL JUMP ===
+            if (CombatModeActive && UnlockedWallJump && Player.controlJump && Player.velocity.Y > 0)
+            {
+                if (IsTouchingWall(out int side))
+                {
+                    if (ConsumeStaminaPercent(10f))
+                    {
+                        Player.velocity.Y = -Player.jumpSpeed * 0.9f;
+                        Player.velocity.X = 6f * -side;
+                        
+                        // Efeito visual
+                        for (int i = 0; i < 8; i++)
+                        {
+                            Dust.NewDustDirect(Player.position, Player.width, Player.height, DustID.Stone,
+                                Main.rand.NextFloat(-3f, 3f), Main.rand.NextFloat(-3f, 3f), 0, Color.Gray);
+                        }
+                        
+                        // Efeito sonoro
+                        SoundEngine.PlaySound(SoundID.Item24, Player.position);
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -258,109 +372,100 @@ namespace Wolfgodrpg.Common.Players
         /// <param name="triggersSet">Conjunto de triggers ativos</param>
         public override void ProcessTriggers(TriggersSet triggersSet)
         {
-            // Se autodash estiver ativo, dash ao segurar
-            if (AutoDashEnabled)
+            // === DASH DIRECIONAL NO MODO DE COMBATE ===
+            if (CombatModeActive && UnlockedDash && DashCooldown <= 0)
             {
-                int dirX = 0, dirY = 0;
-                if (Player.controlLeft) dirX--;
-                if (Player.controlRight) dirX++;
-                if (Player.controlUp) dirY--;
-                if (Player.controlDown) dirY++;
-                if ((dirX != 0 || dirY != 0) && DashCooldown <= 0 && DashesUsed < MaxDashes && CurrentStamina >= 20f && dashTimer == 0)
+                Vector2 direction = GetInputDirection();
+                if (direction != Vector2.Zero)
                 {
-                    PerformDash(new Vector2(dirX, dirY));
+                    if (ConsumeStaminaPercent(10f))
+                    {
+                        DashInDirection(direction);
+                        DashCooldown = 60; // 1 segundo
+                    }
                 }
-                return;
             }
 
-            // Double-tap para 4 direções - Lógica corrigida para evitar ativação acidental
-            // Esquerda
-            if (Player.controlLeft)
+            // === SISTEMA LEGADO DE SKILLS (DESATIVADO) ===
+            // Comentado para evitar conflitos com o novo sistema
+            /*
+            if (!CombatModeActive) // Só usa o sistema legado se modo de combate estiver desativado
             {
-                // Só incrementa o timer se não estiver segurando por muito tempo
-                if (leftTapTimer > 0 && leftTapTimer < DoubleTapTime)
+                // Se autodash estiver ativo, dash ao segurar
+                if (AutoDashEnabled)
                 {
-                    leftTapTimer++;
+                    int dirX = 0, dirY = 0;
+                    if (Player.controlLeft) dirX--;
+                    if (Player.controlRight) dirX++;
+                    if (Player.controlUp) dirY--;
+                    if (Player.controlDown) dirY++;
+                    if ((dirX != 0 || dirY != 0) && DashCooldown <= 0 && DashesUsed < MaxDashes && CurrentStamina >= 20f && dashTimer == 0)
+                    {
+                        PerformDash(new Vector2(dirX, dirY));
+                    }
+                    return;
                 }
-                else if (leftTapTimer == 0)
-                {
-                    // Primeiro tap detectado
-                    leftTapTimer = 1;
-                }
-                // Se estiver segurando por muito tempo, não ativa o dash
-            }
-            else
-            {
-                // Quando solta a tecla, verifica se foi um double tap válido
-                if (leftTapTimer > 0 && leftTapTimer < DoubleTapTime && DashCooldown <= 0 && DashesUsed < MaxDashes && CurrentStamina >= 20f && dashTimer == 0)
-                {
-                    PerformDash(new Vector2(-1, 0));
-                }
-                leftTapTimer = 0; // Reset do timer
-            }
 
-            // Direita
-            if (Player.controlRight)
-            {
-                if (rightTapTimer > 0 && rightTapTimer < DoubleTapTime)
+                // Double-tap para 4 direções - Lógica corrigida para evitar ativação acidental
+                // Controle de skills de movimentação
+                foreach (var skill in MovementSkills)
                 {
-                    rightTapTimer++;
-                }
-                else if (rightTapTimer == 0)
-                {
-                    rightTapTimer = 1;
-                }
-            }
-            else
-            {
-                if (rightTapTimer > 0 && rightTapTimer < DoubleTapTime && DashCooldown <= 0 && DashesUsed < MaxDashes && CurrentStamina >= 20f && dashTimer == 0)
-                {
-                    PerformDash(new Vector2(1, 0));
-                }
-                rightTapTimer = 0;
-            }
+                    if (skill is Skills.Movement.MovementDashSkill dashSkill)
+                    {
+                        // Dash com double-tap
+                        if (Player.controlLeft)
+                        {
+                            if (leftTapTimer == 0)
+                                leftTapTimer = DoubleTapTime;
+                            else if (leftTapTimer > 0 && leftTapTimer < DoubleTapTime)
+                            {
+                                dashSkill.Activate(Player);
+                                leftTapTimer = 0;
+                            }
+                            else
+                                leftTapTimer--;
+                        }
+                        else
+                        {
+                            leftTapTimer = 0;
+                        }
 
-            // Cima
-            if (Player.controlUp)
-            {
-                if (upTapTimer > 0 && upTapTimer < DoubleTapTime)
-                {
-                    upTapTimer++;
-                }
-                else if (upTapTimer == 0)
-                {
-                    upTapTimer = 1;
+                        if (Player.controlRight)
+                        {
+                            if (rightTapTimer == 0)
+                                rightTapTimer = DoubleTapTime;
+                            else if (rightTapTimer > 0 && rightTapTimer < DoubleTapTime)
+                            {
+                                dashSkill.Activate(Player);
+                                rightTapTimer = 0;
+                            }
+                            else
+                                rightTapTimer--;
+                        }
+                        else
+                        {
+                            rightTapTimer = 0;
+                        }
+                    }
+                    else if (skill is Skills.Movement.DoubleJumpSkill doubleJumpSkill)
+                    {
+                        // Double jump com tecla de pulo
+                        if (Player.controlJump && !Player.velocity.Y.Equals(0))
+                        {
+                            doubleJumpSkill.Activate(Player);
+                        }
+                    }
+                    else if (skill is Skills.Movement.WallJumpSkill wallJumpSkill)
+                    {
+                        // Wall jump com tecla de pulo
+                        if (Player.controlJump)
+                        {
+                            wallJumpSkill.Activate(Player);
+                        }
+                    }
                 }
             }
-            else
-            {
-                if (upTapTimer > 0 && upTapTimer < DoubleTapTime && DashCooldown <= 0 && DashesUsed < MaxDashes && CurrentStamina >= 20f && dashTimer == 0)
-                {
-                    PerformDash(new Vector2(0, -1));
-                }
-                upTapTimer = 0;
-            }
-
-            // Baixo
-            if (Player.controlDown)
-            {
-                if (downTapTimer > 0 && downTapTimer < DoubleTapTime)
-                {
-                    downTapTimer++;
-                }
-                else if (downTapTimer == 0)
-                {
-                    downTapTimer = 1;
-                }
-            }
-            else
-            {
-                if (downTapTimer > 0 && downTapTimer < DoubleTapTime && DashCooldown <= 0 && DashesUsed < MaxDashes && CurrentStamina >= 20f && dashTimer == 0)
-                {
-                    PerformDash(new Vector2(0, 1));
-                }
-                downTapTimer = 0;
-            }
+            */
         }
 
         /// <summary>
@@ -475,22 +580,8 @@ namespace Wolfgodrpg.Common.Players
         /// <param name="tag">TagCompound para salvar os dados</param>
         public override void SaveData(TagCompound tag)
         {
-            // Serializar ClassLevels
-            var classLevelsList = ClassLevels.Select(kv => new TagCompound {
-                ["key"] = kv.Key,
-                ["value"] = kv.Value
-            }).ToList();
-            tag["ClassLevels"] = classLevelsList;
-
-            // Serializar ClassExperience
-            var classExpList = ClassExperience.Select(kv => new TagCompound {
-                ["key"] = kv.Key,
-                ["value"] = kv.Value
-            }).ToList();
-            tag["ClassExperience"] = classExpList;
-
-            // Salvar habilidades desbloqueadas
-            tag["UnlockedAbilities"] = UnlockedAbilities.Select(a => (int)a).ToList();
+            SubClasses?.SaveData(tag);
+            // A serialização de classes foi movida para SubClassSystem
             // Salvar vitals
             tag["CurrentHunger"] = CurrentHunger;
             tag["CurrentSanity"] = CurrentSanity;
@@ -566,34 +657,8 @@ namespace Wolfgodrpg.Common.Players
         /// <param name="tag">TagCompound contendo os dados salvos</param>
         public override void LoadData(TagCompound tag)
         {
-            // Desserializar ClassLevels
-            ClassLevels.Clear();
-            if (tag.ContainsKey("ClassLevels"))
-            {
-                foreach (var entry in tag.GetList<TagCompound>("ClassLevels"))
-                {
-                    string key = entry.GetString("key");
-                    float value = entry.GetFloat("value");
-                    ClassLevels[key] = value;
-                }
-            }
-            // Desserializar ClassExperience
-            ClassExperience.Clear();
-            if (tag.ContainsKey("ClassExperience"))
-            {
-                foreach (var entry in tag.GetList<TagCompound>("ClassExperience"))
-                {
-                    string key = entry.GetString("key");
-                    float value = entry.GetFloat("value");
-                    ClassExperience[key] = value;
-                }
-            }
-            // Carregar habilidades desbloqueadas
-            if (tag.ContainsKey("UnlockedAbilities"))
-            {
-                var abilityInts = tag.GetList<int>("UnlockedAbilities");
-                UnlockedAbilities = abilityInts.Select(i => (ClassAbility)i).ToList();
-            }
+            SubClasses?.LoadData(tag);
+            // A desserialização de classes foi movida para SubClassSystem
             // Carregar vitals
             if (tag.ContainsKey("CurrentHunger"))
                 CurrentHunger = tag.GetFloat("CurrentHunger");
@@ -858,10 +923,12 @@ namespace Wolfgodrpg.Common.Players
         /// </summary>
         private void UpdateVitals()
         {
-            // Regeneração de vitals
-            CurrentHunger = Math.Min(100f, CurrentHunger + HungerRegenRate * 0.016f); // 60 FPS
-            CurrentSanity = Math.Min(100f, CurrentSanity + SanityRegenRate * 0.016f);
-            CurrentStamina = Math.Min(100f, CurrentStamina + StaminaRegenRate * 0.016f);
+            if (Vitals == null) return;
+            
+            // Regeneração de vitals usando o sistema modular
+            Vitals.RegenerateHunger(0.016f); // 60 FPS
+            Vitals.RegenerateSanity(0.016f);
+            Vitals.RegenerateStamina(0.016f);
             
             // Aplicar efeitos baseados nos vitals
             ApplyVitalEffects();
@@ -905,60 +972,74 @@ namespace Wolfgodrpg.Common.Players
                 if (DashResetTimer <= 0)
                     DashesUsed = 0;
             }
+            
             if (dashTimer > 0)
             {
-                // Girar o sprite durante o dash
-                float t = 1f - (dashTimer / (float)DashDuration);
-                Player.fullRotation = MathHelper.Lerp(dashStartRotation, dashTargetRotation, t);
+                // Calcular progresso da animação (0-1)
+                float progress = 1f - (dashTimer / (float)DashDuration);
+                
+                // Criar uma animação de rolagem suave usando função de easing
+                // Usar uma curva de easing para tornar a animação mais natural
+                float easedProgress = EaseInOutCubic(progress);
+                
+                // Calcular rotação baseada no progresso
+                float rotationAngle = easedProgress * MathHelper.TwoPi; // 360 graus em radianos
+                
+                // Aplicar rotação baseada na direção do dash
+                if (dashDirection.X < 0) // Dash para esquerda
+                {
+                    Player.fullRotation = -rotationAngle;
+                }
+                else if (dashDirection.X > 0) // Dash para direita
+                {
+                    Player.fullRotation = rotationAngle;
+                }
+                else if (dashDirection.Y < 0) // Dash para cima
+                {
+                    Player.fullRotation = rotationAngle;
+                }
+                else if (dashDirection.Y > 0) // Dash para baixo
+                {
+                    Player.fullRotation = -rotationAngle;
+                }
+                
+                // Adicionar efeitos visuais durante o dash
+                if (isDashing && Main.rand.NextBool(3)) // 33% de chance por frame
+                {
+                    // Criar partículas de velocidade
+                    Dust.NewDustDirect(
+                        Player.position + new Vector2(Main.rand.Next(Player.width), Main.rand.Next(Player.height)),
+                        0, 0, DustID.Smoke, 
+                        -dashDirection.X * 2f, -dashDirection.Y * 2f, 
+                        100, Color.White, 0.8f
+                    );
+                }
+                
                 dashTimer--;
                 if (dashTimer == 0)
                 {
+                    // Finalizar animação
                     Player.fullRotation = 0f;
+                    isDashing = false;
+                    dashRollProgress = 0f;
                 }
             }
         }
 
-        /// <summary>
-        /// Executa o dash na direção especificada.
-        /// </summary>
-        /// <param name="direction">Direção do dash (-1 para esquerda, 1 para direita)</param>
-        private void PerformDash(Vector2 direction)
-        {
-            if (DashCooldown > 0 || DashesUsed >= MaxDashes || CurrentStamina < 20f || direction == Vector2.Zero)
-                return;
-            direction.Normalize();
-            CurrentStamina -= 20f;
-            Player.velocity = direction * DashSpeed;
-            DashCooldown = 10;
-            DashesUsed++;
-            DashResetTimer = 180;
-            dashTimer = DashDuration;
-            dashDirection = direction;
-            dashStartRotation = Player.fullRotation;
-            dashTargetRotation = Player.fullRotation + MathHelper.ToRadians(360f) * (direction.X < 0 ? -1 : 1);
-            Player.immune = true;
-            Player.immuneTime = DashInvincibilityFrames;
-            SoundEngine.PlaySound(SoundID.Item24, Player.position);
-        }
+        // Método PerformDash removido - substituído por DashInDirection com animação melhorada
 
         /// <summary>
         /// Adiciona experiência a uma classe específica.
         /// </summary>
         /// <param name="className">Nome da classe</param>
         /// <param name="experience">Quantidade de experiência a adicionar</param>
-        public void AddClassExperience(string className, float experience)
+        public void AddClassExperience(string className, int experience)
         {
-            if (!ClassExperience.ContainsKey(className))
-                ClassExperience[className] = 0f;
-            
-            float oldLevel = ClassLevels.ContainsKey(className) ? ClassLevels[className] : 0f;
-            ClassExperience[className] += experience;
-            
-            // Adicionar notificação de XP
+            SubClasses?.AddXPToSubClass(className, experience);
+
+            // A notificação de XP agora pode ser acionada por um evento dentro do SubClassSystem se necessário,
+            // ou podemos mantê-la aqui se quisermos um ponto de entrada único.
             RPGNotificationSystem.AddXPNotification(className, experience);
-            
-            // Verificar se subiu de nível
-            CheckClassLevelUp(className, oldLevel);
         }
 
         /// <summary>
@@ -983,10 +1064,44 @@ namespace Wolfgodrpg.Common.Players
                 PlayerLevel++;
                 PlayerExperience -= expForNextLevel;
                 AttributePoints += 5; // Ganha 5 pontos de atributo por nível
+                
+                // Desbloquear skills de movimentação
+                UnlockMovementSkills();
+                
                 // Notificação global para todos
                 Main.NewText($"You leveled up to level {PlayerLevel}! You gained 5 attribute points!", Color.Gold);
                 SoundEngine.PlaySound(SoundID.Item37, Player.position);
                 CheckPlayerLevelUp(); // Recursivamente verifica se subiu múltiplos níveis
+            }
+        }
+
+        /// <summary>
+        /// Desbloqueia skills de movimentação baseado no nível do jogador.
+        /// </summary>
+        private void UnlockMovementSkills()
+        {
+            // Double Jump no nível 3
+            if (PlayerLevel == 3 && !UnlockedDoubleJump)
+            {
+                UnlockedDoubleJump = true;
+                Main.NewText("🎯 Double Jump unlocked!", Color.Cyan);
+                SoundEngine.PlaySound(SoundID.Item4, Player.position);
+            }
+            
+            // Wall Jump no nível 4
+            if (PlayerLevel == 4 && !UnlockedWallJump)
+            {
+                UnlockedWallJump = true;
+                Main.NewText("🎯 Wall Jump unlocked!", Color.Cyan);
+                SoundEngine.PlaySound(SoundID.Item4, Player.position);
+            }
+            
+            // Dash aprimorado no nível 5
+            if (PlayerLevel == 5)
+            {
+                DashCooldown = Math.Max(30, DashCooldown - 10); // Reduz cooldown
+                Main.NewText("⚡ Dash improved! Cooldown reduced!", Color.Cyan);
+                SoundEngine.PlaySound(SoundID.Item4, Player.position);
             }
         }
 
@@ -1006,100 +1121,143 @@ namespace Wolfgodrpg.Common.Players
         /// </summary>
         /// <param name="className">Nome da classe</param>
         /// <param name="oldLevel">Nível anterior</param>
-        private void CheckClassLevelUp(string className, float oldLevel)
+        // Os métodos CheckClassLevelUp, GetExperienceForLevel, CheckAbilityUnlock e CheckMilestoneUnlock foram removidos
+        // pois essa lógica agora é gerenciada internamente pelo PlayerSubClass e SubClassSystem.
+
+        /// <summary>
+        /// Consome uma porcentagem da stamina atual.
+        /// </summary>
+        /// <param name="percent">Porcentagem da stamina máxima a consumir (0-100)</param>
+        /// <returns>True se conseguiu consumir a stamina, false se não há stamina suficiente</returns>
+        public bool ConsumeStaminaPercent(float percent)
         {
-            if (!ClassLevels.ContainsKey(className))
-                ClassLevels[className] = 0f;
-            
-            float currentLevel = ClassLevels[className];
-            float currentExp = ClassExperience[className];
-            float expForNextLevel = GetExperienceForLevel(currentLevel + 1);
-            
-            if (currentExp >= expForNextLevel)
+            float cost = 100f * (percent / 100f); // 100f é a stamina máxima
+            if (CurrentStamina >= cost)
             {
-                // Subir de nível
-                ClassLevels[className]++;
-                ClassExperience[className] -= expForNextLevel;
-                // Notificação global para todos
-                Main.NewText($"{GetClassNameDisplay(className)} leveled up to level {ClassLevels[className]}!", Color.Gold);
-                // Adicionar notificação de level up
-                RPGNotificationSystem.AddLevelUpNotification(className, (int)ClassLevels[className]);
-                
-                // Verificar se desbloqueou alguma habilidade
-                CheckAbilityUnlock(className);
-                
-                // Efeitos de level up
-                SoundEngine.PlaySound(SoundID.Item4, Player.position);
+                CurrentStamina -= cost;
+                return true;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Inicializa as skills de movimentação do jogador.
+        /// </summary>
+        public void InitializeMovementSkills()
+        {
+            MovementSkills.Clear();
+            MovementSkills.Add(new Skills.Movement.MovementDashSkill());
+            MovementSkills.Add(new Skills.Movement.DoubleJumpSkill());
+            MovementSkills.Add(new Skills.Movement.WallJumpSkill());
+        }
+
+        /// <summary>
+        /// Obtém uma skill específica por tipo.
+        /// </summary>
+        /// <typeparam name="T">Tipo da skill</typeparam>
+        /// <returns>A skill encontrada ou null</returns>
+        public T GetSkill<T>() where T : BaseSkill
+        {
+            return MovementSkills.OfType<T>().FirstOrDefault();
+        }
+
+        /// <summary>
+        /// Atualiza todas as skills de movimentação.
+        /// </summary>
+        public void UpdateMovementSkills()
+        {
+            foreach (var skill in MovementSkills)
+            {
+                skill.Update(Player);
             }
         }
 
         /// <summary>
-        /// Calcula a experiência necessária para um nível específico.
+        /// Obtém a direção do input do jogador.
         /// </summary>
-        /// <param name="level">Nível desejado</param>
-        /// <returns>Experiência necessária</returns>
-        private float GetExperienceForLevel(float level)
+        /// <returns>Vetor normalizado da direção do input</returns>
+        private Vector2 GetInputDirection()
         {
-            // Fórmula: 100 * level^1.5
-            return 100f * (float)Math.Pow(level, 1.5);
+            Vector2 dir = Vector2.Zero;
+            if (Player.controlUp) dir.Y -= 1;
+            if (Player.controlDown) dir.Y += 1;
+            if (Player.controlLeft) dir.X -= 1;
+            if (Player.controlRight) dir.X += 1;
+
+            if (dir != Vector2.Zero)
+                dir.Normalize();
+
+            return dir;
         }
 
         /// <summary>
-        /// Verifica se o jogador desbloqueou alguma habilidade ao subir de nível.
+        /// Executa dash na direção especificada.
         /// </summary>
-        /// <param name="className">Nome da classe</param>
-        private void CheckAbilityUnlock(string className)
+        /// <param name="direction">Direção do dash</param>
+        private void DashInDirection(Vector2 direction)
         {
-            if (!RPGClassDefinitions.ActionClasses.ContainsKey(className))
+            // Verificar se pode fazer dash
+            if (DashCooldown > 0 || DashesUsed >= MaxDashes || CurrentStamina < 20f || direction == Vector2.Zero)
                 return;
             
-            var classInfo = RPGClassDefinitions.ActionClasses[className];
-            float currentLevel = ClassLevels[className];
+            direction.Normalize();
             
-            // Verificar milestones antigas (sistema legado)
-            foreach (var milestone in classInfo.Milestones)
+            // Consumir stamina
+            CurrentStamina -= 20f;
+            
+            // Aplicar velocidade do dash
+            Player.velocity = direction * DashSpeed;
+            
+            // Configurar cooldown e contadores
+            DashCooldown = 60; // 1 segundo
+            DashesUsed++;
+            DashResetTimer = 180;
+            
+            // Inicializar animação de rolagem
+            dashTimer = DashDuration;
+            dashDirection = direction;
+            dashRollProgress = 0f;
+            isDashing = true;
+            
+            // Resetar rotação inicial
+            Player.fullRotation = 0f;
+            
+            // Aplicar invencibilidade
+            Player.immune = true;
+            Player.immuneTime = DashInvincibilityFrames;
+            
+            // Efeito sonoro
+            SoundEngine.PlaySound(SoundID.Item24, Player.position);
+            
+            // Efeito visual inicial
+            for (int i = 0; i < 12; i++)
             {
-                if (currentLevel >= (int)milestone.Key && !UnlockedAbilities.Contains(milestone.Key))
-                {
-                    UnlockedAbilities.Add(milestone.Key);
-                    // TODO: Notificar o jogador sobre a nova habilidade
-                }
+                Dust.NewDustDirect(
+                    Player.position + new Vector2(Main.rand.Next(Player.width), Main.rand.Next(Player.height)),
+                    0, 0, DustID.Smoke,
+                    -direction.X * 3f, -direction.Y * 3f, 
+                    150, Color.White, 1.5f
+                );
             }
-            
-            // Verificar novas milestones
-            CheckMilestoneUnlock(className, currentLevel);
         }
 
         /// <summary>
-        /// Verifica se o jogador desbloqueou alguma milestone ao subir de nível.
+        /// Verifica se o jogador está tocando uma parede.
         /// </summary>
-        /// <param name="className">Nome da classe</param>
-        /// <param name="currentLevel">Nível atual da classe</param>
-        private void CheckMilestoneUnlock(string className, float currentLevel)
+        /// <param name="side">Lado da parede (-1 esquerda, 1 direita)</param>
+        /// <returns>True se está tocando uma parede</returns>
+        private bool IsTouchingWall(out int side)
         {
-            if (!RPGClassMilestones.ClassMilestones.ContainsKey(className))
-                return;
-
-            var milestones = RPGClassMilestones.ClassMilestones[className];
-            var newlyUnlocked = milestones.Where(m => m.Level <= currentLevel && !m.IsUnlocked).ToList();
-
-            foreach (var milestone in newlyUnlocked)
-            {
-                milestone.IsUnlocked = true;
+            side = 0;
+            var pos = Player.position;
+            var h = Player.height;
+            
+            if (Collision.SolidCollision(pos + new Vector2(-2, 0), 2, h))
+                side = -1;
+            else if (Collision.SolidCollision(pos + new Vector2(Player.width, 0), 2, h))
+                side = 1;
                 
-                // Notificação global para todos
-                Main.NewText($"🎯 {milestone.Name} unlocked! {milestone.Description}", Color.Gold);
-                
-                // Efeito sonoro
-                SoundEngine.PlaySound(SoundID.Item4, Player.position);
-                
-                // Efeito visual (partículas douradas)
-                for (int i = 0; i < 10; i++)
-                {
-                    Dust.NewDust(Player.position, Player.width, Player.height, DustID.GoldCoin, 
-                                Main.rand.NextFloat(-2f, 2f), Main.rand.NextFloat(-2f, 2f), 0, Color.Gold);
-                }
-            }
+            return side != 0;
         }
 
         /// <summary>

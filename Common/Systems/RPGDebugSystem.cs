@@ -10,20 +10,19 @@ namespace Wolfgodrpg.Common.Systems
 {
     public class RPGDebugSystem : ModSystem
     {
-        private int debugCounter = 0;
         private const int DEBUG_INTERVAL = 300; // 5 segundos (60 FPS * 5)
 
         public override void PostUpdateWorld()
         {
             // TEMPORARIAMENTE DESABILITADO PARA EVITAR SPAM DE LOGS
             /*
-            debugCounter++;
+            // debugCounter++;
             
-            if (debugCounter >= DEBUG_INTERVAL)
-            {
-                debugCounter = 0;
-                RunDebugChecks();
-            }
+            // if (debugCounter >= DEBUG_INTERVAL)
+            // {
+            //     debugCounter = 0;
+            //     RunDebugChecks();
+            // }
             */
         }
 
@@ -34,24 +33,22 @@ namespace Wolfgodrpg.Common.Systems
 
             var rpgPlayer = player.GetModPlayer<RPGPlayer>();
             
-            // Debug: Verificar se as classes estão sendo inicializadas
+            // Debug: Verificar se as subclasses estão sendo inicializadas
             DebugLog.System("DebugCheck", $"=== DEBUG CHECK ===");
             DebugLog.System("DebugCheck", $"Player: {player.name}");
-            DebugLog.System("DebugCheck", $"ClassLevels.Count: {rpgPlayer.ClassLevels.Count}");
-            DebugLog.System("DebugCheck", $"ClassExperience.Count: {rpgPlayer.ClassExperience.Count}");
+            DebugLog.System("DebugCheck", $"SubClasses.Count: {rpgPlayer.SubClasses.SubClasses.Count}");
             
-            if (rpgPlayer.ClassLevels.Count > 0)
+            if (rpgPlayer.SubClasses.SubClasses.Count > 0)
             {
-                DebugLog.System("DebugCheck", $"Available classes: {string.Join(", ", rpgPlayer.ClassLevels.Keys)}");
-                foreach (var kvp in rpgPlayer.ClassLevels)
+                DebugLog.System("DebugCheck", $"Available subclasses: {string.Join(", ", rpgPlayer.SubClasses.SubClasses.Select(sc => sc.Name))}");
+                foreach (var subClass in rpgPlayer.SubClasses.SubClasses)
                 {
-                    float xp = rpgPlayer.ClassExperience.TryGetValue(kvp.Key, out float exp) ? exp : 0f;
-                    DebugLog.System("DebugCheck", $"  {kvp.Key}: Level {kvp.Value:F1}, XP {xp:F1}");
+                    DebugLog.System("DebugCheck", $"  {subClass.Name}: Level {subClass.Level}, XP {subClass.XP}");
                 }
             }
             else
             {
-                DebugLog.Warn("System", "DebugCheck", "ClassLevels is empty!");
+                DebugLog.Warn("System", "DebugCheck", "SubClasses is empty!");
             }
 
             // Debug: Verificar se os itens estão funcionando
@@ -88,7 +85,7 @@ namespace Wolfgodrpg.Common.Systems
                 if (player?.active == true)
                 {
                     var rpgPlayer = player.GetModPlayer<RPGPlayer>();
-                    rpgPlayer.AddClassExperience("warrior", 50f);
+                    rpgPlayer.AddClassExperience("warrior", (int)50f);
                     DebugLog.Gameplay("Debug", "ManualTest", "XP manual de warrior concedido via F1");
                 }
             }

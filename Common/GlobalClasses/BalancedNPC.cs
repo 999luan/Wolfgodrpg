@@ -110,17 +110,11 @@ namespace Wolfgodrpg.Common.GlobalClasses
             foreach (var player in nearbyPlayers)
             {
                 var modPlayer = player.GetModPlayer<RPGPlayer>();
-                float level = 0f;
-                modPlayer.ClassLevels.TryGetValue("warrior", out level);
-                totalLevel += level;
-                modPlayer.ClassLevels.TryGetValue("archer", out level);
-                totalLevel += level;
-                modPlayer.ClassLevels.TryGetValue("mage", out level);
-                totalLevel += level;
-                modPlayer.ClassLevels.TryGetValue("summoner", out level);
-                totalLevel += level;
-                modPlayer.ClassLevels.TryGetValue("warrior", out level); // Defesa vai para guerreiro
-                totalLevel += level;
+                // Sum levels from all unlocked subclasses
+                foreach (var subClass in modPlayer.SubClasses.SubClasses.Where(s => s.IsUnlocked))
+                {
+                    totalLevel += subClass.Level;
+                }
             }
             
             float averageLevel = totalLevel / (nearbyPlayers.Count * 5f);
@@ -207,7 +201,9 @@ namespace Wolfgodrpg.Common.GlobalClasses
             string className = RPGClassActionMapper.MapDamageTypeToClass(item.DamageType);
 
             // Apply damage bonus based on class level
-            modifiers.SourceDamage *= 1f + (modPlayer.ClassLevels.TryGetValue(className, out var dmgLevel) ? dmgLevel : 0f) * 0.01f;
+            // Get the level of the relevant subclass from the SubClassSystem
+            float classLevel = modPlayer.SubClasses.SubClasses.FirstOrDefault(sc => sc.Name.ToLower() == className.ToLower())?.Level ?? 0f;
+            modifiers.SourceDamage *= 1f + classLevel * 0.01f;
             RPGClassActionMapper.MapCombatAction(CombatAction.HitNPC, item.damage, item.DamageType);
 
             if (IsElite)
@@ -215,7 +211,7 @@ namespace Wolfgodrpg.Common.GlobalClasses
                 modifiers.FinalDamage *= 0.5f;
             }
             
-            float levelDifference = GetNPCLevel(npc) - (modPlayer.ClassLevels.TryGetValue(className, out var diffLevel) ? diffLevel : 0f);
+            float levelDifference = GetNPCLevel(npc) - classLevel;
             float levelModifier = 1.0f + (levelDifference * 0.02f);
             levelModifier = Math.Max(0.5f, Math.Min(levelModifier, 1.5f));
             
@@ -232,7 +228,9 @@ namespace Wolfgodrpg.Common.GlobalClasses
                 string className = RPGClassActionMapper.MapDamageTypeToClass(projectile.DamageType);
 
                 // Apply damage bonus based on class level
-                modifiers.SourceDamage *= 1f + (modPlayer.ClassLevels.TryGetValue(className, out var projLevel) ? projLevel : 0f) * 0.01f;
+                // Get the level of the relevant subclass from the SubClassSystem
+                float classLevel = modPlayer.SubClasses.SubClasses.FirstOrDefault(sc => sc.Name.ToLower() == className.ToLower())?.Level ?? 0f;
+                modifiers.SourceDamage *= 1f + classLevel * 0.01f;
                 RPGClassActionMapper.MapCombatAction(CombatAction.HitNPC, projectile.damage, projectile.DamageType);
             }
         }
@@ -243,7 +241,7 @@ namespace Wolfgodrpg.Common.GlobalClasses
             var modPlayer = target.GetModPlayer<RPGPlayer>();
             
             float damageReduction = 1.0f;
-            float defenseLevel = modPlayer.ClassLevels.TryGetValue("warrior", out var defLevel) ? defLevel : 0f;
+            float defenseLevel = modPlayer.SubClasses.SubClasses.FirstOrDefault(sc => sc.Name.ToLower() == "warrior")?.Level ?? 0f;
             damageReduction -= defenseLevel * 0.01f;
             
             damageReduction = Math.Max(0.3f, Math.Min(damageReduction, 1.0f));
@@ -301,11 +299,11 @@ namespace Wolfgodrpg.Common.GlobalClasses
                     float summonerExp = baseExp * 0.2f;
                     float defenseExp = baseExp * 0.1f;
                     
-                    modPlayer.AddClassExperience("warrior", meleeExp);
-                    modPlayer.AddClassExperience("archer", rangedExp);
-                    modPlayer.AddClassExperience("mage", magicExp);
-                    modPlayer.AddClassExperience("summoner", summonerExp);
-                    modPlayer.AddClassExperience("warrior", defenseExp); // Defesa vai para guerreiro
+                    modPlayer.AddClassExperience("warrior", (int)meleeExp);
+                    modPlayer.AddClassExperience("archer", (int)rangedExp);
+                    modPlayer.AddClassExperience("mage", (int)magicExp);
+                    modPlayer.AddClassExperience("summoner", (int)summonerExp);
+                    modPlayer.AddClassExperience("warrior", (int)defenseExp); // Defesa vai para guerreiro
                     
                     playersGainedExp++;
                     
@@ -372,7 +370,7 @@ namespace Wolfgodrpg.Common.GlobalClasses
 
             // Dar XP de defesa quando recebe dano
             float defenseXP = hurtInfo.Damage * 0.2f;
-            modPlayer.AddClassExperience("warrior", defenseXP);
+            modPlayer.AddClassExperience("warrior", (int)defenseXP);
             
             // DebugLog.Gameplay("NPC", "OnHitPlayer", $"Player '{target.name}' hit by '{npc.FullName}' - Damage: {hurtInfo.Damage}, Defense XP: {defenseXP:F1}");
 
@@ -393,11 +391,7 @@ namespace Wolfgodrpg.Common.GlobalClasses
 
         public static bool CanDefeatBoss(string bossName, RPGPlayer rpgPlayer)
         {
-            float totalLevel = 0f;
-            totalLevel += rpgPlayer.ClassLevels.TryGetValue("warrior", out var t1) ? t1 : 0f;
-            totalLevel += rpgPlayer.ClassLevels.TryGetValue("archer", out var t2) ? t2 : 0f;
-            totalLevel += rpgPlayer.ClassLevels.TryGetValue("mage", out var t3) ? t3 : 0f;
-            totalLevel += rpgPlayer.ClassLevels.TryGetValue("summoner", out var t4) ? t4 : 0f;
+            float totalLevel = rpgPlayer.SubClasses.GetTotalLevel();
             
             switch (bossName.ToLower())
             {
