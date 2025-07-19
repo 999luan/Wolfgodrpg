@@ -1,112 +1,63 @@
 using Microsoft.Xna.Framework;
 using Terraria;
-using Terraria.ID;
 using Terraria.Audio;
-using Wolfgodrpg.Common.Skills;
+using Terraria.ID;
+using Wolfgodrpg.Common.Players;
 
 namespace Wolfgodrpg.Common.Skills.Movement
 {
-    /// <summary>
-    /// Skill de dash que permite movimento rápido na horizontal.
-    /// </summary>
     public class MovementDashSkill : BaseSkill
     {
-        /// <summary>
-        /// Velocidade do dash em pixels por frame.
-        /// </summary>
-        public float DashSpeed { get; set; } = 12f;
-
-        /// <summary>
-        /// Duração do dash em frames.
-        /// </summary>
-        public int DashDuration { get; set; } = 15;
-
-        /// <summary>
-        /// Frames de invencibilidade durante o dash.
-        /// </summary>
-        public int InvincibilityFrames { get; set; } = 15;
-
-        /// <summary>
-        /// Timer atual do dash.
-        /// </summary>
-        private int dashTimer = 0;
-
-        /// <summary>
-        /// Direção atual do dash.
-        /// </summary>
-        private Vector2 dashDirection = Vector2.Zero;
-
         public MovementDashSkill()
         {
             Name = "Dash";
-            Description = "Dá um impulso rápido para frente.\nConsome 10% de Stamina.";
-            Cooldown = 30; // 0.5 segundos
-            Level = 1; // Começa desbloqueada
-            StaminaCost = 10f; // 10% da stamina
+            Description = "Perform a quick dash in the direction of movement.";
+            Cooldown = 60; // 1 second
+            StaminaCost = 10; // Example cost
+            Level = 1; // Unlocked by default for testing
         }
 
         protected override bool OnActivate(Player player)
         {
-            // Determinar direção do dash
-            int dashDir = 0;
-            if (player.controlLeft) dashDir = -1;
-            else if (player.controlRight) dashDir = 1;
+            var modPlayer = player.GetModPlayer<RPGPlayer>();
+            if (modPlayer == null) return false;
 
-            if (dashDir == 0) return false; // Sem direção
+            // Get input direction
+            Vector2 direction = Vector2.Zero;
+            if (player.controlUp) direction.Y -= 1;
+            if (player.controlDown) direction.Y += 1;
+            if (player.controlLeft) direction.X -= 1;
+            if (player.controlRight) direction.X += 1;
 
-            // Aplicar dash
-            dashDirection = new Vector2(dashDir, 0);
-            dashTimer = DashDuration;
-            
-            // Aplicar velocidade
-            player.velocity.X = DashSpeed * dashDir;
-            
-            // Aplicar invencibilidade
+            if (direction == Vector2.Zero) return false; // No direction, no dash
+
+            direction.Normalize();
+
+            // Apply dash velocity
+            player.velocity = direction * modPlayer.DashSpeed;
+
+            // Set invincibility frames
             player.immune = true;
-            player.immuneTime = InvincibilityFrames;
-            
-            // Efeito sonoro
+            player.immuneTime = modPlayer.DashInvincibilityFrames;
+
+            // Play sound and create dust effects
             SoundEngine.PlaySound(SoundID.Item24, player.position);
-            
+            for (int i = 0; i < 12; i++)
+            {
+                Dust.NewDustDirect(
+                    player.position + new Vector2(Main.rand.Next(player.width), Main.rand.Next(player.height)),
+                    0, 0, DustID.Smoke,
+                    -direction.X * 3f, -direction.Y * 3f,
+                    150, Color.White, 1.5f
+                );
+            }
+
+            // Reset dash state in RPGPlayer
+            modPlayer.DashCooldown = Cooldown; // Use skill's cooldown
+            modPlayer.DashesUsed++;
+            modPlayer.DashResetTimer = 180; // Example reset timer
+
             return true;
         }
-
-        public override void Update(Player player)
-        {
-            base.Update(player);
-
-            // Atualizar timer do dash
-            if (dashTimer > 0)
-            {
-                dashTimer--;
-                
-                // Manter velocidade durante o dash
-                if (dashDirection.X != 0)
-                {
-                    player.velocity.X = DashSpeed * dashDirection.X;
-                }
-                
-                // Resetar quando o dash terminar
-                if (dashTimer <= 0)
-                {
-                    dashDirection = Vector2.Zero;
-                }
-            }
-        }
-
-        /// <summary>
-        /// Verifica se o jogador está atualmente fazendo dash.
-        /// </summary>
-        public bool IsDashing => dashTimer > 0;
-
-        /// <summary>
-        /// Obtém a direção atual do dash.
-        /// </summary>
-        public Vector2 GetDashDirection() => dashDirection;
-
-        /// <summary>
-        /// Obtém o tempo restante do dash em frames.
-        /// </summary>
-        public int GetDashTimeRemaining() => dashTimer;
     }
-} 
+}

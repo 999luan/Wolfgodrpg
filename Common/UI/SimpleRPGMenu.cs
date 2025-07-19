@@ -38,10 +38,11 @@ namespace Wolfgodrpg.Common.UI
         private List<UITextPanel<string>> _tabButtons;
         private MenuPage _currentPage = MenuPage.Stats;
 
-        private RPGStatsPageUI _statsPageUI;
-        private RPGClassesPageUI _classesPageUI;
-        private RPGSkillsPageUI _skillsPageUI;
-        private RPGProgressPageUI _progressPageUI;
+        // DESATIVADO - Classes de UI antigas substituídas pelo novo sistema
+        // private RPGStatsPageUI _statsPageUI;
+        // private RPGClassesPageUI _classesPageUI;
+        // private RPGSkillsPageUI _skillsPageUI;
+        // private RPGProgressPageUI _progressPageUI;
         private RPGProficienciesPageUI _proficienciesPageUI;
 
         // Sistema de atualização automática
@@ -88,21 +89,13 @@ namespace Wolfgodrpg.Common.UI
             _pageContainer.Top.Set(80f, 0f);
             _mainPanel.Append(_pageContainer);
 
-            _statsPageUI = new RPGStatsPageUI();
-            _statsPageUI.Activate();
-            _classesPageUI = new RPGClassesPageUI();
-            _classesPageUI.Activate();
-            _skillsPageUI = new RPGSkillsPageUI();
-            _skillsPageUI.Activate();
-            _progressPageUI = new RPGProgressPageUI();
-            _progressPageUI.Activate();
             _proficienciesPageUI = new RPGProficienciesPageUI();
             _proficienciesPageUI.Activate();
             
-            _pages = new List<UIElement> { _statsPageUI, _classesPageUI, _skillsPageUI, _progressPageUI, _proficienciesPageUI };
+            _pages = new List<UIElement> { _proficienciesPageUI };
             _tabButtons = new List<UITextPanel<string>>();
 
-            string[] tabNames = { "Stats", "Classes", "Skills", "Progress", "Proficiencies" };
+            string[] tabNames = { "Proficiencies" };
             float buttonWidth = 120f;
             int tabCount = tabNames.Length;
             float totalWidth = tabCount * buttonWidth;
@@ -123,7 +116,7 @@ namespace Wolfgodrpg.Common.UI
                 DebugLog.UI("OnInitialize", $"Tab button '{tabNames[i]}' created at slot {i}");
             }
 
-            SetPage(MenuPage.Stats);
+            SetPage(MenuPage.Proficiencies);
             
             DebugLog.UI("OnInitialize", "SimpleRPGMenu initialized successfully");
         }
@@ -208,30 +201,49 @@ namespace Wolfgodrpg.Common.UI
         {
             if (_lastPlayerData == null) return true;
 
+            // DESATIVADO - Verificações de classes movidas para SubClassSystem
             // Verificar mudanças nos níveis das classes
-            foreach (var kvp in currentPlayer.ClassLevels)
-            {
-                if (!_lastPlayerData.ClassLevels.ContainsKey(kvp.Key) || 
-                    Math.Abs(_lastPlayerData.ClassLevels[kvp.Key] - kvp.Value) > 0.01f)
-                {
-                    return true;
-                }
-            }
+            // foreach (var kvp in currentPlayer.ClassLevels)
+            // {
+            //     if (!_lastPlayerData.ClassLevels.ContainsKey(kvp.Key) || 
+            //         Math.Abs(_lastPlayerData.ClassLevels[kvp.Key] - kvp.Value) > 0.01f)
+            //     {
+            //         return true;
+            //     }
+            // }
 
             // Verificar mudanças no XP das classes
-            foreach (var kvp in currentPlayer.ClassExperience)
-            {
-                if (!_lastPlayerData.ClassExperience.ContainsKey(kvp.Key) || 
-                    Math.Abs(_lastPlayerData.ClassExperience[kvp.Key] - kvp.Value) > 1f)
-                {
-                    return true;
-                }
-            }
+            // foreach (var kvp in currentPlayer.ClassExperience)
+            // {
+            //     if (!_lastPlayerData.ClassExperience.ContainsKey(kvp.Key) || 
+            //         Math.Abs(_lastPlayerData.ClassExperience[kvp.Key] - kvp.Value) > 1f)
+            //     {
+            //         return true;
+            //     }
+            // }
 
-            // Verificar mudanças nos vitais
+            // Verificar mudanças nos vitals
             if (Math.Abs(_lastPlayerData.CurrentHunger - currentPlayer.CurrentHunger) > 1f ||
                 Math.Abs(_lastPlayerData.CurrentSanity - currentPlayer.CurrentSanity) > 1f ||
                 Math.Abs(_lastPlayerData.CurrentStamina - currentPlayer.CurrentStamina) > 1f)
+            {
+                return true;
+            }
+
+            // Verificar mudanças no modo de combate
+            if (_lastPlayerData.CombatModeActive != currentPlayer.CombatModeActive)
+            {
+                return true;
+            }
+
+            // Verificar mudanças no nível do jogador
+            if (_lastPlayerData.PlayerLevel != currentPlayer.PlayerLevel)
+            {
+                return true;
+            }
+
+            // Verificar mudanças nas skills de movimentação
+            if (_lastPlayerData.MovementSkills.Count != currentPlayer.MovementSkills.Count)
             {
                 return true;
             }
@@ -266,22 +278,27 @@ namespace Wolfgodrpg.Common.UI
         {
             var clone = new RPGPlayer();
             
+            // DESATIVADO - Clonagem de classes movida para SubClassSystem
             // Clonar níveis das classes
-            foreach (var kvp in original.ClassLevels)
-            {
-                clone.ClassLevels[kvp.Key] = kvp.Value;
-            }
+            // foreach (var kvp in original.ClassLevels)
+            // {
+            //     clone.ClassLevels[kvp.Key] = kvp.Value;
+            // }
             
             // Clonar XP das classes
-            foreach (var kvp in original.ClassExperience)
-            {
-                clone.ClassExperience[kvp.Key] = kvp.Value;
-            }
+            // foreach (var kvp in original.ClassExperience)
+            // {
+            //     clone.ClassExperience[kvp.Key] = kvp.Value;
+            // }
             
             // Clonar vitais
             clone.CurrentHunger = original.CurrentHunger;
             clone.CurrentSanity = original.CurrentSanity;
             clone.CurrentStamina = original.CurrentStamina;
+
+            // Clonar modo de combate e nível
+            clone.CombatModeActive = original.CombatModeActive;
+            clone.PlayerLevel = original.PlayerLevel;
 
             // Clonar proficiências de armadura
             foreach (var kvp in original.ArmorProficiencyLevels)
@@ -311,32 +328,17 @@ namespace Wolfgodrpg.Common.UI
                 return;
             }
 
+            // DESATIVADO - Verificação de classes movida para SubClassSystem
             // Check if classes were initialized
-            if (modPlayer.ClassLevels == null || modPlayer.ClassLevels.Count == 0)
-            {
-                DebugLog.UI("SetPage", "Classes not initialized, skipping update");
-                return;
-            }
+            // if (modPlayer.ClassLevels == null || modPlayer.ClassLevels.Count == 0)
+            // {
+            //     DebugLog.UI("SetPage", "Classes not initialized, skipping update");
+            //     return;
+            // }
 
             // Optimized update: only when changing tabs
             switch (_currentPage)
             {
-                case MenuPage.Stats:
-                    _statsPageUI.UpdateStats(modPlayer);
-                    DebugLog.UI("SetPage", "Stats tab updated");
-                    break;
-                case MenuPage.Classes:
-                    _classesPageUI.UpdateClasses(modPlayer);
-                    DebugLog.UI("SetPage", "Classes tab updated");
-                    break;
-                case MenuPage.Skills:
-                    _skillsPageUI.UpdateSkills(modPlayer);
-                    DebugLog.UI("SetPage", "Skills tab updated");
-                    break;
-                case MenuPage.Progress:
-                    _progressPageUI.UpdateProgress(modPlayer);
-                    DebugLog.UI("SetPage", "Progress tab updated");
-                    break;
                 case MenuPage.Proficiencies:
                     _proficienciesPageUI.UpdateProficiencies(modPlayer);
                     DebugLog.UI("SetPage", "Proficiencies tab updated");

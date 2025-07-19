@@ -17,6 +17,8 @@ namespace Wolfgodrpg.Common.UI
         private ClassesPanel classesPanel;
         private ProficienciesPanel proficienciesPanel;
 
+        private UIList tabButtonsList;
+
         public override void OnInitialize()
         {
             mainPanel = new UIPanel();
@@ -43,24 +45,33 @@ namespace Wolfgodrpg.Common.UI
             closeButton.OnLeftClick += (evt, elem) => ModContent.GetInstance<Systems.WolfgodUISystem>().HideMasterUI();
             mainPanel.Append(closeButton);
 
-            // Tab buttons
+            // Tab buttons list
+            tabButtonsList = new UIList();
+            tabButtonsList.Width.Set(140, 0);
+            tabButtonsList.Height.Set(-80, 1f); // Take up most of the height, leave space for title/close
+            tabButtonsList.Top.Set(50, 0);
+            tabButtonsList.Left.Set(10, 0);
+            tabButtonsList.ListPadding = 5f;
+            mainPanel.Append(tabButtonsList);
+
+            // Add tab buttons to the list
             var attributesTabButton = new UITextPanel<string>("Attributes", 1f, false);
-            attributesTabButton.Top.Set(50, 0);
-            attributesTabButton.Left.Set(10, 0);
+            attributesTabButton.Width.Set(0, 1f);
+            attributesTabButton.Height.Set(40, 0);
             attributesTabButton.OnLeftClick += (evt, elem) => SetActivePanel(attributesPanel);
-            mainPanel.Append(attributesTabButton);
+            tabButtonsList.Add(attributesTabButton);
 
             var classesTabButton = new UITextPanel<string>("Classes", 1f, false);
-            classesTabButton.Top.Set(95, 0);
-            classesTabButton.Left.Set(10, 0);
+            classesTabButton.Width.Set(0, 1f);
+            classesTabButton.Height.Set(40, 0);
             classesTabButton.OnLeftClick += (evt, elem) => SetActivePanel(classesPanel);
-            mainPanel.Append(classesTabButton);
+            tabButtonsList.Add(classesTabButton);
 
             var proficienciesTabButton = new UITextPanel<string>("Proficiencies", 1f, false);
-            proficienciesTabButton.Top.Set(140, 0);
-            proficienciesTabButton.Left.Set(10, 0);
+            proficienciesTabButton.Width.Set(0, 1f);
+            proficienciesTabButton.Height.Set(40, 0);
             proficienciesTabButton.OnLeftClick += (evt, elem) => SetActivePanel(proficienciesPanel);
-            mainPanel.Append(proficienciesTabButton);
+            tabButtonsList.Add(proficienciesTabButton);
         }
 
         public override void OnActivate()
@@ -69,22 +80,23 @@ namespace Wolfgodrpg.Common.UI
             var player = Main.LocalPlayer.GetModPlayer<RPGPlayer>();
             if (player == null) return;
 
+            // Initialize panels with dynamic sizing
             attributesPanel = new AttributesPanel(player);
             attributesPanel.Top.Set(50, 0);
-            attributesPanel.Left.Set(150, 0);
-            attributesPanel.Width.Set(-160, 1f);
+            attributesPanel.Left.Set(160, 0);
+            attributesPanel.Width.Set(-170, 1f); // Adjust width to account for tab buttons
             attributesPanel.Height.Set(-60, 1f);
 
             classesPanel = new ClassesPanel(player);
             classesPanel.Top.Set(50, 0);
-            classesPanel.Left.Set(150, 0);
-            classesPanel.Width.Set(-160, 1f);
+            classesPanel.Left.Set(160, 0);
+            classesPanel.Width.Set(-170, 1f);
             classesPanel.Height.Set(-60, 1f);
 
             proficienciesPanel = new ProficienciesPanel(player);
             proficienciesPanel.Top.Set(50, 0);
-            proficienciesPanel.Left.Set(150, 0);
-            proficienciesPanel.Width.Set(-160, 1f);
+            proficienciesPanel.Left.Set(160, 0);
+            proficienciesPanel.Width.Set(-170, 1f);
             proficienciesPanel.Height.Set(-60, 1f);
 
             SetActivePanel(attributesPanel);

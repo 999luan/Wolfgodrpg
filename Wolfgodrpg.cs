@@ -5,6 +5,7 @@ using Terraria;
 using Terraria.ModLoader.Config;
 using Wolfgodrpg.Common.Systems;
 using System.IO;
+using System.Linq;
 using Terraria.ID;
 using Wolfgodrpg.Common.Classes;
 using Wolfgodrpg.Common.Network;
@@ -43,9 +44,7 @@ namespace Wolfgodrpg
 			// Adicionar callback para XP de criação
 			foreach (Recipe recipe in Main.recipe)
 			{
-				recipe.AddOnCraftCallback((Recipe r, Item item, List<Item> consumedItems, Item destinationStack) => {
-					RPGActionSystem.OnCraft(item);
-				});
+				recipe.AddOnCraftCallback((r, item, consumedItems, destinationStack) => RPGActionSystem.OnCraft(item));
 			}
 		}
 
@@ -75,7 +74,7 @@ namespace Wolfgodrpg
                         int xp = reader.ReadInt32();
                         bool isUnlocked = reader.ReadBoolean();
 
-                        var subClass = modPlayer.SubClasses.SubClasses.FirstOrDefault(sc => sc.Name == subclassName);
+                        var subClass = ((IEnumerable<Common.Classes.PlayerSubClass>)modPlayer.SubClasses.SubClasses).FirstOrDefault(sc => sc.Name == subclassName);
                         if (subClass != null)
                         {
                             subClass.SetLevel(level);

@@ -9,6 +9,8 @@ namespace Wolfgodrpg.Common.UI.MasterUIElements
     public class AttributesPanel : UIPanel
     {
         private readonly RPGPlayer _player;
+        private UIList _attributeList;
+        private UIScrollbar _attributeScrollbar;
 
         public AttributesPanel(RPGPlayer player)
         {
@@ -34,23 +36,45 @@ namespace Wolfgodrpg.Common.UI.MasterUIElements
             pointsText.HAlign = 0.5f;
             Append(pointsText);
 
-            // Attributes
-            int yOffset = 110;
-            Append(CreateAttributeRow("Strength", _player.Strength, ref yOffset));
-            Append(CreateAttributeRow("Dexterity", _player.Dexterity, ref yOffset));
-            Append(CreateAttributeRow("Intelligence", _player.Intelligence, ref yOffset));
-            Append(CreateAttributeRow("Constitution", _player.Constitution, ref yOffset));
-            Append(CreateAttributeRow("Wisdom", _player.Wisdom, ref yOffset));
+            // Attribute List
+            _attributeList = new UIList();
+            _attributeList.Width.Set(-20, 1f);
+            _attributeList.Height.Set(-100, 1f); // Adjust height to make space for level/xp/points
+            _attributeList.Top.Set(100, 0);
+            _attributeList.Left.Set(0, 0);
+            _attributeList.ListPadding = 5f;
+            Append(_attributeList);
+
+            _attributeScrollbar = new UIScrollbar();
+            _attributeScrollbar.SetView(100f, 1000f); // Placeholder values, will adjust dynamically
+            _attributeScrollbar.Height.Set(-100, 1f);
+            _attributeScrollbar.Top.Set(100, 0);
+            _attributeScrollbar.Left.Set(-20, 1f);
+            Append(_attributeScrollbar);
+
+            _attributeList.SetScrollbar(_attributeScrollbar);
+
+            // Populate attributes
+            PopulateAttributes();
         }
 
-        private UIElement CreateAttributeRow(string name, int value, ref int yOffset)
+        private void PopulateAttributes()
+        {
+            _attributeList.Clear();
+
+            _attributeList.Add(CreateAttributeRow("Strength", _player.Strength));
+            _attributeList.Add(CreateAttributeRow("Dexterity", _player.Dexterity));
+            _attributeList.Add(CreateAttributeRow("Intelligence", _player.Intelligence));
+            _attributeList.Add(CreateAttributeRow("Constitution", _player.Constitution));
+            _attributeList.Add(CreateAttributeRow("Wisdom", _player.Wisdom));
+        }
+
+        private UIElement CreateAttributeRow(string name, int value)
         {
             var row = new UIPanel();
             row.Width.Set(0, 1f);
             row.Height.Set(40, 0);
-            row.Top.Set(yOffset, 0);
             row.BackgroundColor = new Color(50, 60, 70) * 0.8f;
-            yOffset += 45;
 
             var nameText = new UIText(name, 1f);
             nameText.Left.Set(15, 0);
@@ -71,8 +95,6 @@ namespace Wolfgodrpg.Common.UI.MasterUIElements
             plusButton.OnLeftClick += (evt, elem) => {
                 if (_player.AttributePoints > 0)
                 {
-                    // This is a simplified way to handle stat increases.
-                    // A more robust system would use a method in RPGPlayer.
                     _player.AttributePoints--;
                     switch (name)
                     {
@@ -82,6 +104,7 @@ namespace Wolfgodrpg.Common.UI.MasterUIElements
                         case "Constitution": _player.Constitution++; break;
                         case "Wisdom": _player.Wisdom++; break;
                     }
+                    PopulateAttributes(); // Re-populate to update values
                 }
             };
             row.Append(plusButton);

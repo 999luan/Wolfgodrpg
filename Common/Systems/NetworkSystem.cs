@@ -2,6 +2,7 @@ using Terraria;
 using Terraria.ModLoader;
 using Terraria.ID;
 using System.IO;
+using System.Linq;
 using Wolfgodrpg.Common.Players;
 using Wolfgodrpg.Common.Classes;
 using Wolfgodrpg.Common.Network;

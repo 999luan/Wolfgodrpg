@@ -116,6 +116,8 @@ Keybinds: {
 	ToggleCombatMode.DisplayName: Toggle Combat Mode
 	ToggleRefactoredUI.DisplayName: Toggle Refactored U I
 	ToggleSubclassUI.DisplayName: Toggle Subclass U I
+	"Open Wolfgod UI.DisplayName": Open  Wolfgod  U I
+	"Toggle Combat Mode.DisplayName": Toggle  Combat  Mode
 }
 
 Items: {

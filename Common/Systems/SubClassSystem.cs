@@ -25,10 +25,14 @@ namespace Wolfgodrpg.Common.Systems
         public event Action OnSubClassUnlocked;
         public event Action OnTotalLevelChanged;
         
+        // === RASTREAMENTO DE MUDANÇAS ===
+        private int _previousTotalLevel = 0;
+        
         // === CONSTRUTOR ===
         public SubClassSystem()
         {
             InitializeSubClasses();
+            _previousTotalLevel = GetTotalLevel();
         }
         
         // === INICIALIZAÇÃO ===
@@ -39,7 +43,11 @@ namespace Wolfgodrpg.Common.Systems
         {
             // Adicionar subclasses disponíveis
             SubClasses.Add(new WarriorSubClass());
-            // TODO: Adicionar outras subclasses (Mage, Rogue, etc.)
+            SubClasses.Add(new AcrobatSubClass());
+            SubClasses.Add(new ArcherSubClass());
+            SubClasses.Add(new MageSubClass());
+            SubClasses.Add(new SummonerSubClass());
+            SubClasses.Add(new ExplorerSubClass());
             
             // Desbloquear primeira subclasse por padrão
             if (SubClasses.Count > 0)
@@ -106,8 +114,10 @@ namespace Wolfgodrpg.Common.Systems
             var subClass = SubClasses.FirstOrDefault(sc => sc.Name == subClassName);
             if (subClass != null && !subClass.IsUnlocked)
             {
+                int oldTotalLevel = GetTotalLevel();
                 subClass.Unlock();
                 OnSubClassUnlocked?.Invoke();
+                CheckTotalLevelChange(oldTotalLevel);
             }
         }
         
@@ -119,7 +129,9 @@ namespace Wolfgodrpg.Common.Systems
             var subClass = SubClasses.FirstOrDefault(sc => sc.Name == subClassName);
             if (subClass != null && subClass.IsUnlocked)
             {
+                int oldTotalLevel = GetTotalLevel();
                 subClass.AddXP(amount);
+                CheckTotalLevelChange(oldTotalLevel);
             }
         }
         
@@ -130,7 +142,22 @@ namespace Wolfgodrpg.Common.Systems
         {
             if (ActiveSubClass != null && ActiveSubClass.IsUnlocked)
             {
+                int oldTotalLevel = GetTotalLevel();
                 ActiveSubClass.AddXP(amount);
+                CheckTotalLevelChange(oldTotalLevel);
+            }
+        }
+        
+        /// <summary>
+        /// Verifica se o nível total mudou e dispara o evento se necessário
+        /// </summary>
+        private void CheckTotalLevelChange(int oldTotalLevel)
+        {
+            int newTotalLevel = GetTotalLevel();
+            if (newTotalLevel != oldTotalLevel)
+            {
+                OnTotalLevelChanged?.Invoke();
+                _previousTotalLevel = newTotalLevel;
             }
         }
         

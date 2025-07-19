@@ -10,6 +10,8 @@ namespace Wolfgodrpg.Common.UI.MasterUIElements
     public class ProficienciesPanel : UIPanel
     {
         private readonly RPGPlayer _player;
+        private UIList _mainList;
+        private UIScrollbar _mainScrollbar;
 
         public ProficienciesPanel(RPGPlayer player)
         {
@@ -19,30 +21,48 @@ namespace Wolfgodrpg.Common.UI.MasterUIElements
             BackgroundColor = Color.Transparent;
             BorderColor = Color.Transparent;
 
-            var mainList = new UIList();
-            mainList.Width.Set(0, 1f);
-            mainList.Height.Set(0, 1f);
-            Append(mainList);
+            _mainList = new UIList();
+            _mainList.Width.Set(-20, 1f);
+            _mainList.Height.Set(0, 1f);
+            _mainList.Left.Set(0, 0);
+            _mainList.Top.Set(0, 0);
+            _mainList.ListPadding = 5f;
+            Append(_mainList);
+
+            _mainScrollbar = new UIScrollbar();
+            _mainScrollbar.SetView(100f, 1000f); // Placeholder values
+            _mainScrollbar.Height.Set(0, 1f);
+            _mainScrollbar.Left.Set(-20, 1f);
+            _mainScrollbar.Top.Set(0, 0);
+            Append(_mainScrollbar);
+
+            _mainList.SetScrollbar(_mainScrollbar);
+
+            PopulateProficiencies();
+        }
+
+        private void PopulateProficiencies()
+        {
+            _mainList.Clear();
 
             // Weapon Proficiencies
             var weaponTitle = new UIText("Weapon Proficiencies", 1.1f, true);
             weaponTitle.HAlign = 0.5f;
-            mainList.Add(weaponTitle);
+            _mainList.Add(weaponTitle);
 
             foreach (var proficiency in _player.WeaponProficiencyLevels)
             {
-                mainList.Add(new ProficiencyRow(proficiency.Key.ToString(), proficiency.Value, _player.WeaponProficiencyExperience[proficiency.Key], 100 + (proficiency.Value * 50)));
+                _mainList.Add(new ProficiencyRow(proficiency.Key.ToString(), proficiency.Value, _player.WeaponProficiencyExperience[proficiency.Key], 100 + (proficiency.Value * 50)));
             }
 
             // Armor Proficiencies
             var armorTitle = new UIText("Armor Proficiencies", 1.1f, true);
             armorTitle.HAlign = 0.5f;
-            armorTitle.Top.Set(20, 0); // Add some space
-            mainList.Add(armorTitle);
+            _mainList.Add(armorTitle);
 
             foreach (var proficiency in _player.ArmorProficiencyLevels)
             {
-                mainList.Add(new ProficiencyRow(proficiency.Key.ToString(), proficiency.Value, _player.ArmorProficiencyExperience[proficiency.Key], 100 + (proficiency.Value * 50)));
+                _mainList.Add(new ProficiencyRow(proficiency.Key.ToString(), proficiency.Value, _player.ArmorProficiencyExperience[proficiency.Key], 100 + (proficiency.Value * 50)));
             }
         }
     }
